@@ -6,12 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#c5a059',         // Gold brand color matching Souq & Sofra logo
-        primaryDark: '#2d2013',     // Dark warm coffee brown
-        primaryHover: '#b08d4b',
-        secondary: '#e65100',       // More-In vibrant accent
-        headerBg: 'rgba(255, 255, 255, 0.92)',
-        themeBg: '#faf7f2',
+        primary: '#f47621',
+        primaryDark: '#681c0f',
+        secondary: '#fbb042',
+        headerBg: 'var(--headerBg, #ffffff)',
+        headerText: 'var(--headerText, #8b96a2)',
+        headerTextActive: 'var(--headerTextActive, #000000)',
+        themeBg: 'var(--color-background, #fff7ec)',
       },
       fontFamily: {
         cairo: ['Cairo', 'sans-serif'],

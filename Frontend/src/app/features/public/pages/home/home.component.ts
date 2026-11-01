@@ -19,9 +19,9 @@ import { Category, Product } from '../../../../core/models/models';
       (categorySelected)="onCategorySelect($event)">
     </app-category-slider>
 
-    <!-- Product Grid Section -->
-    <div id="menu-section" class="max-w-7xl mx-auto px-3 sm:px-6 py-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+    <!-- Product Grid Section - Full Fluid Widescreen -->
+    <div id="menu-section" class="container-wide mx-auto px-2 md:px-4 py-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
         @for (prod of filteredProducts(); track prod.productId) {
           <app-product-card [product]="prod"></app-product-card>
         }
@@ -29,7 +29,7 @@ import { Category, Product } from '../../../../core/models/models';
     </div>
 
     <!-- Features Banner -->
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-12">
+    <div class="container-wide mx-auto px-2 md:px-4 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <div class="bg-white p-6 rounded-3xl shadow-xs border border-gray-100">
           <div class="w-12 h-12 bg-primary/20 text-primaryDark rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">🥖</div>

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from './features/public/components/header/header.component';
 import { CartDrawerComponent } from './features/public/components/cart-drawer/cart-drawer.component';
 import { BottomNavComponent } from './features/public/components/bottom-nav/bottom-nav.component';
@@ -8,7 +8,7 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, CartDrawerComponent, BottomNavComponent],
+  imports: [CommonModule, RouterOutlet, RouterModule, HeaderComponent, CartDrawerComponent, BottomNavComponent],
   template: `
     @if (!isAdminRoute()) {
       <app-header></app-header>
@@ -24,12 +24,12 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
 
       <!-- Footer matching More-In style -->
       <footer class="bg-[#2d2013] text-white pt-12 pb-20 md:pb-8 border-t border-primary/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="container-wide mx-auto px-2 md:px-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
             
             <div class="space-y-3">
               <div class="flex items-center gap-3">
-                <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-12 h-12 rounded-full border border-primary/40">
+                <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-12 h-12 rounded-full border border-primary/40 object-cover">
                 <span class="text-xl font-bold font-baloo text-primary">سوق وسفرة</span>
               </div>
               <p class="text-xs text-gray-300 leading-relaxed">

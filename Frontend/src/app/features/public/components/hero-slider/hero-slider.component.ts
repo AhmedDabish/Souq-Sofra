@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="max-w-[1500px] mx-auto px-3 sm:px-6 pt-4 sm:pt-6">
+    <section class="container-wide mx-auto px-2 md:px-4 pt-4 sm:pt-6">
       <div class="relative w-full aspect-[2/1] sm:aspect-[1500/390] rounded-2xl lg:rounded-[32px] overflow-hidden bg-[#681c0f] shadow-sm">
         @for (slide of slides; track slide.image; let i = $index) {
           <div class="absolute inset-0 transition-opacity duration-700" [class.opacity-100]="activeIndex() === i" [class.opacity-0]="activeIndex() !== i" [class.pointer-events-none]="activeIndex() !== i">

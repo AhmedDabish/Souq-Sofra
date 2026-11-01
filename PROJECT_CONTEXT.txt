@@ -222,3 +222,10 @@ STEP 3: RUN THE FRONTEND (ANGULAR 18)
    `node_modules/`, `.vs/`) is never committed.
 7. Any changes must maintain the brand identity of "سوق وسفرة" (Abu Dhabi, UAE).
 ================================================================================
+
+---
+## 11. Head Bar & Widescreen Layout Notes (Updated)
+- Header structure matches morein-eg.com exact classes & layout (relative md:sticky top-0 left-0 right-0 z-50 bg-headerBg backdrop-blur-md shadow-sm).
+- Top slim phone/announcement bar removed as requested.
+- Desktop header includes Souq Sofra logo, location selector ("أبوظبي - الكورنيش"), navigation links with animated underline, expandable search pill, EN language toggle, cart drawer button with live badge, and admin login button.
+- Layout uses .container-wide (95% mobile, 92% md, 88% xl, 85% 2xl) across header, hero slider, categories, and grids, resolving the issue where the website looked small and centered in the middle of widescreen monitors when DevTools (F12) was closed.

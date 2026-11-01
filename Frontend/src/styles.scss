@@ -4,20 +4,89 @@
 
 :root {
   --primary: #f47621;
-  --primary-dark: #681c0f;
-  --secondary: #fbb042;
+  --primaryDark: #681c0f;
   --color-background: #fff7ec;
   --color-foreground: #28333e;
-  --header-background: #fff;
+  --secondary: #fbb042;
+  --headerBg: #ffffff;
+  --headerText: rgba(139, 150, 162, 1);
+  --headerTextActive: rgba(0, 0, 0, 1);
+  --color-footer-background: #020000;
+  --color-footer-txt: #ffffff;
+  --color-button-background: #f47621;
+  --color-button-foreground: #ffffff;
+  --card: #ffffff;
+  --muted: #4a5565;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
 body {
   margin: 0;
-  font-family: 'Cairo', sans-serif;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Baloo Bhaijaan 2', 'Cairo', sans-serif;
   color: var(--color-foreground);
-  background: var(--color-background);
+  background-color: var(--color-background);
   overflow-x: hidden;
+}
+
+/* Widescreen fluid container matching morein-eg.com */
+.container-wide {
+  width: 100%;
+  max-width: 95%;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .container-wide {
+    max-width: 92%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-wide {
+    max-width: 88%;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-wide {
+    max-width: 85%;
+  }
+}
+
+.gray-bg {
+  background-color: #f8f9fc;
+}
+
+.bg-headerBg {
+  background-color: var(--headerBg);
+}
+
+.text-headerText {
+  color: var(--headerText);
+}
+
+.text-headerTextActive {
+  color: var(--headerTextActive);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.border-secondary {
+  border-color: var(--secondary);
+}
+
+.logo-img-wrap {
+  width: 50px;
+  height: 50px;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { Category, Product } from '../../../../core/models/models';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -10,7 +11,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
   standalone: true,
   imports: [CommonModule, FormsModule, ProductCardComponent],
   template: `
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+    <div class="container-wide mx-auto px-2 md:px-4 py-8 sm:py-12 space-y-8">
       
       <!-- Page Header & Search -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-200">
@@ -33,11 +34,11 @@ import { ProductCardComponent } from '../../components/product-card/product-card
       </div>
 
       <!-- Category Filter Pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
         <button 
           type="button"
           (click)="selectedCategoryId.set(null)"
-          [class]="selectedCategoryId() === null ? 'bg-primary text-white font-bold shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          [class]="selectedCategoryId() === null ? 'bg-primary text-white font-bold shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-secondary'"
           class="px-4 py-2 rounded-2xl text-xs whitespace-nowrap transition-all">
           جميع الأقسام (الكل)
         </button>
@@ -46,7 +47,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
           <button 
             type="button"
             (click)="selectedCategoryId.set(cat.categoryId)"
-            [class]="selectedCategoryId() === cat.categoryId ? 'bg-primary text-white font-bold shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            [class]="selectedCategoryId() === cat.categoryId ? 'bg-primary text-white font-bold shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-secondary'"
             class="px-4 py-2 rounded-2xl text-xs whitespace-nowrap transition-all">
             {{ cat.nameAr }}
           </button>
@@ -61,7 +62,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
           <p class="text-xs text-gray-400">جرب البحث بكلمة أخرى أو اختر قسماً آخر.</p>
         </div>
       } @else {
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
           @for (prod of filteredProducts(); track prod.productId) {
             <app-product-card [product]="prod"></app-product-card>
           }
@@ -73,6 +74,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 })
 export class MenuComponent implements OnInit {
   private api = inject(ApiService);
+  private route = inject(ActivatedRoute);
 
   categories = signal<Category[]>([]);
   products = signal<Product[]>([]);
@@ -87,12 +89,17 @@ export class MenuComponent implements OnInit {
     }
     const q = this.searchQuery.trim().toLowerCase();
     if (q) {
-      list = list.filter(p => p.nameAr.toLowerCase().includes(q) || p.nameEn.toLowerCase().includes(q));
+      list = list.filter(p => p.nameAr.toLowerCase().includes(q) || (p.nameEn && p.nameEn.toLowerCase().includes(q)));
     }
     return list;
   });
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['search']) {
+        this.searchQuery = params['search'];
+      }
+    });
     this.api.getCategories().subscribe(c => this.categories.set(c));
     this.api.getProducts().subscribe(p => this.products.set(p));
   }
