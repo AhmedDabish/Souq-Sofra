@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1920px',
+      },
       spacing: {
         '18': '4.5rem',
         '25': '6.25rem',

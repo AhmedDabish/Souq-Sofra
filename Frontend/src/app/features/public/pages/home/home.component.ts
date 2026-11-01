@@ -41,7 +41,7 @@ import { Category, Product } from '../../../../core/models/models';
                       <p>{{ offer.description }}</p>
                     </span>
                     <a class="text-white w-fit px-4 py-2 rounded-full text-xs md:text-base font-medium hover:opacity-85 transition-all duration-300"
-                       routerLink="/menu"
+                       [routerLink]="offerLink(offer.title)"
                        style="background-color: rgb(0, 0, 0);">
                       {{ offer.buttonText }}
                     </a>
@@ -134,6 +134,20 @@ export class HomeComponent implements OnInit {
     }
   ];
   promoBanners = ['assets/morein-banner-1.png', 'assets/morein-banner-2.png'];
+
+  offerLink(title: string): string[] {
+    const searchTerms = title.includes('فام')
+      ? ['family box', 'فاملي', 'فاميلي', 'بوكس كلاسيك']
+      : ['nashville', 'ناشفيل', 'بيتي بان'];
+    const product = this.products().find(item => {
+      const name = `${item.nameAr} ${item.nameEn}`.toLocaleLowerCase();
+      return searchTerms.some(term => name.includes(term.toLocaleLowerCase()));
+    });
+
+    // Use the matching local product page when it exists; otherwise keep the
+    // offer CTA useful by taking visitors to the menu, not an external product URL.
+    return product ? ['/product', String(product.productId)] : ['/menu'];
+  }
 
   ngOnInit() {
     this.api.getCategories().subscribe(categories => this.categories.set(categories));
