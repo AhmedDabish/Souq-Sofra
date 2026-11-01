@@ -15,54 +15,59 @@ import { LocationService } from '../../../../core/services/location.service';
       <div class="container-wide mx-auto px-2 md:px-4">
         <div class="flex items-center justify-between flex-nowrap min-h-[64px] md:min-h-[68px]">
           
-          <!-- Start/Right: Logo and Location -->
-          <div class="flex gap-2.5 md:gap-3.5 items-center">
-            <a class="shrink-0 hidden md:block relative z-50" routerLink="/">
-              <div class="logo-img-wrap left-0 bg-contain bg-no-repeat bg-top flex items-center justify-center drop-shadow-md">
-                <div class="relative py-1 logo-img">
-                  <img 
-                    alt="سوق وسفرة" 
-                    width="52" 
-                    height="52" 
-                    class="w-12 h-12 md:w-13 md:h-13 object-cover rounded-full border border-secondary/40 shadow-xs" 
-                    src="assets/MAIN.jpg">
+          <!-- Right Group: Logo, Location, and Navigation Links -->
+          <div class="flex items-center gap-4 lg:gap-8 flex-nowrap">
+            <!-- Start/Right: Logo and Location -->
+            <div class="flex gap-2.5 md:gap-3.5 items-center shrink-0">
+              <a class="shrink-0 hidden md:block relative z-50" routerLink="/">
+                <div class="logo-img-wrap left-0 bg-contain bg-no-repeat bg-top flex items-center justify-center drop-shadow-md">
+                  <div class="relative py-1 logo-img">
+                    <img 
+                      alt="سوق وسفرة" 
+                      width="58" 
+                      height="58" 
+                      class="w-14 h-14 md:w-15 md:h-15 object-cover rounded-full border border-secondary/40 shadow-xs" 
+                      src="assets/MAIN.jpg">
+                  </div>
                 </div>
-              </div>
-            </a>
+              </a>
 
-            <!-- Location Selector Pill - Exact More-In Classes, Size & Specs -->
-            <button 
-              type="button"
-              (click)="openLocationModal()"
-              class="cursor-pointer hidden md:flex items-center gap-2 text-sm font-medium group border-[1.5px] hover:border-secondary p-2 py-1.5 rounded-full transition-colors text-headerText duration-200">
-              <div class="bg-secondary p-1.5 rounded-full text-primaryDark group-hover:text-white transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" aria-hidden="true">
-                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-              </div>
-              <span class="hidden lg:inline-block xl:max-w-[250px] max-w-[150px] truncate" [title]="locationService.selectedLocation()">
-                {{ locationService.selectedLocation() }}
-              </span>
-            </button>
-          </div>
+              <!-- Location Selector Pill - Exact More-In Classes, Size & Specs -->
+              <button 
+                type="button"
+                (click)="openLocationModal()"
+                class="cursor-pointer hidden md:flex items-center gap-2 text-sm font-medium group border-[1.5px] hover:border-secondary p-2 py-1.5 rounded-full transition-colors text-headerText duration-200">
+                <div class="bg-secondary p-1.5 rounded-full text-primaryDark group-hover:text-white transition-colors duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" aria-hidden="true">
+                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                </div>
+                <span class="hidden lg:inline-block xl:max-w-[250px] max-w-[150px] truncate" [title]="locationService.selectedLocation()">
+                  {{ locationService.selectedLocation() }}
+                </span>
+              </button>
+            </div>
 
-          <!-- Middle: Navigation Links -->
-          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
-            <nav class="hidden pe-5 font-bold navbar-links md:flex items-center gap-6 2xl:gap-8 flex-nowrap overflow-hidden transition-[opacity,transform,max-width] duration-500 max-w-[1000px] opacity-100">
+            <!-- Middle: Navigation Links (placed close to Logo & Location to eliminate huge empty middle space) -->
+            <nav class="hidden font-bold navbar-links md:flex items-center gap-5 lg:gap-7 flex-nowrap overflow-hidden transition-[opacity,transform,max-width] duration-500 max-w-[1000px] opacity-100">
               <a 
                 routerLink="/menu" 
                 routerLinkActive="text-headerTextActive after:scale-x-100"
-                class="itm header-link relative text-sm lg:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
+                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
                 قائمة الطعام
               </a>
               <a 
                 routerLink="/contact" 
                 routerLinkActive="text-headerTextActive after:scale-x-100"
-                class="itm header-link relative text-sm lg:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
+                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
                 الفروع وتواصل معنا
               </a>
             </nav>
+          </div>
+
+          <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
+          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
 
             <!-- Search Expandable Input -->
             <div class="hidden md:block">
@@ -126,7 +131,7 @@ import { LocationService } from '../../../../core/services/location.service';
           <!-- Mobile Header (Visible on screens < md) -->
           <div class="md:hidden flex items-center justify-between w-full py-1.5">
             <a routerLink="/" class="shrink-0 flex items-center gap-2">
-              <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-11 h-11 rounded-full object-cover border border-secondary shadow-sm">
+              <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-12 h-12 rounded-full object-cover border border-secondary shadow-sm">
               <span class="text-base font-extrabold font-baloo text-primaryDark">سوق وسفرة</span>
             </a>
 
