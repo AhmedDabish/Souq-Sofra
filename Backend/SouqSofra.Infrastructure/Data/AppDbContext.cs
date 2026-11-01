@@ -20,32 +20,145 @@ namespace SouqSofra.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>().HasKey(c => c.CategoryId);
-            modelBuilder.Entity<Product>().HasKey(p => p.ProductId);
-            modelBuilder.Entity<ProductVariant>().HasKey(v => v.VariantId);
-            modelBuilder.Entity<Branch>().HasKey(b => b.BranchId);
-            modelBuilder.Entity<Order>().HasKey(o => o.OrderId);
-            modelBuilder.Entity<OrderItem>().HasKey(oi => oi.OrderItemId);
-            modelBuilder.Entity<User>().HasKey(u => u.UserId);
-            modelBuilder.Entity<SiteSetting>().HasKey(s => s.SettingKey);
+            // Category configuration
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.ToTable("Categories");
+                entity.HasKey(c => c.CategoryId);
+                entity.Property(c => c.NameAr).IsRequired().HasMaxLength(150);
+                entity.Property(c => c.NameEn).IsRequired().HasMaxLength(150);
+                entity.Property(c => c.Slug).IsRequired().HasMaxLength(150);
+                entity.Property(c => c.IconUrl).HasMaxLength(500);
+                entity.Property(c => c.ImageUrl).HasMaxLength(500);
+            });
 
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Product configuration
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.ToTable("Products");
+                entity.HasKey(p => p.ProductId);
+                entity.Property(p => p.NameAr).IsRequired().HasMaxLength(200);
+                entity.Property(p => p.NameEn).IsRequired().HasMaxLength(200);
+                entity.Property(p => p.DescriptionAr).HasMaxLength(1000);
+                entity.Property(p => p.DescriptionEn).HasMaxLength(1000);
+                entity.Property(p => p.BasePrice).HasPrecision(18, 2);
+                entity.Property(p => p.DiscountPrice).HasPrecision(18, 2);
+                entity.Property(p => p.ImageUrl).HasMaxLength(500);
 
-            modelBuilder.Entity<ProductVariant>()
-                .HasOne(v => v.Product)
-                .WithMany(p => p.Variants)
-                .HasForeignKey(v => v.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(p => p.Category)
+                      .WithMany(c => c.Products)
+                      .HasForeignKey(p => p.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<OrderItem>()
-                .HasOne(oi => oi.Order)
-                .WithMany(o => o.Items)
-                .HasForeignKey(oi => oi.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(p => p.CategoryId);
+            });
+
+            // ProductVariant configuration
+            modelBuilder.Entity<ProductVariant>(entity =>
+            {
+                entity.ToTable("ProductVariants");
+                entity.HasKey(v => v.VariantId);
+                entity.Property(v => v.NameAr).IsRequired().HasMaxLength(100);
+                entity.Property(v => v.NameEn).IsRequired().HasMaxLength(100);
+                entity.Property(v => v.Price).HasPrecision(18, 2);
+
+                entity.HasOne(v => v.Product)
+                      .WithMany(p => p.Variants)
+                      .HasForeignKey(v => v.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(v => v.ProductId);
+            });
+
+            // Branch configuration
+            modelBuilder.Entity<Branch>(entity =>
+            {
+                entity.ToTable("Branches");
+                entity.HasKey(b => b.BranchId);
+                entity.Property(b => b.NameAr).IsRequired().HasMaxLength(150);
+                entity.Property(b => b.NameEn).IsRequired().HasMaxLength(150);
+                entity.Property(b => b.AddressAr).IsRequired().HasMaxLength(300);
+                entity.Property(b => b.AddressEn).IsRequired().HasMaxLength(300);
+                entity.Property(b => b.Phone).IsRequired().HasMaxLength(50);
+                entity.Property(b => b.WhatsApp).IsRequired().HasMaxLength(50);
+                entity.Property(b => b.Latitude).HasPrecision(10, 6);
+                entity.Property(b => b.Longitude).HasPrecision(10, 6);
+            });
+
+            // Order configuration
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.ToTable("Orders");
+                entity.HasKey(o => o.OrderId);
+                entity.Property(o => o.OrderNumber).IsRequired().HasMaxLength(50);
+                entity.Property(o => o.CustomerName).IsRequired().HasMaxLength(150);
+                entity.Property(o => o.CustomerPhone).IsRequired().HasMaxLength(50);
+                entity.Property(o => o.CustomerEmail).HasMaxLength(150);
+                entity.Property(o => o.DeliveryAddress).IsRequired().HasMaxLength(500);
+                entity.Property(o => o.PaymentMethod).IsRequired().HasMaxLength(50);
+                entity.Property(o => o.OrderStatus).IsRequired().HasMaxLength(50);
+                entity.Property(o => o.Notes).HasMaxLength(500);
+                entity.Property(o => o.SubTotal).HasPrecision(18, 2);
+                entity.Property(o => o.DeliveryFee).HasPrecision(18, 2);
+                entity.Property(o => o.TotalAmount).HasPrecision(18, 2);
+
+                entity.HasOne(o => o.Branch)
+                      .WithMany(b => b.Orders)
+                      .HasForeignKey(o => o.BranchId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(o => o.OrderNumber).IsUnique();
+            });
+
+            // OrderItem configuration
+            modelBuilder.Entity<OrderItem>(entity =>
+            {
+                entity.ToTable("OrderItems");
+                entity.HasKey(oi => oi.OrderItemId);
+                entity.Property(oi => oi.ProductNameAr).IsRequired().HasMaxLength(200);
+                entity.Property(oi => oi.ProductNameEn).IsRequired().HasMaxLength(200);
+                entity.Property(oi => oi.VariantNameAr).HasMaxLength(100);
+                entity.Property(oi => oi.UnitPrice).HasPrecision(18, 2);
+                entity.Property(oi => oi.TotalPrice).HasPrecision(18, 2);
+
+                entity.HasOne(oi => oi.Order)
+                      .WithMany(o => o.Items)
+                      .HasForeignKey(oi => oi.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(oi => oi.Product)
+                      .WithMany()
+                      .HasForeignKey(oi => oi.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(oi => oi.Variant)
+                      .WithMany()
+                      .HasForeignKey(oi => oi.VariantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // User configuration
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("Users");
+                entity.HasKey(u => u.UserId);
+                entity.Property(u => u.FullName).IsRequired().HasMaxLength(150);
+                entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
+                entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
+                entity.Property(u => u.PhoneNumber).HasMaxLength(50);
+
+                entity.HasIndex(u => u.Email).IsUnique();
+            });
+
+            // SiteSetting configuration
+            modelBuilder.Entity<SiteSetting>(entity =>
+            {
+                entity.ToTable("SiteSettings");
+                entity.HasKey(s => s.SettingKey);
+                entity.Property(s => s.SettingKey).HasMaxLength(100);
+                entity.Property(s => s.SettingValue).IsRequired().HasMaxLength(1000);
+                entity.Property(s => s.Description).HasMaxLength(500);
+            });
         }
     }
 }

@@ -66,8 +66,8 @@ Souq-Sofra/
 
 ### Phase 2: Database Design & SQL Server Scripts [COMPLETE - 100%]
 - [x] **Task 2.1**: Design relational schema for categories, products, variants, orders, order items, customers, admin users, and site configurations.
-- [x] **Task 2.2**: Write `database/01_Schema.sql` with foreign key constraints, indexes, cascade rules, and audit timestamps.
-- [x] **Task 2.3**: Write `database/02_SeedData.sql` populating real Souq & Sofra categories (Fatayer, Pastries, Grills, Main Dishes, Bakery, Beverages) with bilingual Arabic/English names and prices.
+- [x] **Task 2.2**: Implement EF Core 8 Code-First Migrations (`InitialCreate`), ModelSnapshot, and retain fallback `database/01_Schema.sql` with foreign key constraints, indexes, cascade rules, and audit timestamps.
+- [x] **Task 2.3**: Implement automatic `DbInitializer` for automatic seeding on startup/migration populating real Souq & Sofra categories, products, prices, variants, branches, settings, and PBKDF2 hashed admin.
 - [x] **Task 2.4**: Add default administrator credentials and role assignments in database seed script with PBKDF2 hash.
 
 ---

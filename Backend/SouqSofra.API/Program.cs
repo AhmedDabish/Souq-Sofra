@@ -49,7 +49,8 @@ builder.Services.AddSwaggerGen(options =>
 
 // SQL Server Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.MigrationsAssembly("SouqSofra.Infrastructure")));
 
 // JWT Authentication Configuration
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SouqSofra_SuperSecret_Jwt_SecurityKey_2026_AbuDhabi_Dubai_UAE_123456789!";
@@ -93,6 +94,22 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Auto-run EF Core Migrations and Seed Database on Startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await DbInitializer.InitializeAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating and seeding the database.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

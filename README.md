@@ -4,39 +4,52 @@
 
 ---
 
-## 🚀 كيفية تشغيل المشروع محلياً
+## 🚀 كيفية تشغيل المشروع وقاعدة البيانات عبر الـ Migration
 
-### 1. قاعدة البيانات (SQL Server)
-1. افتح **SQL Server Management Studio (SSMS)** أو **Azure Data Studio**.
-2. نفذ السكريبت الأول لإنشاء الجداول:
-   ```sql
-   database/01_Schema.sql
-   ```
-3. نفذ السكريبت الثاني لتحميل كافة تصنيفات ومنتجات المنيو الأصلية:
-   ```sql
-   database/02_SeedData.sql
-   ```
+قاعدة البيانات مبنية بنظام **Entity Framework Core 8 Code-First Migrations**. لديك طريقتان سهلتان لتطبيق الـ Migration وإنشاء الجداول والبيانات:
 
-### 2. الباك إند (.NET 8 Web API)
-1. انتقل إلى مجلد الباك إند:
-   ```bash
-   cd Backend/SouqSofra.API
-   ```
-2. تأكد من ضبط سلسلة الاتصال في `appsettings.json`:
+### الخيار الأول: التشغيل المباشر (Auto-Migration & Seeding) ✨
+عند تشغيل الباك إند لأول مرة، يقوم التطبيق تلقائياً في `Program.cs` بفحص قاعدة البيانات وتطبيق كافة الـ Migrations ثم تحميل بيانات المنيو الأصلية، الفروع، الإعدادات، وحساب الأدمن تلقائياً:
+1. تأكد من أن سيرفر الـ SQL Server يعمل على جهازك.
+2. عدّل سلسلة الاتصال في `Backend/SouqSofra.API/appsettings.json` إذا لزم الأمر:
    ```json
    "ConnectionStrings": {
      "DefaultConnection": "Server=localhost;Database=SouqSofraDb;Trusted_Connection=True;TrustServerCertificate=True;"
    }
    ```
-3. For JWT signing, do not use a committed key. Set the `Jwt__Key` environment variable (or use .NET User Secrets) to a strong private value before running the API. The value in `appsettings.json` is only a placeholder.
-4. شغل السيرفر:
+3. شغّل الباك إند:
    ```bash
-   dotnet restore
+   cd Backend/SouqSofra.API
    dotnet run
    ```
-   الـ API سيعمل حسب `Properties/launchSettings.json` على `https://localhost:2810` أو `http://localhost:2811` (Swagger متاح على `/swagger`).
+   سيتم إنشاء قاعدة بيانات `SouqSofraDb` وجميع الجداول والبيانات فوراً!
 
-### 3. الفرونت إند (Angular 18+)
+---
+
+### الخيار الثاني: تطبيق الـ Migration يدوياً عبر الـ CLI أو Visual Studio
+
+#### من خلال الـ Terminal (CLI):
+من مجلد `Backend/SouqSofra.API`:
+```bash
+dotnet ef database update --project ../SouqSofra.Infrastructure --startup-project .
+```
+
+#### أو من داخل Visual Studio (Package Manager Console):
+1. افتح نافذة `Tools -> NuGet Package Manager -> Package Manager Console`.
+2. اختر `Default project: SouqSofra.Infrastructure`.
+3. اكتب الأمر:
+   ```powershell
+   Update-Database
+   ```
+
+*(إذا أردت إضافة Migration جديد مستقبلاً:)*
+```bash
+dotnet ef migrations add <MigrationName> --project ../SouqSofra.Infrastructure --startup-project SouqSofra.API
+```
+
+---
+
+### 3. تشغيل الفرونت إند (Angular 18+)
 1. انتقل إلى مجلد الفرونت إند:
    ```bash
    cd Frontend

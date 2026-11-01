@@ -17,6 +17,7 @@ namespace SouqSofra.Domain.Entities
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public Branch? Branch { get; set; }
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 
@@ -35,5 +36,6 @@ namespace SouqSofra.Domain.Entities
 
         public Order? Order { get; set; }
         public Product? Product { get; set; }
+        public ProductVariant? Variant { get; set; }
     }
 }

@@ -12,5 +12,7 @@ namespace SouqSofra.Domain.Entities
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
         public bool IsActive { get; set; } = true;
+
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
