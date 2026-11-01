@@ -27,23 +27,23 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Node / Frontend Artifacts
-node_modules/
-dist/
-.angular/
-.npm/
+**/node_modules/
+**/dist/
+**/.angular/
+**/.npm/
 
 # .NET / Backend Artifacts
-bin/
-obj/
-out/
-[Bb]in/
-[Oo]bj/
-.vs/
-*.user
-*.userosscache
-*.suo
-*.sln.docstates
-TestResults/
+**/bin/
+**/obj/
+**/out/
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.sln.docstates
+**/TestResults/
 
 # IDE / Editors
 .idea/
@@ -58,15 +58,3 @@ TestResults/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# Universal recursive ignores
-**/node_modules/
-**/dist/
-**/.angular/
-**/bin/
-**/obj/
-**/.vs/
-**/*.user
-**/*.suo
-**/TestResults/
-**/coverage/
