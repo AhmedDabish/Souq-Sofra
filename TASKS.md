@@ -29,12 +29,12 @@ Souq-Sofra/
 ├── database/                     # SQL Server scripts
 │   ├── 01_Schema.sql             # Tables, foreign keys, indexes, and constraints
 │   └── 02_SeedData.sql           # Menu categories, actual items, prices, and admin seed
-├── backend/                      # .NET 8 Clean Architecture solution
+├── Backend/                      # .NET 8 Clean Architecture solution
 │   ├── SouqSofra.Domain/         # Domain entities, enums, value objects
 │   ├── SouqSofra.Application/    # DTOs, service interfaces, business logic
 │   ├── SouqSofra.Infrastructure/ # EF Core DbContext, entity configs, repositories
 │   └── SouqSofra.API/            # Controllers, JWT auth, middleware, Program.cs
-└── frontend/                     # Angular 18+ client application
+└── Frontend/                     # Angular 18+ client application
     └── src/
         └── app/
             ├── core/             # Auth, token interceptor, route guards, state
@@ -151,6 +151,11 @@ Souq-Sofra/
 
 ### Phase 7: Integration, Verification & Quality Assurance
 - [ ] **Task 7.1**: Validate end-to-end API communication between Angular client services and .NET 8 controllers.
+  - [x] **Task 7.1.1**: Replace mock category/product/order services with HTTP calls to the matching API endpoints.
+  - [x] **Task 7.1.2**: Match the frontend API base URL to the API HTTP launch profile (`http://localhost:2811/api`).
+  - [x] **Task 7.1.3**: Run and pass the Angular production build after connecting the service layer.
+  - [ ] **Task 7.1.4**: Run API and database together and verify real requests end to end (pending; .NET SDK and SQL Server tools are unavailable in this environment).
+  - [ ] **Task 7.1.5**: Replace mock admin authentication/order/product flows and protect management API endpoints.
 - [ ] **Task 7.2**: Verify database connection strings and run automated migrations / seed verification against SQL Server instance.
 - [ ] **Task 7.3**: Test responsive layouts across mobile (iPhone/Android), tablet, and desktop screens for full visual parity with More-In.
 - [ ] **Task 7.4**: Verify RTL layout alignment, font rendering, and Arabic string consistency across all components.

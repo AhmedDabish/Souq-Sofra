@@ -310,7 +310,7 @@ export class CheckoutComponent {
     this.api.createOrder(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
-        this.orderNumber.set(res.orderNumber);
+        this.orderNumber.set(res.orderNumber || String(res.orderId));
         this.orderSuccess.set(true);
         this.cart.clear();
       },

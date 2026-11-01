@@ -20,7 +20,7 @@
 ### 2. الباك إند (.NET 8 Web API)
 1. انتقل إلى مجلد الباك إند:
    ```bash
-   cd backend/SouqSofra.API
+   cd Backend/SouqSofra.API
    ```
 2. تأكد من ضبط سلسلة الاتصال في `appsettings.json`:
    ```json
@@ -34,12 +34,12 @@
    dotnet restore
    dotnet run
    ```
-   الـ API سيعمل على: `https://localhost:7001` أو `http://localhost:5000` (Swagger متاح على `/swagger`).
+   الـ API سيعمل حسب `Properties/launchSettings.json` على `https://localhost:2810` أو `http://localhost:2811` (Swagger متاح على `/swagger`).
 
 ### 3. الفرونت إند (Angular 18+)
 1. انتقل إلى مجلد الفرونت إند:
    ```bash
-   cd frontend
+   cd Frontend
    ```
 2. قم بتثبيت الاعتماديات:
    ```bash
