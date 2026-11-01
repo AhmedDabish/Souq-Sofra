@@ -5,18 +5,19 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { Category, Product } from '../../../../core/models/models';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { CategorySliderComponent } from '../../components/category-slider/category-slider.component';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent, CategorySliderComponent],
   template: `
-    <div class="container-wide mx-auto px-2 md:px-4 py-8 sm:py-12 space-y-8">
+    <div class="container-wide mx-auto px-2 md:px-4 py-6 sm:py-10 space-y-6 md:space-y-8">
       
       <!-- Page Header & Search -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-200">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200">
         <div>
-          <h1 class="text-3xl font-extrabold font-baloo text-primaryDark">قائمة طعام سوق وسفرة</h1>
+          <h1 class="text-2xl sm:text-3xl font-extrabold font-baloo text-primaryDark">قائمة طعام سوق وسفرة</h1>
           <p class="text-xs text-gray-500 mt-1">
             اختر من بين أشهى الفطائر المشلتتة، المناقيش، الحلويات الشرقية، وسندوتشات الكبدة والحواوشي.
           </p>
@@ -33,23 +34,33 @@ import { ProductCardComponent } from '../../components/product-card/product-card
         </div>
       </div>
 
-      <!-- Category Filter Pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-        <button 
-          type="button"
-          (click)="selectedCategoryId.set(null)"
-          [class]="selectedCategoryId() === null ? 'bg-primary text-white font-bold shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-secondary'"
-          class="px-4 py-2 rounded-2xl text-xs whitespace-nowrap transition-all">
-          جميع الأقسام (الكل)
-        </button>
+      <!-- Category Slider Bar matching Home Page exactly -->
+      <div class="-my-4">
+        <app-category-slider 
+          [categories]="categories()" 
+          [selectedId]="selectedCategoryId() ?? 0" 
+          [showViewAll]="false"
+          title="تصفح حسب أقسام المنيو"
+          (categorySelected)="onCategorySelect($event)">
+        </app-category-slider>
+      </div>
 
-        @for (cat of categories(); track cat.categoryId) {
+      <!-- Active Filter Status Indicator -->
+      <div class="flex items-center justify-between text-xs text-gray-500 pt-2">
+        <div>
+          <span>عرض الأصناف لـ: </span>
+          <strong class="text-primaryDark text-sm font-extrabold">
+            {{ activeCategoryName() }}
+          </strong>
+          <span class="text-gray-400 mr-2">({{ filteredProducts().length }} صنف)</span>
+        </div>
+
+        @if (selectedCategoryId() !== null) {
           <button 
-            type="button"
-            (click)="selectedCategoryId.set(cat.categoryId)"
-            [class]="selectedCategoryId() === cat.categoryId ? 'bg-primary text-white font-bold shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-secondary'"
-            class="px-4 py-2 rounded-2xl text-xs whitespace-nowrap transition-all">
-            {{ cat.nameAr }}
+            type="button" 
+            (click)="selectedCategoryId.set(null)"
+            class="text-primary hover:underline font-bold text-xs cursor-pointer">
+            عرض كافة الأقسام ✕
           </button>
         }
       </div>
@@ -81,6 +92,13 @@ export class MenuComponent implements OnInit {
   selectedCategoryId = signal<number | null>(null);
   searchQuery = '';
 
+  activeCategoryName = computed(() => {
+    const id = this.selectedCategoryId();
+    if (!id) return 'جميع الأقسام';
+    const cat = this.categories().find(c => c.categoryId === id);
+    return cat ? cat.nameAr : 'جميع الأقسام';
+  });
+
   filteredProducts = computed(() => {
     let list = this.products();
     const catId = this.selectedCategoryId();
@@ -101,5 +119,9 @@ export class MenuComponent implements OnInit {
     });
     this.api.getCategories().subscribe(c => this.categories.set(c));
     this.api.getProducts().subscribe(p => this.products.set(p));
+  }
+
+  onCategorySelect(categoryId: number) {
+    this.selectedCategoryId.set(categoryId === 0 ? null : categoryId);
   }
 }

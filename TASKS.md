@@ -197,3 +197,12 @@ Souq-Sofra/
 - [x] **Task 9.3**: Implement interactive Quick View modal popup allowing customers to view full item details, select variants, and add to cart directly.
 - [x] **Task 9.4**: Add backend `PATCH /api/products/{id}/featured` endpoint in `ProductsController` with role authorization for fast admin toggling.
 - [x] **Task 9.5**: Enhance Admin Dashboard (`/admin/products`) with one-click direct featured toggle button in table, clear feedback alert, and homepage display note.
+
+---
+
+### Phase 10: Storefront Header Scaling, Discount Engine & Menu Category Slider Parity [COMPLETE - 100%]
+- [x] **Task 10.1**: Header scaling & spacing optimization: Enlarged brand logo and location selector pill with bolder typography and icons; eliminated dead middle space by grouping logo, location, and navigation links.
+- [x] **Task 10.2**: Exact More-In product card HTML/CSS replication matching user-provided markup, circular chevron action button, discount pill badge, and strikethrough original price in red (#C92127).
+- [x] **Task 10.3**: Featured products section driven by active discounts (`DiscountPrice < BasePrice`), ensuring on-sale items headline the homepage showcase.
+- [x] **Task 10.4**: Admin Dashboard discount management: Added quick discount modal dialog, one-click discount presets (10%-50%), automatic discount percentage calculation, table filter for on-sale items, and backend `PATCH /api/products/{id}/discount` endpoint.
+- [x] **Task 10.5**: Menu page category slider integration: Replaced generic category pill filter in `/menu` with the exact rich interactive category carousel slider from the homepage.

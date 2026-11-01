@@ -86,7 +86,12 @@ export class HomeComponent implements OnInit {
   selectedCategoryId = signal(0);
   products = signal<Product[]>([]);
   bestSellingProducts = signal<Product[]>([]);
-  featuredProducts = computed(() => this.products().filter(p => p.isFeatured || (p.discountPrice != null && p.discountPrice > 0 && p.discountPrice < p.basePrice)).sort((a, b) => Number(b.discountPrice != null && b.discountPrice < b.basePrice) - Number(a.discountPrice != null && a.discountPrice < a.basePrice)));
+  featuredProducts = computed(() => {
+    // Featured products are specifically those with discounts (on sale)
+    const discounted = this.products().filter(p => p.discountPrice != null && p.discountPrice > 0 && p.discountPrice < p.basePrice);
+    if (discounted.length > 0) return discounted;
+    return this.products().filter(p => p.isFeatured);
+  });
   offers = [
     { title: 'فامـلي بوكس كلاسيك', description: 'جبنة موتزاريلا، خضار طازجة، سلامي وتركي مدخن، مع كراست الشيدر والموتزاريلا.', badge: 'جديد', color: '#f58229', image: 'assets/morein-family.png' },
     { title: 'ناشفيل تشيكن بان', description: 'دجاج ناشفيل مع الفلفل والبصل والزيتون الأخضر والموتزاريلا وصوص الرانش.', badge: 'مميز', color: '#f58229', image: 'assets/morein-nashville.png' }

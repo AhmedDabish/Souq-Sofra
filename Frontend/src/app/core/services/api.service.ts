@@ -93,6 +93,11 @@ export class ApiService {
     return this.http.patch<{ productId: number; isFeatured: boolean }>(`${this.apiUrl}/products/${id}/featured`, {});
   }
 
+
+  updateProductDiscount(id: number, discountPrice: number | null): Observable<{ productId: number; discountPrice: number | null }> {
+    return this.http.patch<{ productId: number; discountPrice: number | null }>(`${this.apiUrl}/products/${id}/discount`, { discountPrice });
+  }
+
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/products/${id}`);
   }

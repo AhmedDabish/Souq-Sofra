@@ -13,13 +13,15 @@ import { Category } from '../../../../core/models/models';
         <!-- Header: Title + View All Link (More-In exact match) -->
         <div class="flex items-center justify-between widget-content-spacing mb-4 sm:mb-6">
           <h2 class="theme-title text-xl sm:text-2xl lg:text-3xl font-extrabold text-primaryDark">
-            أقسام منيو سوق وسفرة
+            {{ title }}
           </h2>
-          <a 
-            routerLink="/menu" 
-            class="bg-gray text-primary px-4 py-2 rounded-full font-medium text-xs sm:text-sm cursor-pointer hover:bg-primary hover:text-white transition-colors duration-200 shrink-0">
-            عرض الكل
-          </a>
+          @if (showViewAll) {
+            <a 
+              routerLink="/menu" 
+              class="bg-gray text-primary px-4 py-2 rounded-full font-medium text-xs sm:text-sm cursor-pointer hover:bg-primary hover:text-white transition-colors duration-200 shrink-0">
+              عرض الكل
+            </a>
+          }
         </div>
 
         <!-- Carousel Container with More-In style & navigation buttons -->
@@ -120,6 +122,8 @@ import { Category } from '../../../../core/models/models';
 export class CategorySliderComponent implements AfterViewInit, OnChanges {
   @Input() categories: Category[] = [];
   @Input() selectedId: number = 0;
+  @Input() showViewAll: boolean = true;
+  @Input() title: string = 'أقسام منيو سوق وسفرة';
   @Output() categorySelected = new EventEmitter<number>();
 
   @ViewChild('sliderRef') sliderRef?: ElementRef<HTMLDivElement>;

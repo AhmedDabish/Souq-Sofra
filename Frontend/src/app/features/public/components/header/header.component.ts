@@ -10,69 +10,65 @@ import { LocationService } from '../../../../core/services/location.service';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <!-- Desktop & Tablet Header - Balanced Sleek Height & Exact More-In Structure -->
-    <header class="relative md:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-sm py-1 md:py-1.5">
+    <!-- Desktop & Tablet Header - Balanced Height & Cohesive Grouping -->
+    <header class="relative md:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-xs py-1.5 md:py-2">
       <div class="container-wide mx-auto px-2 md:px-4">
-        <div class="flex items-center justify-between flex-nowrap min-h-[64px] md:min-h-[68px]">
+        <div class="flex items-center justify-between flex-nowrap min-h-[72px] md:min-h-[82px]">
           
-          <!-- Right Group: Logo, Location, and Navigation Links -->
-          <div class="flex items-center gap-4 lg:gap-8 flex-nowrap">
-            <!-- Start/Right: Logo and Location -->
-            <div class="flex gap-2.5 md:gap-3.5 items-center shrink-0">
-              <a class="shrink-0 hidden md:block relative z-50" routerLink="/">
-                <div class="logo-img-wrap left-0 bg-contain bg-no-repeat bg-top flex items-center justify-center drop-shadow-md">
-                  <div class="relative py-1 logo-img">
-                    <img 
-                      alt="سوق وسفرة" 
-                      width="58" 
-                      height="58" 
-                      class="w-14 h-14 md:w-15 md:h-15 object-cover rounded-full border border-secondary/40 shadow-xs" 
-                      src="assets/MAIN.jpg">
-                  </div>
+          <!-- Right/Start Group: Large Logo, Enriched Location Selector, and Compactly Placed Navigation Links -->
+          <div class="flex items-center gap-3.5 md:gap-5 lg:gap-6 flex-nowrap">
+            <!-- Large Logo -->
+            <a class="shrink-0 hidden md:block relative z-50" routerLink="/">
+              <div class="flex items-center justify-center drop-shadow-md">
+                <div class="relative py-0.5">
+                  <img 
+                    alt="سوق وسفرة" 
+                    width="84" 
+                    height="84" 
+                    class="w-16 h-16 md:w-20 md:h-20 lg:w-22 lg:h-22 object-cover rounded-full border-2 border-secondary/60 shadow-sm transition-transform duration-200 hover:scale-105" 
+                    src="assets/MAIN.jpg">
                 </div>
-              </a>
+              </div>
+            </a>
 
-              <!-- Location Selector Pill - Exact More-In Classes, Size & Specs -->
-              <button 
-                type="button"
-                (click)="openLocationModal()"
-                class="cursor-pointer hidden md:flex items-center gap-2 text-sm font-medium group border-[1.5px] hover:border-secondary p-2 py-1.5 rounded-full transition-colors text-headerText duration-200">
-                <div class="bg-secondary p-1.5 rounded-full text-primaryDark group-hover:text-white transition-colors duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" aria-hidden="true">
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                </div>
-                <span class="hidden lg:inline-block xl:max-w-[250px] max-w-[150px] truncate" [title]="locationService.selectedLocation()">
-                  {{ locationService.selectedLocation() }}
-                </span>
-              </button>
-            </div>
+            <!-- Enlarged Location Selector Pill -->
+            <button 
+              type="button"
+              (click)="openLocationModal()"
+              class="cursor-pointer hidden md:flex items-center gap-2.5 text-sm md:text-base font-bold group border-2 border-gray-200 hover:border-secondary px-3.5 py-2 md:py-2.5 rounded-full transition-all text-gray-800 duration-200 shadow-2xs bg-white hover:shadow-xs">
+              <div class="bg-secondary p-2 rounded-full text-primaryDark group-hover:text-white transition-colors duration-200 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin" aria-hidden="true">
+                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <span class="hidden lg:inline-block xl:max-w-[260px] max-w-[170px] truncate text-gray-800 font-extrabold" [title]="locationService.selectedLocation()">
+                {{ locationService.selectedLocation() }}
+              </span>
+            </button>
 
-          </div>
-
-          <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
-          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
-            <!-- Middle: Navigation Links (placed close to Logo & Location to eliminate huge empty middle space) -->
-            <nav class="hidden font-bold navbar-links md:flex items-center gap-5 lg:gap-7 flex-nowrap overflow-hidden transition-[opacity,transform,max-width] duration-500 max-w-[1000px] opacity-100">
+            <!-- Navigation Links adjacent to Logo & Location to eliminate wide empty gap -->
+            <nav class="hidden font-bold navbar-links md:flex items-center gap-4 lg:gap-6 flex-nowrap overflow-hidden">
               <a 
                 routerLink="/menu" 
                 routerLinkActive="text-headerTextActive after:scale-x-100"
-                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
+                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100 whitespace-nowrap">
                 منيو سوق وسفرة
               </a>
               <a 
                 routerLink="/contact" 
                 routerLinkActive="text-headerTextActive after:scale-x-100"
-                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
+                class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100 whitespace-nowrap">
                 الفروع وتواصل معنا
               </a>
             </nav>
+          </div>
 
-
+          <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
+          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
             <!-- Search Expandable Input -->
             <div class="hidden md:block">
-              <div class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 cursor-pointer h-[40px] w-[42px] focus-within:w-[220px] focus-within:px-2 justify-center group">
+              <div class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 cursor-pointer h-[42px] w-[44px] focus-within:w-[220px] focus-within:px-2 justify-center group">
                 <input 
                   aria-label="ابحث عن منتج..." 
                   type="text" 
@@ -90,12 +86,12 @@ import { LocationService } from '../../../../core/services/location.service';
             <!-- Language Button -->
             <button 
               type="button"
-              class="lang-btn !font-bold cursor-pointer rtl:pt-1 gray-bg hidden md:flex items-center justify-center w-[42px] h-[40px] rounded-[24px] hover:bg-gray-100 transition-colors text-sm border border-gray-200">
+              class="lang-btn !font-bold cursor-pointer rtl:pt-1 gray-bg hidden md:flex items-center justify-center w-[44px] h-[42px] rounded-[24px] hover:bg-gray-100 transition-colors text-sm border border-gray-200">
               EN
             </button>
 
             <!-- Cart Drawer Button -->
-            <div class="gray-bg hidden md:block border border-gray-200 rounded-[24px] w-[42px] h-[40px] md:flex items-center justify-center hover:bg-gray-100 transition-colors relative">
+            <div class="gray-bg hidden md:block border border-gray-200 rounded-[24px] w-[44px] h-[42px] md:flex items-center justify-center hover:bg-gray-100 transition-colors relative">
               <button 
                 type="button" 
                 (click)="cart.toggleDrawer()" 
@@ -116,7 +112,7 @@ import { LocationService } from '../../../../core/services/location.service';
             </div>
 
             <!-- Login / Admin Button -->
-            <div class="hidden md:block bg-primary rounded-[24px] w-[42px] h-[40px] md:flex items-center justify-center">
+            <div class="hidden md:block bg-primary rounded-[24px] w-[44px] h-[42px] md:flex items-center justify-center">
               <a 
                 class="hidden md:flex p-2 rounded-full transition-colors text-white" 
                 routerLink="/admin/login" 
@@ -131,8 +127,8 @@ import { LocationService } from '../../../../core/services/location.service';
 
           <!-- Mobile Header (Visible on screens < md) -->
           <div class="md:hidden flex items-center justify-between w-full py-1.5">
-            <a routerLink="/" class="shrink-0 flex items-center gap-2">
-              <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-12 h-12 rounded-full object-cover border border-secondary shadow-sm">
+            <a routerLink="/" class="shrink-0 flex items-center gap-2.5">
+              <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-14 h-14 rounded-full object-cover border-2 border-secondary shadow-sm">
               <span class="text-base font-extrabold font-baloo text-primaryDark">سوق وسفرة</span>
             </a>
 
@@ -140,16 +136,16 @@ import { LocationService } from '../../../../core/services/location.service';
               <button 
                 type="button"
                 (click)="openLocationModal()" 
-                class="flex items-center gap-1.5 px-3 py-1.5 border border-secondary/80 rounded-full text-xs font-bold text-gray-700 bg-white shadow-xs">
+                class="flex items-center gap-1.5 px-3.5 py-1.5 border border-secondary/80 rounded-full text-xs font-bold text-gray-700 bg-white shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                <span class="max-w-[120px] truncate">{{ locationService.selectedLocation() }}</span>
+                <span class="max-w-[130px] truncate">{{ locationService.selectedLocation() }}</span>
               </button>
 
               <button 
                 type="button" 
                 (click)="cart.toggleDrawer()" 
                 aria-label="سلة المشتريات" 
-                class="relative gray-bg border border-gray-200 rounded-[24px] w-[40px] h-[40px] flex items-center justify-center">
+                class="relative gray-bg border border-gray-200 rounded-[24px] w-[42px] h-[42px] flex items-center justify-center">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="176" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
                   <circle cx="400" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
@@ -169,7 +165,7 @@ import { LocationService } from '../../../../core/services/location.service';
       </div>
     </header>
 
-    <!-- Location & Delivery Selection Modal (Exact More-In Specs & Classes) -->
+    <!-- Location & Delivery Selection Modal -->
     @if (locationService.isModalOpen()) {
       <!-- Backdrop -->
       <div 
@@ -177,7 +173,7 @@ import { LocationService } from '../../../../core/services/location.service';
         (click)="locationService.closeModal()">
       </div>
 
-      <!-- Dialog Body - Exact More-In Sizing & Classes -->
+      <!-- Dialog Body -->
       <div 
         role="dialog" 
         aria-modal="true"
@@ -222,7 +218,7 @@ import { LocationService } from '../../../../core/services/location.service';
                 [class.text-primary]="modalOrderType === 'delivery'"
                 [class.text-gray-500]="modalOrderType !== 'delivery'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-5 h-5">
-                  <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path>
+                  <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 1 1 1h2"></path>
                   <path d="M15 18H9"></path>
                   <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path>
                   <circle cx="17" cy="18" r="2"></circle>
@@ -323,7 +319,7 @@ import { LocationService } from '../../../../core/services/location.service';
                         <span>{{ tempLocationName }}</span>
                       </div>
 
-                      <!-- Initial Pulsing Locate Me Overlay (Exact More-In Design) -->
+                      <!-- Initial Pulsing Locate Me Overlay -->
                       @if (!locationDetected) {
                         <div class="absolute inset-0 z-[1100] flex flex-col items-center justify-center gap-5 bg-gray-950/55 px-6 text-center animate-in fade-in duration-300">
                           <button 
@@ -376,7 +372,7 @@ import { LocationService } from '../../../../core/services/location.service';
                     </div>
                   </div>
                 } @else {
-                  <!-- Manual Form Mode (Exact More-In Layout & Styling) -->
+                  <!-- Manual Form Mode -->
                   <div class="flex flex-col gap-4 flex-1 overflow-y-auto pb-4 pr-1">
                     <div class="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-sm">
                       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -457,7 +453,7 @@ import { LocationService } from '../../../../core/services/location.service';
               </div>
             }
 
-            <!-- 2. Pickup Mode View (Exact More-In Branches Layout) -->
+            <!-- 2. Pickup Mode View -->
             @if (modalOrderType === 'pickup') {
               <div class="bg-white w-full flex-1 flex flex-col min-h-0">
                 <div class="flex items-center justify-between shrink-0 mb-3">
@@ -505,7 +501,7 @@ import { LocationService } from '../../../../core/services/location.service';
 
           </div>
 
-          <!-- Bottom Actions Bar (Exact More-In Specs) -->
+          <!-- Bottom Actions Bar -->
           <div class="shrink-0 pb-4 pt-2 px-4 flex flex-col gap-2 bg-white">
             <button 
               type="button" 

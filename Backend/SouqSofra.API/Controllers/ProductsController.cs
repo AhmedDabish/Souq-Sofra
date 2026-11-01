@@ -246,6 +246,34 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, isFeatured = product.IsFeatured });
         }
 
+
+        public class SetDiscountDto
+        {
+            public decimal? DiscountPrice { get; set; }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}/discount")]
+        public async Task<IActionResult> SetDiscount(int id, [FromBody] SetDiscountDto dto)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound(new { message = "المنتج غير موجود." });
+
+            if (dto.DiscountPrice.HasValue && dto.DiscountPrice.Value > 0)
+            {
+                if (dto.DiscountPrice.Value >= product.BasePrice)
+                    return BadRequest(new { message = "سعر الخصم يجب أن يكون أقل من السعر الأساسي وأكبر من صفر." });
+                product.DiscountPrice = dto.DiscountPrice.Value;
+            }
+            else
+            {
+                product.DiscountPrice = null;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { productId = product.ProductId, discountPrice = product.DiscountPrice });
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
