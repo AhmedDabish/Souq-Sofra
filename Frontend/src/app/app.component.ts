@@ -22,47 +22,63 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
       <app-cart-drawer></app-cart-drawer>
       <app-bottom-nav></app-bottom-nav>
 
-      <!-- Footer matching More-In style -->
-      <footer class="bg-[#2d2013] text-white pt-12 pb-20 md:pb-8 border-t border-primary/20">
-        <div class="container-wide mx-auto px-2 md:px-4">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
-            
-            <div class="space-y-3">
+      <!-- Polished Souq & Sofra footer -->
+      <footer class="relative overflow-hidden bg-[#21170f] text-white pb-20 pt-10 md:pb-8 md:pt-14">
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-[#fbb042] via-[#f58229] to-[#fbb042]"></div>
+        <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#f58229]/10 blur-3xl"></div>
+        <div class="container-wide relative mx-auto px-4 md:px-6">
+          <div class="grid grid-cols-1 gap-9 border-b border-white/10 pb-9 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+            <div class="space-y-4 sm:col-span-2 lg:col-span-4">
               <div class="flex items-center gap-3">
-                <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-12 h-12 rounded-full border border-primary/40 object-cover">
-                <span class="text-xl font-bold font-baloo text-primary">سوق وسفرة</span>
+                <div class="rounded-full bg-white p-1 shadow-lg shadow-[#f58229]/20 ring-2 ring-[#f58229]/70">
+                  <img src="assets/MAIN.jpg" alt="شعار سوق وسفرة" class="h-14 w-14 rounded-full object-cover">
+                </div>
+                <div>
+                  <span class="block text-xl font-bold font-baloo text-[#fbb042]">سوق وسفرة</span>
+                  <span class="mt-0.5 block text-xs text-white/60">Good Food, Good Mood</span>
+                </div>
               </div>
-              <p class="text-xs text-gray-300 leading-relaxed">
+              <p class="max-w-sm text-sm leading-7 text-white/70">
                 مطعم ومخبز يقدم أشهى الفطائر المشلتتة، المناقيش، الحلويات الشرقية والخبز الطازج يومياً.
               </p>
+              <a routerLink="/menu" class="inline-flex items-center rounded-full bg-[#f58229] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#fbb042] hover:text-[#21170f]">
+                اكتشف المنيو <span class="ms-2" aria-hidden="true">←</span>
+              </a>
             </div>
 
-            <div>
-              <h4 class="font-bold text-sm text-primary mb-3">روابط سريعة</h4>
-              <ul class="text-xs space-y-2 text-gray-300">
-                <li><a routerLink="/menu" class="hover:text-primary">منيو سوق وسفرة</a></li>
-                <li><a routerLink="/contact" class="hover:text-primary">فروعنا وأوقات العمل</a></li>
-                <li><a routerLink="/checkout" class="hover:text-primary">إتمام الطلب</a></li>
-                <li><a routerLink="/admin/login" class="hover:text-primary">دخول الإدارة</a></li>
+            <div class="lg:col-span-2">
+              <h4 class="mb-4 text-sm font-bold text-[#fbb042]">روابط سريعة</h4>
+              <ul class="space-y-3 text-sm text-white/70">
+                <li><a routerLink="/menu" class="transition hover:text-white">منيو سوق وسفرة</a></li>
+                <li><a routerLink="/contact" class="transition hover:text-white">فروعنا وأوقات العمل</a></li>
+                <li><a routerLink="/checkout" class="transition hover:text-white">إتمام الطلب</a></li>
               </ul>
             </div>
 
-            <div>
-              <h4 class="font-bold text-sm text-primary mb-3">بيانات التواصل</h4>
-              <p class="text-xs text-gray-300">أبوظبي - الكورنيش - مقابل المدينة فريش مارت وبنك النيلين</p>
-              <p class="text-xs text-gray-300 mt-2">الهاتف: 02 633 3136</p>
-              <p class="text-xs text-gray-300">واتساب: +971 50 315 7884</p>
+            <div class="lg:col-span-3">
+              <h4 class="mb-4 text-sm font-bold text-[#fbb042]">تواصل معنا</h4>
+              <ul class="space-y-3 text-sm leading-6 text-white/70">
+                <li class="flex gap-2"><span class="text-[#f58229]" aria-hidden="true">⌖</span><span>أبوظبي - الكورنيش - مقابل المدينة فريش مارت وبنك النيلين</span></li>
+                <li><a href="tel:026333136" class="transition hover:text-white">الهاتف: 02 633 3136</a></li>
+                <li><a href="https://wa.me/971503157884" class="transition hover:text-white" target="_blank" rel="noopener noreferrer">واتساب: +971 50 315 7884</a></li>
+              </ul>
             </div>
 
-            <div>
-              <h4 class="font-bold text-sm text-primary mb-3">طرق الدفع المتاحة</h4>
-              <p class="text-xs text-gray-300">الدفع عند الاستلام (كاش)، بطاقات الائتمان فيزا وماستركارد، وأبل باي.</p>
+            <div class="lg:col-span-3">
+              <h4 class="mb-4 text-sm font-bold text-[#fbb042]">طرق الدفع</h4>
+              <p class="mb-4 text-sm leading-6 text-white/70">اختر طريقة الدفع المناسبة لك عند إتمام الطلب.</p>
+              <div class="flex flex-wrap gap-2 text-xs text-white/80">
+                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">نقداً عند الاستلام</span>
+                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Visa</span>
+                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Mastercard</span>
+                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Apple Pay</span>
+              </div>
             </div>
-
           </div>
 
-          <div class="pt-6 text-center text-xs text-gray-400">
-            جميع الحقوق محفوظة © سوق وسفرة 2026 - Souq & Sofra (Good Food, Good Mood)
+          <div class="flex flex-col items-center justify-between gap-3 pt-6 text-center text-xs text-white/50 md:flex-row md:text-start">
+            <span>جميع الحقوق محفوظة © سوق وسفرة 2026</span>
+            <span>Souq & Sofra · Good Food, Good Mood</span>
           </div>
         </div>
       </footer>

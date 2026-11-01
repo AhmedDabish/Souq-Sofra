@@ -32,8 +32,8 @@ import { Category, Product } from '../../../../core/models/models';
         <section class="container-wide widget-spacing">
           <div class="grid gap-5 grid-cols-1 lg:grid-cols-2">
             @for (offer of offers; track offer.title) {
-              <div class="flex items-center relative max-md:mt-25 min-h-[160px] md:min-h-[350px] max-h-[400px]">
-                <div class="relative w-full md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+              <div class="flex items-center relative max-md:mt-25 min-h-[220px] md:min-h-[380px] max-h-[440px]">
+                <div class="relative w-full min-h-[220px] md:min-h-[350px] md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
                      [style.backgroundColor]="offer.color">
                   <div class="md:pe-2 lg:pe-6 2xl:!pe-2 flex flex-col justify-center gap-3.5 md:gap-3.5 max-w-full md:max-w-[50%] 2xl:!max-w-[55%]">
                     <h2 class="text-base text-black md:text-xl xl:text-2xl font-bold leading-tight line-clamp-1">{{ offer.title }}</h2>
@@ -72,7 +72,7 @@ import { Category, Product } from '../../../../core/models/models';
     <section class="widget-container">
       <div class="container-wide widget-spacing grid grid-cols-1 lg:grid-cols-2 gap-5">
         @for (banner of promoBanners; track banner) {
-          <div class="relative min-h-[160px] md:min-h-[200px] rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+          <div class="relative min-h-[220px] md:min-h-[300px] xl:min-h-[340px] rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
             <img [src]="banner" alt="عروض سوق وسفرة" loading="lazy" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-[1.03]">
           </div>
         }
@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit {
       buttonText: 'احصل على العرض'
     }
   ];
-  promoBanners = ['assets/morein-banner-1.png', 'assets/morein-banner-2.png'];
+  promoBanners = ['assets/morein-banner-1.png', 'assets/morein-banner-2.jpg'];
 
   offerLink(title: string): string[] {
     const searchTerms = title.includes('فام')
