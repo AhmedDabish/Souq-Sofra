@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
+import { LocationService } from '../../../../core/services/location.service';
 import { ApiService } from '../../../../core/services/api.service';
 
 @Component({
@@ -181,7 +182,7 @@ import { ApiService } from '../../../../core/services/api.service';
 
           <!-- Right Order Summary Column (5 cols) -->
           <div class="lg:col-span-5 space-y-6">
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 space-y-4 sticky top-24">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 space-y-4 sticky top-28">
               <h3 class="font-bold text-base text-primaryDark pb-3 border-b border-gray-100">
                 ملخص الطلب ({{ cart.totalCount() }} أصناف)
               </h3>
@@ -231,7 +232,7 @@ import { ApiService } from '../../../../core/services/api.service';
                 type="button"
                 [disabled]="isSubmitting()"
                 (click)="submitOrder()"
-                class="w-full py-4 rounded-2xl bg-primary hover:bg-primaryHover text-white font-extrabold text-sm shadow-xl transition-all disabled:opacity-50 active:scale-95">
+                class="w-full py-4 rounded-2xl bg-primary hover:bg-primaryHover text-white font-extrabold text-sm shadow-xl transition-all disabled:opacity-50 active:scale-95 cursor-pointer">
                 @if (isSubmitting()) {
                   جاري تأكيد الطلب...
                 } @else {
@@ -252,8 +253,9 @@ import { ApiService } from '../../../../core/services/api.service';
     </div>
   `
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
   cart = inject(CartService);
+  locationService = inject(LocationService);
   api = inject(ApiService);
   router = inject(Router);
 
@@ -270,6 +272,19 @@ export class CheckoutComponent {
   orderSuccess = signal<boolean>(false);
   orderNumber = signal<string>('');
   errorMessage = signal<string>('');
+
+  ngOnInit() {
+    this.deliveryType.set(this.locationService.orderType());
+    if (this.locationService.orderType() === 'delivery') {
+      const loc = this.locationService.selectedLocation();
+      const manual = this.locationService.manualAddress();
+      if (manual && (manual.street || manual.building)) {
+        this.deliveryAddress = [manual.city, manual.area, manual.street, manual.building, manual.notes].filter(Boolean).join(' - ');
+      } else if (loc && loc !== 'أبوظبي - الكورنيش') {
+        this.deliveryAddress = loc;
+      }
+    }
+  }
 
   submitOrder() {
     this.errorMessage.set('');
