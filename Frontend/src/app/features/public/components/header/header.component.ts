@@ -92,9 +92,8 @@ import { LocationService } from '../../../../core/services/location.service';
 
             <!-- Cart Drawer Button -->
             <div class="gray-bg hidden md:block border border-gray-200 rounded-[24px] w-[44px] h-[42px] md:flex items-center justify-center hover:bg-gray-100 transition-colors relative">
-              <button 
-                type="button" 
-                (click)="cart.toggleDrawer()" 
+              <a 
+                routerLink="/cart" 
                 aria-label="سلة المشتريات" 
                 class="relative p-2 rounded-full transition-colors text-gray-800 cursor-pointer">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
@@ -108,7 +107,7 @@ import { LocationService } from '../../../../core/services/location.service';
                     {{ cart.totalCount() }}
                   </span>
                 }
-              </button>
+              </a>
             </div>
 
             <!-- Login / Admin Button -->
@@ -141,9 +140,8 @@ import { LocationService } from '../../../../core/services/location.service';
                 <span class="max-w-[130px] truncate">{{ locationService.selectedLocation() }}</span>
               </button>
 
-              <button 
-                type="button" 
-                (click)="cart.toggleDrawer()" 
+              <a 
+                routerLink="/cart" 
                 aria-label="سلة المشتريات" 
                 class="relative gray-bg border border-gray-200 rounded-[24px] w-[42px] h-[42px] flex items-center justify-center">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
@@ -157,7 +155,7 @@ import { LocationService } from '../../../../core/services/location.service';
                     {{ cart.totalCount() }}
                   </span>
                 }
-              </button>
+              </a>
             </div>
           </div>
 

@@ -51,6 +51,7 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
               <ul class="space-y-3 text-sm text-white/70">
                 <li><a routerLink="/menu" class="transition hover:text-white">منيو سوق وسفرة</a></li>
                 <li><a routerLink="/contact" class="transition hover:text-white">فروعنا وأوقات العمل</a></li>
+                <li><a routerLink="/cart" class="transition hover:text-white">سلة المشتريات</a></li>
                 <li><a routerLink="/checkout" class="transition hover:text-white">إتمام الطلب</a></li>
               </ul>
             </div>

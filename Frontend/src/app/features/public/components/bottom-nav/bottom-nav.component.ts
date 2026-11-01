@@ -24,9 +24,9 @@ import { CartService } from '../../../../core/services/cart.service';
       </a>
 
       <!-- Floating Cart Center Button -->
-      <button 
-        type="button" 
-        (click)="cart.toggleDrawer()"
+      <a 
+        routerLink="/cart"
+        aria-label="سلة المشتريات"
         class="relative -top-3 w-12 h-12 rounded-full bg-primary hover:bg-primaryHover text-white shadow-xl flex items-center justify-center transition-transform active:scale-90 border-2 border-white">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
         @if (cart.totalCount() > 0) {
@@ -34,7 +34,7 @@ import { CartService } from '../../../../core/services/cart.service';
             {{ cart.totalCount() }}
           </span>
         }
-      </button>
+      </a>
 
       <!-- Contact / Locations -->
       <a routerLink="/contact" routerLinkActive="text-primary font-bold" class="flex flex-col items-center justify-center p-1.5 text-gray-500 hover:text-primary transition-colors">

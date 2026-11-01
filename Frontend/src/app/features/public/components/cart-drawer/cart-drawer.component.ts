@@ -80,6 +80,12 @@ import { CartService } from '../../../../core/services/cart.service';
                   <span>{{ cart.totalAmount() }} درهم</span>
                 </div>
 
+                <a
+                  routerLink="/cart"
+                  (click)="cart.toggleDrawer()"
+                  class="block w-full text-center py-3 rounded-2xl border border-primary/30 bg-white text-primaryDark font-bold text-sm transition-colors hover:bg-primary/5">
+                  عرض السلة كاملة
+                </a>
                 <a 
                   routerLink="/checkout" 
                   (click)="cart.toggleDrawer()"

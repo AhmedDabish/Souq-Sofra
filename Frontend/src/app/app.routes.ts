@@ -3,6 +3,7 @@ import { HomeComponent } from './features/public/pages/home/home.component';
 import { MenuComponent } from './features/public/pages/menu/menu.component';
 import { ProductDetailComponent } from './features/public/pages/product-detail/product-detail.component';
 import { CheckoutComponent } from './features/public/pages/checkout/checkout.component';
+import { CartPageComponent } from './features/public/pages/cart/cart-page.component';
 import { ContactComponent } from './features/public/pages/contact/contact.component';
 import { DashboardComponent } from './features/admin/pages/dashboard/dashboard.component';
 import { AdminLoginComponent } from './features/admin/pages/login/admin-login.component';
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'menu', component: MenuComponent },
   { path: 'product/:id', component: ProductDetailComponent },
+  { path: 'cart', component: CartPageComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'contact', component: ContactComponent },
 

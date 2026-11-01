@@ -23,7 +23,11 @@ import { CartService } from '../../../../core/services/cart.service';
               loading="lazy" 
               decoding="async" 
               data-nimg="fill" 
-              class="object-cover transform transition-transform duration-700 ease-out group-hover:scale-110" 
+              class="transform transition-transform duration-700 ease-out group-hover:scale-105"
+              [class.object-cover]="!isHawawshiImage()"
+              [class.object-contain]="isHawawshiImage()"
+              [class.p-3]="isHawawshiImage()"
+              [style.backgroundColor]="isHawawshiImage() ? '#fff7ec' : null"
               style="position:absolute;height:100%;width:100%;left:0;top:0;right:0;bottom:0;color:transparent"
               [src]="imageUrl(product.imageUrl)" />
 
@@ -235,6 +239,10 @@ export class ProductCardComponent implements OnInit {
     if (this.product.variants && this.product.variants.length > 0) {
       this.selectedVariant.set(this.product.variants.find(v => v.isDefault) ?? this.product.variants[0]);
     }
+  }
+
+  isHawawshiImage(): boolean {
+    return this.product.nameAr === 'حواوشي بلدي مخصوص' && (!this.product.imageUrl || this.product.imageUrl === 'assets/MAIN.jpg');
   }
 
   imageUrl(url?: string): string {
