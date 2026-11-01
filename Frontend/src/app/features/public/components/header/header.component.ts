@@ -72,7 +72,7 @@ import { LocationService } from '../../../../core/services/location.service';
 
             <!-- Search Expandable Input -->
             <div class="hidden md:block">
-              <div class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 cursor-pointer h-[34px] w-[38px] focus-within:w-[220px] focus-within:px-2 justify-center group">
+              <div class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 cursor-pointer h-[40px] w-[42px] focus-within:w-[220px] focus-within:px-2 justify-center group">
                 <input 
                   aria-label="ابحث عن منتج..." 
                   type="text" 
@@ -90,12 +90,12 @@ import { LocationService } from '../../../../core/services/location.service';
             <!-- Language Button -->
             <button 
               type="button"
-              class="lang-btn !font-bold cursor-pointer rtl:pt-1 gray-bg hidden md:flex items-center justify-center w-[38px] h-[34px] rounded-[24px] hover:bg-gray-100 transition-colors text-sm border border-gray-200">
+              class="lang-btn !font-bold cursor-pointer rtl:pt-1 gray-bg hidden md:flex items-center justify-center w-[42px] h-[40px] rounded-[24px] hover:bg-gray-100 transition-colors text-sm border border-gray-200">
               EN
             </button>
 
             <!-- Cart Drawer Button -->
-            <div class="gray-bg hidden md:block border border-gray-200 rounded-[24px] w-[38px] h-[34px] md:flex items-center justify-center hover:bg-gray-100 transition-colors relative">
+            <div class="gray-bg hidden md:block border border-gray-200 rounded-[24px] w-[42px] h-[40px] md:flex items-center justify-center hover:bg-gray-100 transition-colors relative">
               <button 
                 type="button" 
                 (click)="cart.toggleDrawer()" 
@@ -116,7 +116,7 @@ import { LocationService } from '../../../../core/services/location.service';
             </div>
 
             <!-- Login / Admin Button -->
-            <div class="hidden md:block bg-primary rounded-[24px] w-[38px] h-[34px] md:flex items-center justify-center">
+            <div class="hidden md:block bg-primary rounded-[24px] w-[42px] h-[40px] md:flex items-center justify-center">
               <a 
                 class="hidden md:flex p-2 rounded-full transition-colors text-white" 
                 routerLink="/admin/login" 
@@ -149,8 +149,8 @@ import { LocationService } from '../../../../core/services/location.service';
                 type="button" 
                 (click)="cart.toggleDrawer()" 
                 aria-label="سلة المشتريات" 
-                class="relative gray-bg border border-gray-200 rounded-[24px] w-[36px] h-[34px] flex items-center justify-center">
-                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
+                class="relative gray-bg border border-gray-200 rounded-[24px] w-[40px] h-[40px] flex items-center justify-center">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="176" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
                   <circle cx="400" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
                   <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M48 80h64l48 272h256"></path>

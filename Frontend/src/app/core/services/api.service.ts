@@ -49,6 +49,10 @@ export class ApiService {
     return this.http.get<Product[]>(`${this.apiUrl}/products`, { params });
   }
 
+  getBestSellingProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products/best-selling`);
+  }
+
   createOrder(order: OrderCreate): Observable<OrderCreateResponse> {
     return this.http.post<OrderCreateResponse>(`${this.apiUrl}/orders`, order);
   }

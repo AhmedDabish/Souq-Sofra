@@ -59,16 +59,11 @@ import { CartService } from '../../../../core/services/cart.service';
               </button>
             </div>
 
-            <!-- Badges (Discount & Featured) -->
+            <!-- Discount badge -->
             <div class="items-center absolute max-md:top-2 max-md:right-2 top-4 right-4 z-10 flex flex-wrap justify-start gap-1.5 max-w-[70%]">
               @if (discountPercent()) {
                 <div class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm backdrop-blur-sm border border-white/20">
                   خصم {{ discountPercent() }}%
-                </div>
-              }
-              @if (product.isFeatured) {
-                <div class="text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm text-white backdrop-blur-sm border border-white/20 flex items-center justify-center" style="background-color:rgb(251, 44, 54)">
-                  مميز ⭐
                 </div>
               }
             </div>
@@ -164,9 +159,6 @@ import { CartService } from '../../../../core/services/cart.service';
             <div class="p-6">
               <div class="flex items-center gap-2 mb-2">
                 <h3 class="text-xl font-black font-baloo text-primaryDark">{{ product.nameAr }}</h3>
-                @if (product.isFeatured) {
-                  <span class="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">مميز ⭐</span>
-                }
               </div>
               <p class="text-xs text-gray-500 mb-4 leading-relaxed">{{ product.descriptionAr || 'محضر طازج يومياً بأجود المكونات الطبيعية.' }}</p>
               

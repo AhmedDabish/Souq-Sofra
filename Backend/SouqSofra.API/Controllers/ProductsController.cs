@@ -55,6 +55,45 @@ namespace SouqSofra.API.Controllers
             return Ok(products);
         }
 
+        // Public best-sellers ranked by quantity in completed orders.
+        [HttpGet("best-selling")]
+        public async Task<IActionResult> GetBestSelling()
+        {
+            var rankedIds = await _context.OrderItems
+                .Where(item => item.Order != null && item.Order.OrderStatus == "Completed")
+                .GroupBy(item => item.ProductId)
+                .Select(group => new { ProductId = group.Key, Quantity = group.Sum(item => item.Quantity) })
+                .OrderByDescending(item => item.Quantity)
+                .ThenBy(item => item.ProductId)
+                .Take(10)
+                .Select(item => item.ProductId)
+                .ToListAsync();
+
+            if (rankedIds.Count == 0) return Ok(Array.Empty<ProductDto>());
+
+            var products = await _context.Products
+                .Include(product => product.Variants)
+                .Where(product => product.IsAvailable && rankedIds.Contains(product.ProductId))
+                .Select(product => new ProductDto(
+                    product.ProductId,
+                    product.CategoryId,
+                    product.NameAr,
+                    product.NameEn,
+                    product.DescriptionAr,
+                    product.DescriptionEn,
+                    product.BasePrice,
+                    product.DiscountPrice,
+                    product.ImageUrl,
+                    product.IsAvailable,
+                    product.IsFeatured,
+                    product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList()
+                ))
+                .ToListAsync();
+
+            var productsById = products.ToDictionary(product => product.ProductId);
+            return Ok(rankedIds.Where(productsById.ContainsKey).Select(productId => productsById[productId]));
+        }
+
         // Admin endpoint (returns all products including hidden/unavailable)
         [Authorize(Roles = "Admin")]
         [HttpGet("admin/all")]
@@ -101,6 +140,9 @@ namespace SouqSofra.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
+            if (dto.DiscountPrice.HasValue && (dto.DiscountPrice.Value <= 0 || dto.DiscountPrice.Value >= dto.BasePrice))
+                return BadRequest(new { message = "سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي." });
+
             var product = new Product
             {
                 CategoryId = dto.CategoryId,
@@ -140,6 +182,9 @@ namespace SouqSofra.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
         {
+            if (dto.DiscountPrice.HasValue && (dto.DiscountPrice.Value <= 0 || dto.DiscountPrice.Value >= dto.BasePrice))
+                return BadRequest(new { message = "سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي." });
+
             var product = await _context.Products.Include(p => p.Variants).FirstOrDefaultAsync(p => p.ProductId == id);
             if (product == null) return NotFound(new { message = "المنتج غير موجود." });
 

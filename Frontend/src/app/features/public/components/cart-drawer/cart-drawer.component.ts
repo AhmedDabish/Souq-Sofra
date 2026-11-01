@@ -9,13 +9,13 @@ import { CartService } from '../../../../core/services/cart.service';
   imports: [CommonModule, RouterModule],
   template: `
     @if (cart.isDrawerOpen()) {
-      <div class="fixed inset-0 z-50 overflow-hidden">
+      <div class="fixed inset-0 z-[100] overflow-hidden" role="dialog" aria-modal="true" aria-label="سلة المشتريات">
         
         <!-- Backdrop -->
         <div (click)="cart.toggleDrawer()" class="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"></div>
 
-        <div class="fixed inset-y-0 right-0 max-w-full flex">
-          <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
+        <div class="absolute inset-y-0 right-0 max-w-full flex pointer-events-none">
+          <div class="pointer-events-auto w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between transform transition-transform duration-300 ease-out animate-cart-drawer-in">
             
             <!-- Header -->
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">

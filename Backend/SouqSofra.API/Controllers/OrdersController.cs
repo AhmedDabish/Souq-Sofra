@@ -99,19 +99,45 @@ namespace SouqSofra.API.Controllers
             decimal subTotal = 0;
             foreach (var item in dto.Items)
             {
-                var prod = await _context.Products.FindAsync(item.ProductId);
-                if (prod == null) continue;
+                if (item.Quantity <= 0)
+                    return BadRequest(new { message = "كمية المنتج يجب أن تكون أكبر من صفر." });
 
-                var total = item.UnitPrice * item.Quantity;
+                var prod = await _context.Products.Include(product => product.Variants)
+                    .FirstOrDefaultAsync(product => product.ProductId == item.ProductId && product.IsAvailable);
+                if (prod == null)
+                    return BadRequest(new { message = "أحد المنتجات غير متاح حالياً. حدّث السلة وحاول مرة أخرى." });
+
+                decimal unitPrice;
+                string? variantNameAr = null;
+                if (item.VariantId.HasValue)
+                {
+                    var variant = prod.Variants.FirstOrDefault(candidate => candidate.VariantId == item.VariantId.Value);
+                    if (variant == null)
+                        return BadRequest(new { message = "اختيار الحجم غير صالح لهذا المنتج." });
+
+                    unitPrice = variant.Price;
+                    variantNameAr = variant.NameAr;
+                    if (variant.IsDefault && prod.DiscountPrice.HasValue && prod.DiscountPrice.Value > 0 && prod.DiscountPrice.Value < prod.BasePrice)
+                        unitPrice = decimal.Round(variant.Price * (prod.DiscountPrice.Value / prod.BasePrice), 2, MidpointRounding.AwayFromZero);
+                }
+                else
+                {
+                    unitPrice = prod.DiscountPrice.HasValue && prod.DiscountPrice.Value > 0 && prod.DiscountPrice.Value < prod.BasePrice
+                        ? prod.DiscountPrice.Value
+                        : prod.BasePrice;
+                }
+
+                var total = unitPrice * item.Quantity;
                 subTotal += total;
 
                 order.Items.Add(new OrderItem
                 {
-                    ProductId = item.ProductId,
+                    ProductId = prod.ProductId,
                     VariantId = item.VariantId,
                     ProductNameAr = prod.NameAr,
                     ProductNameEn = prod.NameEn,
-                    UnitPrice = item.UnitPrice,
+                    VariantNameAr = variantNameAr,
+                    UnitPrice = unitPrice,
                     Quantity = item.Quantity,
                     TotalPrice = total
                 });
