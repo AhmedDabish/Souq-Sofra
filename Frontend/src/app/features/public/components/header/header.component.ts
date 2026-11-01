@@ -49,13 +49,17 @@ import { LocationService } from '../../../../core/services/location.service';
               </button>
             </div>
 
+          </div>
+
+          <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
+          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
             <!-- Middle: Navigation Links (placed close to Logo & Location to eliminate huge empty middle space) -->
             <nav class="hidden font-bold navbar-links md:flex items-center gap-5 lg:gap-7 flex-nowrap overflow-hidden transition-[opacity,transform,max-width] duration-500 max-w-[1000px] opacity-100">
               <a 
                 routerLink="/menu" 
                 routerLinkActive="text-headerTextActive after:scale-x-100"
                 class="itm header-link relative text-sm lg:text-base xl:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
-                قائمة الطعام
+                منيو سوق وسفرة
               </a>
               <a 
                 routerLink="/contact" 
@@ -64,10 +68,7 @@ import { LocationService } from '../../../../core/services/location.service';
                 الفروع وتواصل معنا
               </a>
             </nav>
-          </div>
 
-          <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
-          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
 
             <!-- Search Expandable Input -->
             <div class="hidden md:block">

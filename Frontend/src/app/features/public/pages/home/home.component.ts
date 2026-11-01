@@ -13,6 +13,14 @@ import { Category, Product } from '../../../../core/models/models';
   template: `
     <app-hero-slider></app-hero-slider>
 
+    <!-- Quick Category Swiper Navigation -->
+    <app-category-slider
+      [categories]="categories()"
+      [selectedId]="selectedCategoryId()"
+      (categorySelected)="onCategorySelect($event)">
+    </app-category-slider>
+
+
     <!-- Featured Products Widget (More-In Parity) -->
     @if (featuredProducts().length > 0) {
       <div class="widget-container">
@@ -28,13 +36,6 @@ import { Category, Product } from '../../../../core/models/models';
         </section>
       </div>
     }
-
-    <!-- Quick Category Swiper Navigation -->
-    <app-category-slider 
-      [categories]="categories()" 
-      [selectedId]="selectedCategoryId()"
-      (categorySelected)="onCategorySelect($event)">
-    </app-category-slider>
 
     <!-- Products Grid Section by Category -->
     <div id="menu-section" class="widget-container">
@@ -80,7 +81,10 @@ export class HomeComponent implements OnInit {
   products = signal<Product[]>([]);
   selectedCategoryId = signal<number>(0);
 
-  featuredProducts = computed(() => this.products().filter(p => p.isFeatured));
+  featuredProducts = computed(() => this.products()
+    .filter(p => p.isFeatured || (p.discountPrice != null && p.discountPrice > 0 && p.discountPrice < p.basePrice))
+    .sort((a, b) => Number(b.discountPrice != null && b.discountPrice < b.basePrice) - Number(a.discountPrice != null && a.discountPrice < a.basePrice))
+  );
 
   filteredProducts = computed(() => {
     const catId = this.selectedCategoryId();

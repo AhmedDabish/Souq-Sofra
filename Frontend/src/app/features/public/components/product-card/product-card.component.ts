@@ -1,5 +1,6 @@
 import { Component, Input, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Product, ProductVariant } from '../../../../core/models/models';
 import { CartService } from '../../../../core/services/cart.service';
 
@@ -15,6 +16,7 @@ import { CartService } from '../../../../core/services/cart.service';
         <div class="flex flex-col space-y-1.5 p-0 relative rounded-[inherit]">
           <div class="relative w-full max-md:aspect-square aspect-[4/3] overflow-hidden group/image cursor-pointer img-card-wrap">
             <img 
+              (click)="openProduct()"
               [src]="imageUrl(product.imageUrl)" 
               [alt]="product.nameAr" 
               loading="lazy" 
@@ -92,7 +94,7 @@ import { CartService } from '../../../../core/services/cart.service';
                   <button 
                     type="button"
                     (click)="selectVariant(v, $event)"
-                    [class]="selectedVariant?.variantId === v.variantId ? 'bg-primary text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    [class]="selectedVariant()?.variantId === v.variantId ? 'bg-primary text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                     class="text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer">
                     {{ v.nameAr }}
                   </button>
@@ -175,8 +177,8 @@ import { CartService } from '../../../../core/services/cart.service';
                     @for (v of product.variants; track v.variantId) {
                       <button 
                         type="button"
-                        (click)="selectedVariant = v"
-                        [class]="selectedVariant?.variantId === v.variantId ? 'bg-primary text-white border-primary shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'"
+                        (click)="selectedVariant.set(v)"
+                        [class]="selectedVariant()?.variantId === v.variantId ? 'bg-primary text-white border-primary shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'"
                         class="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all">
                         {{ v.nameAr }} ({{ v.price }} درهم)
                       </button>
@@ -210,9 +212,10 @@ import { CartService } from '../../../../core/services/cart.service';
 })
 export class ProductCardComponent implements OnInit {
   @Input({ required: true }) product!: Product;
-  selectedVariant?: ProductVariant;
+  selectedVariant = signal<ProductVariant | undefined>(undefined);
 
   cart = inject(CartService);
+  private router = inject(Router);
 
   isWishlisted = signal<boolean>(false);
   showQuickViewModal = signal<boolean>(false);
@@ -220,7 +223,7 @@ export class ProductCardComponent implements OnInit {
 
   ngOnInit() {
     if (this.product.variants && this.product.variants.length > 0) {
-      this.selectedVariant = this.product.variants[0];
+      this.selectedVariant.set(this.product.variants.find(v => v.isDefault) ?? this.product.variants[0]);
     }
   }
 
@@ -231,12 +234,17 @@ export class ProductCardComponent implements OnInit {
   }
 
   currentPrice = computed(() => {
-    if (this.selectedVariant) return this.selectedVariant.price;
+    if (this.selectedVariant()) {
+      if (this.hasDiscount() && this.selectedVariant()!.isDefault) {
+        return Math.round(this.selectedVariant()!.price * (this.product.discountPrice! / this.product.basePrice) * 100) / 100;
+      }
+      return this.selectedVariant()!.price;
+    }
     return this.product.discountPrice ?? this.product.basePrice;
   });
 
   hasDiscount = computed(() => {
-    if (this.selectedVariant && !this.selectedVariant.isDefault) return false;
+    if (this.selectedVariant() && !this.selectedVariant()!.isDefault) return false;
     return !!this.product.discountPrice && this.product.discountPrice < this.product.basePrice;
   });
 
@@ -250,12 +258,12 @@ export class ProductCardComponent implements OnInit {
 
   selectVariant(v: ProductVariant, e: Event) {
     e.stopPropagation();
-    this.selectedVariant = v;
+    this.selectedVariant.set(v);
   }
 
   addToCart(e?: Event) {
     if (e) e.stopPropagation();
-    this.cart.addItem(this.product, this.selectedVariant, 1);
+    this.cart.addItem(this.product, this.selectedVariant(), 1);
     this.addedAnimation.set(true);
     setTimeout(() => this.addedAnimation.set(false), 900);
   }
@@ -275,8 +283,12 @@ export class ProductCardComponent implements OnInit {
     this.showQuickViewModal.set(false);
   }
 
+  openProduct() {
+    this.router.navigate(['/product', this.product.productId]);
+  }
+
   addFromQuickView() {
-    this.cart.addItem(this.product, this.selectedVariant, 1);
+    this.cart.addItem(this.product, this.selectedVariant(), 1);
     this.showQuickViewModal.set(false);
   }
 }

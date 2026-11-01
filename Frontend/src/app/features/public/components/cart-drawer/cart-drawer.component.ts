@@ -14,11 +14,11 @@ import { CartService } from '../../../../core/services/cart.service';
         <!-- Backdrop -->
         <div (click)="cart.toggleDrawer()" class="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"></div>
 
-        <div class="fixed inset-y-0 left-0 max-w-full flex">
+        <div class="fixed inset-y-0 right-0 max-w-full flex">
           <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
             
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="text-xl font-bold font-baloo text-primaryDark">سلة المشتريات</span>
                 <span class="bg-primary/20 text-primaryDark text-xs font-bold px-2 py-0.5 rounded-full">
@@ -40,14 +40,15 @@ import { CartService } from '../../../../core/services/cart.service';
                 </div>
               } @else {
                 @for (item of cart.items(); track item.product.productId + (item.selectedVariant?.variantId || 0)) {
-                  <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                  <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
                     <div class="flex items-center gap-3">
-                      <img [src]="item.product.imageUrl || 'assets/MAIN.jpg'" class="w-12 h-12 rounded-xl object-cover">
+                      <img [src]="item.product.imageUrl || 'assets/MAIN.jpg'" class="w-16 h-16 rounded-xl object-cover">
                       <div>
                         <h4 class="font-bold text-sm text-gray-800">{{ item.product.nameAr }}</h4>
                         @if (item.selectedVariant) {
                           <span class="text-[11px] text-gray-400 font-medium">({{ item.selectedVariant.nameAr }})</span>
                         }
+                        @if (item.specialInstructions) { <div class="text-[10px] text-gray-500 mt-1">ملاحظة: {{ item.specialInstructions }}</div> }
                         <div class="text-xs font-bold text-primary mt-0.5">{{ item.unitPrice }} درهم</div>
                       </div>
                     </div>

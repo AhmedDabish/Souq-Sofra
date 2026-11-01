@@ -62,6 +62,7 @@ export interface CartItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  specialInstructions?: string;
 }
 
 export interface OrderItemCreate {
@@ -92,6 +93,7 @@ export interface OrderItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
+  specialInstructions?: string;
 }
 
 export interface AdminOrder {

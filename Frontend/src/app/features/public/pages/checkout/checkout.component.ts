@@ -198,6 +198,7 @@ import { ApiService } from '../../../../core/services/api.service';
                         @if (item.selectedVariant) {
                           <span class="text-gray-400 block text-[10px]">({{ item.selectedVariant.nameAr }})</span>
                         }
+                        @if (item.specialInstructions) { <span class="text-gray-400 block text-[10px]">ملاحظة: {{ item.specialInstructions }}</span> }
                       </div>
                     </div>
                     <span class="font-bold text-gray-700">{{ item.totalPrice }} درهم</span>
@@ -313,7 +314,7 @@ export class CheckoutComponent implements OnInit {
       deliveryAddress: this.deliveryType() === 'delivery' ? this.deliveryAddress : 'استلام من الفرع الرئيسي - أبوظبي',
       branchId: 1,
       paymentMethod: this.paymentMethod(),
-      notes: this.notes,
+      notes: [this.notes, ...this.cart.items().filter(i => i.specialInstructions).map(i => `${i.product.nameAr}: ${i.specialInstructions}`)].filter(Boolean).join(' | '),
       items: this.cart.items().map(i => ({
         productId: i.product.productId,
         variantId: i.selectedVariant?.variantId,

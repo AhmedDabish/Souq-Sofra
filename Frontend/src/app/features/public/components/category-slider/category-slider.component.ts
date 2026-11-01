@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Category } from '../../../../core/models/models';
@@ -23,16 +23,16 @@ import { Category } from '../../../../core/models/models';
         </div>
 
         <!-- Carousel Container with More-In style & navigation buttons -->
-        <div class="relative group/swiper w-full select-none" dir="rtl">
+        <div class="relative group/swiper w-full select-none" dir="ltr">
           
           <!-- Scrollable Track (RTL) -->
           <div 
             #sliderRef
             (scroll)="onScroll()"
-            class="flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 items-stretch">
+            class="flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 items-stretch" dir="ltr">
             
             <!-- "All" (جميع الأقسام) Category Card -->
-            <div class="shrink-0 w-[135px] sm:w-[150px] h-auto">
+            <div dir="rtl" class="shrink-0 w-[135px] sm:w-[150px] h-auto">
               <div 
                 role="button"
                 tabindex="0"
@@ -59,7 +59,7 @@ import { Category } from '../../../../core/models/models';
 
             <!-- Dynamic Category Cards from Backend -->
             @for (cat of categories; track cat.categoryId) {
-              <div class="shrink-0 w-[135px] sm:w-[150px] h-auto">
+              <div dir="rtl" class="shrink-0 w-[135px] sm:w-[150px] h-auto">
                 <div 
                   role="button"
                   tabindex="0"
@@ -117,7 +117,7 @@ import { Category } from '../../../../core/models/models';
     </div>
   `
 })
-export class CategorySliderComponent implements AfterViewInit {
+export class CategorySliderComponent implements AfterViewInit, OnChanges {
   @Input() categories: Category[] = [];
   @Input() selectedId: number = 0;
   @Output() categorySelected = new EventEmitter<number>();
@@ -145,6 +145,12 @@ export class CategorySliderComponent implements AfterViewInit {
     this.updateScrollState();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['categories']) {
+      requestAnimationFrame(() => this.updateScrollState());
+    }
+  }
+
   @HostListener('window:resize')
   onResize() {
     this.updateScrollState();
@@ -162,11 +168,7 @@ export class CategorySliderComponent implements AfterViewInit {
     const el = this.sliderRef?.nativeElement;
     if (!el) return;
     const step = 320;
-    if (el.scrollLeft > 0) {
-      el.scrollBy({ left: step, behavior: 'smooth' });
-    } else {
-      el.scrollBy({ left: -step, behavior: 'smooth' });
-    }
+    el.scrollBy({ left: step, behavior: 'smooth' });
     setTimeout(() => this.updateScrollState(), 350);
   }
 
@@ -174,11 +176,7 @@ export class CategorySliderComponent implements AfterViewInit {
     const el = this.sliderRef?.nativeElement;
     if (!el) return;
     const step = 320;
-    if (el.scrollLeft > 0) {
-      el.scrollBy({ left: -step, behavior: 'smooth' });
-    } else {
-      el.scrollBy({ left: step, behavior: 'smooth' });
-    }
+    el.scrollBy({ left: -step, behavior: 'smooth' });
     setTimeout(() => this.updateScrollState(), 350);
   }
 
@@ -191,7 +189,7 @@ export class CategorySliderComponent implements AfterViewInit {
       this.isAtEnd = true;
       return;
     }
-    const current = Math.abs(el.scrollLeft);
+    const current = Math.max(0, el.scrollLeft);
     this.isAtStart = current <= 10;
     this.isAtEnd = current >= maxScroll - 15;
   }

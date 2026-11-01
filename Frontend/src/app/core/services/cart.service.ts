@@ -22,13 +22,19 @@ export class CartService {
     this.itemsSignal().reduce((sum, item) => sum + item.quantity, 0)
   );
 
-  addItem(product: Product, variant?: ProductVariant, quantity: number = 1) {
+  addItem(product: Product, variant?: ProductVariant, quantity: number = 1, specialInstructions?: string) {
     const current = [...this.itemsSignal()];
-    const price = variant ? variant.price : (product.discountPrice || product.basePrice);
+    const hasDiscount = !!product.discountPrice && product.discountPrice > 0 && product.discountPrice < product.basePrice;
+    const price = variant
+      ? (hasDiscount && variant.isDefault
+          ? Math.round(variant.price * (product.discountPrice! / product.basePrice) * 100) / 100
+          : variant.price)
+      : (hasDiscount ? product.discountPrice! : product.basePrice);
     
     const existingIndex = current.findIndex(i => 
-      i.product.productId === product.productId && 
-      i.selectedVariant?.variantId === variant?.variantId
+      i.product.productId === product.productId &&
+      i.selectedVariant?.variantId === variant?.variantId &&
+      i.specialInstructions === (specialInstructions || undefined)
     );
 
     if (existingIndex > -1) {
@@ -40,7 +46,8 @@ export class CartService {
         selectedVariant: variant,
         quantity,
         unitPrice: price,
-        totalPrice: price * quantity
+        totalPrice: price * quantity,
+        specialInstructions: specialInstructions?.trim() || undefined
       });
     }
 
