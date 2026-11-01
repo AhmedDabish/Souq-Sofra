@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SouqSofra.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98e7fbfe8649e683bfcb9e0ec1b3b528fe1f306b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f46ec3962af28647e06c011702f4f3afbd05b862")]
 [assembly: System.Reflection.AssemblyProductAttribute("SouqSofra.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SouqSofra.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
