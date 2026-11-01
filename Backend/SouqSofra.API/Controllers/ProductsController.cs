@@ -189,6 +189,19 @@ namespace SouqSofra.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}/featured")]
+        public async Task<IActionResult> ToggleFeatured(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound(new { message = "المنتج غير موجود." });
+
+            product.IsFeatured = !product.IsFeatured;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { productId = product.ProductId, isFeatured = product.IsFeatured });
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

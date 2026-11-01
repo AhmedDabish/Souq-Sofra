@@ -188,3 +188,12 @@ Souq-Sofra/
 - [x] **Task 8.3**: Configure remote origin to `https://github.com/AhmedDabish/Souq-Sofra.git`.
 - [x] **Task 8.4**: Push all branches, assets, database scripts, backend code, and frontend code to GitHub repository.
 - [x] **Task 8.5**: Maintain and update `TASKS.md` with every subsequent feature branch and commit.
+
+---
+
+### Phase 9: More-In Featured Products Widget & Card Design Parity [COMPLETE - 100%]
+- [x] **Task 9.1**: Replicate exact More-In `widget-container` & `widget-spacing` section with double-underlined `theme-title` for "المنتجات المميزة" on homepage.
+- [x] **Task 9.2**: Replicate exact More-In `product-card` design hierarchy, responsive fluid grid (`grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:!grid-cols-5 gap-4 md:gap-5`), aspect-[4/3] image with smooth 700ms zoom, wishlist heart button, quick view eye overlay on hover, and discount / featured pill badges.
+- [x] **Task 9.3**: Implement interactive Quick View modal popup allowing customers to view full item details, select variants, and add to cart directly.
+- [x] **Task 9.4**: Add backend `PATCH /api/products/{id}/featured` endpoint in `ProductsController` with role authorization for fast admin toggling.
+- [x] **Task 9.5**: Enhance Admin Dashboard (`/admin/products`) with one-click direct featured toggle button in table, clear feedback alert, and homepage display note.

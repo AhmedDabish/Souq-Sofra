@@ -120,9 +120,14 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       </button>
                     </td>
                     <td class="p-4">
-                      <span [class]="prod.isFeatured ? 'text-amber-500 font-bold bg-amber-50 px-2 py-0.5 rounded-md' : 'text-gray-300'">
-                        {{ prod.isFeatured ? '⭐ نعم' : '—' }}
-                      </span>
+                      <button 
+                        (click)="toggleFeatured(prod)"
+                        [disabled]="isUpdatingId() === prod.productId"
+                        [class]="prod.isFeatured ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-300' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200'"
+                        class="text-[11px] px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                        title="تبديل ظهور الصنف في قسم المنتجات المميزة بالرئيسية">
+                        <span>{{ prod.isFeatured ? '⭐ مميز' : '☆ عادي' }}</span>
+                      </button>
                     </td>
                     <td class="p-4">
                       <div class="flex items-center justify-center gap-2">
@@ -243,7 +248,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" [(ngModel)]="formProduct.isFeatured" name="isFeatured" class="rounded text-primary focus:ring-primary w-4 h-4">
-                  <span class="font-bold text-gray-700">صنف مميز (Featured / Best Seller)</span>
+                  <span class="font-bold text-gray-700">صنف مميز (يظهر في قسم "المنتجات المميزة" بالصفحة الرئيسية) ⭐</span>
                 </label>
               </div>
 
@@ -339,6 +344,27 @@ export class AdminProductsComponent implements OnInit {
   getCategoryName(id: number): string {
     const cat = this.categories().find(c => c.categoryId === id);
     return cat ? cat.nameAr : `قسم #${id}`;
+  }
+
+  toggleFeatured(prod: Product) {
+    this.isUpdatingId.set(prod.productId);
+    this.api.toggleProductFeatured(prod.productId).subscribe({
+      next: (res) => {
+        prod.isFeatured = res.isFeatured;
+        this.isUpdatingId.set(null);
+        this.feedbackType.set('success');
+        this.feedbackMessage.set(
+          res.isFeatured 
+            ? `تم تمييز الصنف "${prod.nameAr}" وإضافته لقسم المنتجات المميزة بالرئيسية ⭐` 
+            : `تم إلغاء تمييز الصنف "${prod.nameAr}".`
+        );
+      },
+      error: () => {
+        this.isUpdatingId.set(null);
+        this.feedbackType.set('error');
+        this.feedbackMessage.set('فشل تحديث حالة الصنف المميز.');
+      }
+    });
   }
 
   toggleAvailability(prod: Product) {

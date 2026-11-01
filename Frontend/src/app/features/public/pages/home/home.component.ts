@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../../core/services/api.service';
 import { HeroSliderComponent } from '../../components/hero-slider/hero-slider.component';
@@ -13,19 +13,42 @@ import { Category, Product } from '../../../../core/models/models';
   template: `
     <app-hero-slider></app-hero-slider>
 
+    <!-- Featured Products Widget (More-In Parity) -->
+    @if (featuredProducts().length > 0) {
+      <div class="widget-container">
+        <section class="container-wide widget-spacing">
+          <div class="flex items-center justify-between widget-content-spacing">
+            <h2 class="theme-title">المنتجات المميزة</h2>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:!grid-cols-5 gap-4 md:gap-5">
+            @for (prod of featuredProducts(); track prod.productId) {
+              <app-product-card [product]="prod"></app-product-card>
+            }
+          </div>
+        </section>
+      </div>
+    }
+
+    <!-- Quick Category Swiper Navigation -->
     <app-category-slider 
       [categories]="categories()" 
       [selectedId]="selectedCategoryId()"
       (categorySelected)="onCategorySelect($event)">
     </app-category-slider>
 
-    <!-- Product Grid Section - Full Fluid Widescreen -->
-    <div id="menu-section" class="container-wide mx-auto px-2 md:px-4 py-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
-        @for (prod of filteredProducts(); track prod.productId) {
-          <app-product-card [product]="prod"></app-product-card>
-        }
-      </div>
+    <!-- Products Grid Section by Category -->
+    <div id="menu-section" class="widget-container">
+      <section class="container-wide widget-spacing">
+        <div class="flex items-center justify-between widget-content-spacing">
+          <h2 class="theme-title">{{ selectedCategoryTitle() }}</h2>
+          <span class="text-xs text-gray-400 font-bold">({{ filteredProducts().length }} صنف)</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:!grid-cols-5 gap-4 md:gap-5">
+          @for (prod of filteredProducts(); track prod.productId) {
+            <app-product-card [product]="prod"></app-product-card>
+          }
+        </div>
+      </section>
     </div>
 
     <!-- Features Banner -->
@@ -50,29 +73,34 @@ import { Category, Product } from '../../../../core/models/models';
     </div>
   `
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private api = inject(ApiService);
 
   categories = signal<Category[]>([]);
   products = signal<Product[]>([]);
   selectedCategoryId = signal<number>(0);
 
-  filteredProducts = signal<Product[]>([]);
+  featuredProducts = computed(() => this.products().filter(p => p.isFeatured));
+
+  filteredProducts = computed(() => {
+    const catId = this.selectedCategoryId();
+    if (catId === 0) return this.products();
+    return this.products().filter(p => p.categoryId === catId);
+  });
+
+  selectedCategoryTitle = computed(() => {
+    const catId = this.selectedCategoryId();
+    if (catId === 0) return 'كافة الأصناف والمنيو';
+    const cat = this.categories().find(c => c.categoryId === catId);
+    return cat ? cat.nameAr : 'قائمة الطعام';
+  });
 
   ngOnInit() {
     this.api.getCategories().subscribe(cats => this.categories.set(cats));
-    this.api.getProducts().subscribe(prods => {
-      this.products.set(prods);
-      this.filteredProducts.set(prods);
-    });
+    this.api.getProducts().subscribe(prods => this.products.set(prods));
   }
 
   onCategorySelect(id: number) {
     this.selectedCategoryId.set(id);
-    if (id === 0) {
-      this.filteredProducts.set(this.products());
-    } else {
-      this.filteredProducts.set(this.products().filter(p => p.categoryId === id));
-    }
   }
 }
