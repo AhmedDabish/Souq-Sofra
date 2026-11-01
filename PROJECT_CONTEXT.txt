@@ -1,0 +1,224 @@
+# Souq & Sofra (سوق وسفرة) - Master Project Documentation & AI Context
+================================================================================
+Generated Date: November 2026
+Repository: https://github.com/AhmedDabish/Souq-Sofra.git
+Primary Branch: main
+
+INSTRUCTION FOR ANY AI ASSISTANT / LOVABLE AGENT:
+Read this entire file before suggesting or writing any code. This project is a complete
+monorepo for a full-stack restaurant and bakery e-commerce web application designed
+specifically for "سوق وسفرة" (Souq & Sofra) located in Abu Dhabi, UAE.
+
+================================================================================
+1. BUSINESS OVERVIEW & BRAND IDENTITY
+================================================================================
+- Restaurant Name (AR): سوق وسفرة (مطعم ومخبز)
+- Restaurant Name (EN): Souq & Sofra (Bakery & Restaurant)
+- Slogan (AR): طعم أصيل، مزاج جميل (Good Food, Good Mood)
+- Main Branch Address: أبوظبي - الكورنيش - مقابل المدينة فريش مارت وبنك النيلين
+- Phone: 02 633 3136
+- WhatsApp Orders: +971 50 315 7884
+- Currency: درهم إماراتي (AED)
+- Primary Specialities:
+  * الفطير المشلتت بالسمن البلدي (حلو وحادق)
+  * المناقيش اللبنانية الشامية (زعتر، عكاوي، لبنة)
+  * فطائر البيتزا التركية (Pide)
+  * حواوشي بلدي وسندوتشات كبدة اسكندراني وسجق شرقي (خبز فينو وبلدي)
+  * سندوتشات الراب (Wraps) والوجبات السريعة
+  * مخجوزات ونواشف وبوكسات عزائم
+
+================================================================================
+2. SYSTEM ARCHITECTURE & MONOREPO STRUCTURE
+================================================================================
+The project is organized as a clean separation between Frontend, Backend, Database,
+and Assets:
+
+/
+├── Backend/                      --> .NET 8 Web API Clean Architecture
+│   ├── SouqSofra.sln             --> Visual Studio Solution file
+│   ├── SouqSofra.Domain/         --> Core entities, enums, domain interfaces
+│   ├── SouqSofra.Application/    --> DTOs, service contracts, business logic
+│   ├── SouqSofra.Infrastructure/ --> EF Core 8 DbContext, Migrations, Data Seeders
+│   └── SouqSofra.API/            --> Web API Controllers, Program.cs, Middleware, wwwroot
+│       ├── wwwroot/
+│       │   └── uploads/          --> Uploaded media (products, banners, categories)
+│       └── Properties/
+│           └── launchSettings.json -> Configured for HTTP: 2811 & HTTPS: 2810
+│
+├── Frontend/                     --> Angular 18 Single Page Application (Standalone)
+│   ├── angular.json              --> Angular workspace configuration
+│   ├── package.json              --> Dependencies (Angular 18, Tailwind CSS, Lucide)
+│   ├── tsconfig.json             --> TypeScript configuration with strict rules
+│   ├── tailwind.config.js        --> Custom theme palette and typography
+│   └── src/
+│       ├── index.html            --> Entry HTML with Cairo and Baloo Bhaijaan 2 fonts
+│       ├── styles.scss           --> Global styles, scrollbar, brand CSS variables
+│       ├── assets/               --> Static assets, logos, and default banners
+│       └── app/
+│           ├── core/             --> Singleton services, models, auth interceptors
+│           └── features/
+│               ├── public/       --> Customer storefront (Home, Menu, Checkout, Contact)
+│               └── admin/        --> Admin Dashboard (Auth, Products, Orders, Settings)
+│
+├── database/                     --> SQL Server scripts backup & manual creation
+│   └── Database_Schema.sql
+├── assets/                       --> Source restaurant logos and menu raw images
+├── .gitignore                    --> Comprehensive root ignore for node_modules, bin, obj, .vs
+├── README.md                     --> Quick start guide
+└── TASKS.md                      --> Development phases and roadmap tracking
+
+================================================================================
+3. TECH STACK SPECIFICATIONS
+================================================================================
+
+A. BACKEND:
+- Runtime: .NET 8 (C# 12)
+- Framework: ASP.NET Core Web API
+- ORM: Entity Framework Core 8 (Code-First)
+- Database Provider: Microsoft.EntityFrameworkCore.SqlServer
+- Design / Tools: Microsoft.EntityFrameworkCore.Design
+- Authentication: JWT Bearer (Token issued with role claims: Admin / Customer)
+- Password Hashing: PBKDF2 with salt (RFC 2898)
+- API Documentation: Swagger / OpenAPI with Bearer Authorization UI
+- Static Files: `app.UseStaticFiles()` enabled for `wwwroot/uploads`
+- CORS Policy: `AllowAngular` allows `localhost` and `127.0.0.1` on any port with credentials.
+
+B. FRONTEND:
+- Framework: Angular 18 (Standalone Components, Signals, new Control Flow @if / @for)
+- Styling: Tailwind CSS v3 + Custom SCSS variables
+- State Management: Angular Signals (signal, computed) for Cart, Orders, and Filters
+- HTTP: Angular HttpClient with Functional Interceptors (authInterceptor)
+- Icons: Lucide Angular & Inline SVG icons
+- Direction / Language: RTL (dir="rtl") with Arabic typography (Cairo & Baloo Bhaijaan 2)
+
+C. DATABASE:
+- Engine: Microsoft SQL Server 2019/2022 or LocalDB / Azure SQL
+- Migrations: EF Core Migrations located in `SouqSofra.Infrastructure/Migrations`
+- Automatic Startup Seed: Handled by `DbInitializer.InitializeAsync()` in `Program.cs`
+  * Auto-applies migrations
+  * Seeds Site Settings (phone, whatsapp, delivery fees, brand names)
+  * Seeds Primary Branch (الكورنيش - أبوظبي)
+  * Seeds Default Admin user:
+    - Email: admin@souqsofra.com
+    - Password: Admin@123456
+  * Seeds 15 Menu Categories & ~20 Initial Products with Variants
+
+================================================================================
+4. STOREFRONT DESIGN & THEME SYSTEM
+================================================================================
+The customer storefront is designed following a modern food delivery layout:
+- Primary Color: Orange `#f47621` (Call to actions, badges, active states)
+- Primary Dark: Deep Maroon / Burgundy `#681c0f` (Headings, logo accents, brand titles)
+- Secondary Accent: Warm Gold / Amber `#fbb042` (Borders, highlights, icons)
+- Background Color: Soft Warm Cream `#fff7ec` (Page body background, image cards)
+- Top Bar: Slim announcement and contact bar (Phone: 02 633 3136 + Language toggle)
+- Header: Sticky white header with restaurant logo, location badge, navigation links,
+  live cart icon with counter badge, admin account button, and "اطلب الآن" CTA button.
+- Hero Carousel: Multi-slide rotating banner with food photography, title overlays,
+  custom slide indicators, and manual next/previous controls. Configurable via Admin.
+- Category Pills: Horizontal scrollable badges with quick category filtering.
+- Product Cards: Modern card design with aspect-ratio food image, special offer badge,
+  size/bread variant selector buttons, price in AED, and instant "Add to Cart" button.
+- Cart Drawer: Slide-out panel from the side showing selected items, quantities,
+  subtotal, delivery fee, and direct checkout navigation.
+- Bottom Navigation Bar: Mobile-friendly quick access bar for phone users.
+
+================================================================================
+5. BACKEND API ENDPOINTS REFERENCE
+================================================================================
+Base URL: http://localhost:2811/api
+
+A. Public Endpoints:
+- GET  /api/categories               --> List active categories
+- GET  /api/products                 --> List products (supports ?categoryId, ?featured, ?search)
+- POST /api/orders                   --> Submit new customer order
+- GET  /api/branches                 --> List active branches
+- GET  /api/settings                 --> Retrieve public site settings dictionary
+
+B. Authentication:
+- POST /api/auth/login               --> Accepts { email, password }, returns JWT token + user info
+
+C. Protected Admin Endpoints [Authorize(Roles = "Admin")]:
+- GET    /api/products/admin/all     --> List all products including hidden items
+- GET    /api/products/{id}          --> Get single product details
+- POST   /api/products               --> Create product
+- PUT    /api/products/{id}          --> Update product
+- PATCH  /api/products/{id}/availability -> Toggle product active state
+- DELETE /api/products/{id}          --> Delete product
+- POST   /api/categories             --> Create category
+- PUT    /api/categories/{id}        --> Update category
+- DELETE /api/categories/{id}        --> Delete category
+- GET    /api/orders                 --> List orders for dashboard
+- GET    /api/orders/{id}            --> Get detailed order items and customer info
+- PATCH  /api/orders/{id}/status     --> Update status (Pending, Preparing, OutForDelivery, Completed)
+- DELETE /api/orders/{id}            --> Delete order
+- PUT    /api/settings               --> Update key-value setting (SettingKey, SettingValue)
+- POST   /api/branches               --> Add new branch
+- POST   /api/upload                 --> Upload image file (multipart/form-data)
+                                         Query param: ?folder=products|banners|categories|logo
+                                         Saves file to: `wwwroot/uploads/{folder}/`
+                                         Returns relative `/uploads/...` and absolute `fullUrl`
+
+================================================================================
+6. ADMIN DASHBOARD CAPABILITIES
+================================================================================
+Route: `/admin` (Protected by Angular route guards and JWT interceptor)
+Credentials: admin@souqsofra.com / Admin@123456
+
+- Dashboard Overview: Key metrics, total revenue, pending orders, product count.
+- Products Manager: Add/Edit products, price, discounts, category assignment,
+  variant management (e.g. Medium/Large or Fino/Baladi bread), and direct file
+  upload for product photos saved to backend `wwwroot`.
+- Orders Manager: Real-time order tracking, customer phone/address review,
+  status updates with badge coloring, and order details modal.
+- Settings & Store Branding: Update phone numbers, WhatsApp, delivery fees,
+  announcement banner, manage branches, and upload custom hero carousel banner images.
+
+================================================================================
+7. HOW TO RUN THE PROJECT LOCALLY
+================================================================================
+
+PREREQUISITES:
+- .NET 8 SDK
+- Node.js (v18 or v20 LTS) & npm
+- SQL Server (Developer edition, Express, or LocalDB)
+
+STEP 1: DATABASE CONNECTION
+- Open `Backend/SouqSofra.API/appsettings.json`
+- Set `ConnectionStrings:DefaultConnection` to your SQL Server instance, e.g.:
+  "Server=.;Database=SouqSofraDb;Trusted_Connection=True;TrustServerCertificate=True;"
+
+STEP 2: RUN THE BACKEND (.NET 8)
+- In terminal:
+    cd Backend/SouqSofra.API
+    dotnet restore
+    dotnet run --launch-profile http
+- The API will start on: http://localhost:2811
+- Swagger UI will be available at: http://localhost:2811/swagger
+- On startup, `DbInitializer` will automatically create tables and seed default data.
+- (Alternative EF CLI Migration command):
+    dotnet ef database update --project ../SouqSofra.Infrastructure --startup-project .
+
+STEP 3: RUN THE FRONTEND (ANGULAR 18)
+- In terminal:
+    cd Frontend
+    npm install
+    npm start
+- The Angular app will run on: http://localhost:4200
+- Open browser at: http://localhost:4200
+- Admin login is at: http://localhost:4200/admin/login
+
+================================================================================
+8. WORKFLOW RULES & GUIDELINES FOR ANY FUTURE AI ASSISTANT
+================================================================================
+1. Never break Arabic RTL support (`dir="rtl"`) or typography.
+2. Keep the backend port at `2811` and frontend port at `4200` to prevent CORS mismatches.
+3. Keep clean architecture boundaries: Domain entities must not depend on EF Core or Web API.
+4. When adding image upload features, always route uploads through `UploadController`
+   so files are saved securely inside `wwwroot/uploads/` and served via static file middleware.
+5. In Angular, always use Standalone Components and Angular Signals (`signal`, `computed`).
+   Do not revert to old NgModules unless strictly required.
+6. When updating Git, keep `.gitignore` intact so build output (`bin/`, `obj/`, `dist/`,
+   `node_modules/`, `.vs/`) is never committed.
+7. Any changes must maintain the brand identity of "سوق وسفرة" (Abu Dhabi, UAE).
+================================================================================
