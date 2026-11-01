@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\SouqSofra.API",
+    "\\SouqSofra.API\\bin",
+    "\\SouqSofra.Application",
+    "\\SouqSofra.Domain",
+    "\\SouqSofra.Domain\\Entities",
+    "\\SouqSofra.Infrastructure",
+    "\\SouqSofra.Infrastructure\\Data"
+  ],
+  "SelectedNode": "\\SouqSofra.sln",
+  "PreviewInSolutionExplorer": false
+}

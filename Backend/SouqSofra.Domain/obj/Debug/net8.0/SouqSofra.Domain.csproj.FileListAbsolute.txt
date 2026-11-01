@@ -1,0 +1,12 @@
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\bin\Debug\net8.0\SouqSofra.Domain.deps.json
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\bin\Debug\net8.0\SouqSofra.Domain.dll
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\bin\Debug\net8.0\SouqSofra.Domain.pdb
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.AssemblyInfoInputs.cache
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.AssemblyInfo.cs
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.csproj.CoreCompileInputs.cache
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.sourcelink.json
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.dll
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\refint\SouqSofra.Domain.dll
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\SouqSofra.Domain.pdb
+E:\مطعم\Souq Sofra\Backend\SouqSofra.Domain\obj\Debug\net8.0\ref\SouqSofra.Domain.dll
