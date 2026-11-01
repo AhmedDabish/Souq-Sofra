@@ -9,6 +9,41 @@ import { CartService } from '../../../../core/services/cart.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
+    @if (layout === 'menu') {
+      <article dir="rtl" class="group relative flex min-h-[148px] w-full overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md md:min-h-[168px]">
+        <a class="absolute inset-0 z-0" [attr.aria-label]="product.nameAr" [routerLink]="['/product', product.productId]"></a>
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-l from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        <div class="img-card-wrap group/image relative min-h-full w-28 shrink-0 overflow-hidden md:w-36">
+          <img [alt]="product.nameAr" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" [class.object-contain]="isHawawshiImage()" [class.p-3]="isHawawshiImage()" [style.backgroundColor]="isHawawshiImage() ? '#fff7ec' : null" [src]="imageUrl(product.imageUrl)" />
+          <button type="button" (click)="toggleWishlist($event)" aria-label="إضافة للمفضلة" [class.bg-white]="isWishlisted()" [class.text-red-500]="isWishlisted()" class="absolute left-2 top-2 z-20 rounded-full border border-white/50 bg-white/30 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" [attr.fill]="isWishlisted() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+          </button>
+          @if (discountPercent()) { <span class="absolute bottom-2 right-2 z-10 rounded-full bg-primary px-2 py-1 text-[10px] font-bold text-white shadow">خصم {{ discountPercent() }}%</span> }
+        </div>
+        <div class="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 text-start md:gap-3 md:p-4">
+          <div class="min-w-0">
+            <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ product.nameAr }}</h3>
+            <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ product.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.' }}</p>
+            @if (product.variants && product.variants.length > 1) {
+              <div class="pointer-events-auto mt-1.5 flex flex-wrap gap-1" (click)="$event.stopPropagation()">
+                @for (v of product.variants; track v.variantId ?? v.nameAr) {
+                  <button type="button" (click)="selectVariant(v, $event)" [class.bg-primary]="selectedVariant()?.variantId === v.variantId" [class.text-white]="selectedVariant()?.variantId === v.variantId" [class.bg-gray-100]="selectedVariant()?.variantId !== v.variantId" [class.text-gray-700]="selectedVariant()?.variantId !== v.variantId" class="rounded-md px-2 py-0.5 text-[9px] font-bold transition-colors">{{ v.nameAr }}</button>
+                }
+              </div>
+            }
+          </div>
+          <div class="pointer-events-auto flex items-center justify-between gap-2">
+            <div class="flex min-w-0 flex-col gap-0.5">
+              <div class="flex items-center gap-1 whitespace-nowrap"><span class="text-sm font-bold text-primary md:text-base">{{ currentPrice() }}</span><span class="text-[10px] font-medium text-muted">جنيه</span></div>
+              @if (hasDiscount()) { <span class="text-[10px] font-medium text-gray-400 line-through">{{ originalPrice() }} جنيه</span> }
+            </div>
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-white shadow-md shadow-primary/20 transition-transform group-hover:scale-105" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+            </span>
+          </div>
+        </div>
+      </article>
+    } @else {
     <div dir="rtl" class="rounded-xl bg-card text-card-foreground border-0 shadow-none group product-card h-full flex flex-col">
       <a 
         class="inset-0 z-0 flex flex-col h-full rounded-[inherit] cursor-pointer" 
@@ -223,10 +258,12 @@ import { CartService } from '../../../../core/services/cart.service';
         </div>
       }
     </div>
+    }
   `
 })
 export class ProductCardComponent implements OnInit {
   @Input({ required: true }) product!: Product;
+  @Input() layout: 'default' | 'menu' = 'default';
   selectedVariant = signal<ProductVariant | undefined>(undefined);
 
   cart = inject(CartService);

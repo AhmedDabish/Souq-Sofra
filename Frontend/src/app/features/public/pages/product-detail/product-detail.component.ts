@@ -5,66 +5,89 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { Product, ProductVariant } from '../../../../core/models/models';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ProductCardComponent],
   template: `
-    <div class="container-wide mx-auto px-4 py-8 md:py-12" dir="rtl">
+    <main dir="rtl" class="container-wide mx-auto px-3 py-6 md:px-4 md:py-10">
       @if (product(); as item) {
-        <a routerLink="/" class="text-sm text-gray-500 hover:text-primary">الرئيسية / منيو سوق وسفرة / {{ item.nameAr }}</a>
-        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 mt-5 items-start">
-          <div class="rounded-3xl overflow-hidden bg-[#f7f3ed] aspect-square relative">
-            <img [src]="imageUrl(item.imageUrl)" [alt]="item.nameAr" class="w-full h-full object-cover">
-            @if (discountPercent()) { <span class="absolute top-4 right-4 rounded-full bg-red-500 text-white px-3 py-1 text-sm font-bold">خصم {{ discountPercent() }}%</span> }
-          </div>
-          <section class="bg-white rounded-3xl p-5 md:p-8 shadow-sm border border-gray-100">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-2xl md:text-3xl font-black text-primaryDark">{{ item.nameAr }}</h1>
-              @if (!item.isAvailable) { <span class="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs">غير متاح حالياً</span> }
-              @else { <span class="bg-green-50 text-green-700 rounded-full px-3 py-1 text-xs">متوفر</span> }
+        <nav aria-label="مسار التنقل" class="mb-5 flex flex-wrap items-center gap-2 text-xs text-gray-500 md:mb-7 md:text-sm">
+          <a routerLink="/" class="transition-colors hover:text-primary">الرئيسية</a><span class="text-gray-300">/</span>
+          <a routerLink="/menu" class="transition-colors hover:text-primary">منيو سوق وسفرة</a><span class="text-gray-300">/</span>
+          <span class="max-w-[60vw] truncate font-semibold text-primaryDark">{{ item.nameAr }}</span>
+        </nav>
+
+        <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:gap-10">
+          <section class="min-w-0">
+            <div class="group relative aspect-square overflow-hidden rounded-2xl border border-gray-100 bg-[#fff7ec] shadow-sm md:rounded-3xl">
+              <img [src]="imageUrl(item.imageUrl)" [alt]="item.nameAr" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]">
+              @if (discountPercent()) { <span class="absolute right-4 top-4 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-md">خصم {{ discountPercent() }}%</span> }
+              @if (!item.isAvailable) { <span class="absolute bottom-4 right-4 rounded-full bg-gray-900/75 px-3 py-1.5 text-xs font-bold text-white">غير متاح حالياً</span> }
             </div>
-            <p class="text-gray-500 text-sm leading-7 mt-4">{{ item.descriptionAr || 'طازج ومحضر يومياً بمكونات مختارة.' }}</p>
-            <div class="flex items-baseline gap-3 my-5">
-              <strong class="text-2xl text-primary">{{ currentPrice() }} درهم</strong>
-              @if (discountPercent()) { <del class="text-gray-400">{{ item.basePrice }} درهم</del> }
+          </section>
+
+          <section class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:rounded-3xl md:p-7 lg:p-8">
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              @if (item.isAvailable) { <span class="inline-flex items-center gap-1.5 rounded-full border border-green-100 bg-green-50 px-3 py-1 text-xs font-semibold text-green-700"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>متوفر الآن</span> }
+              @else { <span class="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">غير متاح حالياً</span> }
+              @if (discountPercent()) { <span class="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-primaryDark">عرض خاص</span> }
             </div>
-            @if (item.variants.length) {
-              <div class="my-6">
-                <h2 class="font-bold mb-3">اختيارك من الحجم</h2>
-                <div class="grid sm:grid-cols-2 gap-3">
+
+            <h1 class="text-2xl font-black leading-snug text-primaryDark md:text-3xl">{{ item.nameAr }}</h1>
+            <p class="mt-3 text-sm leading-7 text-gray-600 md:text-base">{{ item.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.' }}</p>
+
+            <div class="my-5 flex flex-wrap items-baseline gap-2 border-b border-gray-100 pb-5">
+              <strong class="text-2xl font-extrabold text-primary md:text-3xl">{{ currentPrice() }} <span class="text-sm font-bold">جنيه</span></strong>
+              @if (discountPercent()) { <del class="text-sm text-gray-400">{{ item.basePrice }} جنيه</del><span class="text-xs font-semibold text-green-700">وفّر {{ item.basePrice - currentPrice() }} جنيه</span> }
+            </div>
+
+            @if (item.variants && item.variants.length > 0) {
+              <div class="my-5">
+                <div class="mb-3 flex items-center justify-between gap-2"><h2 class="font-bold text-gray-900">اختار الحجم أو الخيار</h2><span class="text-[11px] text-gray-400">اختر اختياراً واحداً</span></div>
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   @for (variant of item.variants; track variant.variantId ?? variant.nameAr) {
-                    <button type="button" (click)="selectedVariant.set(variant)" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="text-right rounded-xl border border-gray-200 p-4 hover:border-primary transition-colors">
-                      <span class="block font-bold">{{ variant.nameAr }}</span><span class="text-sm text-primary">{{ variant.price }} درهم</span>
+                    <button type="button" (click)="selectedVariant.set(variant)" [attr.aria-pressed]="selectedVariant() === variant" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 p-3 text-right transition-colors hover:border-primary/60">
+                      <span class="flex min-w-0 items-center gap-2"><span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" [class.border-primary]="selectedVariant() === variant" [class.bg-primary]="selectedVariant() === variant"><span class="h-1.5 w-1.5 rounded-full bg-white" [class.hidden]="selectedVariant() !== variant"></span></span><span class="truncate text-sm font-semibold text-gray-800">{{ variant.nameAr }}</span></span>
+                      <span class="whitespace-nowrap text-sm font-bold text-primary">{{ variant.price }} جنيه</span>
                     </button>
                   }
                 </div>
               </div>
             }
-            <div class="my-6">
-              <label for="special-notes" class="font-bold block mb-2">تعليمات خاصة</label>
-              <textarea id="special-notes" rows="3" [(ngModel)]="specialInstructions" class="w-full rounded-xl border border-gray-200 p-3 text-sm focus:outline-none focus:border-primary" placeholder="أضف ملاحظاتك للطلب"></textarea>
+
+            <div class="my-5">
+              <label for="special-notes" class="mb-2 block font-bold text-gray-900">تعليمات خاصة <span class="text-xs font-normal text-gray-400">(اختياري)</span></label>
+              <textarea id="special-notes" rows="3" [(ngModel)]="specialInstructions" class="w-full resize-y rounded-xl border border-gray-200 bg-white p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10" placeholder="مثال: بدون مخلل، الصوص على جنب..."></textarea>
             </div>
-            <div class="sticky bottom-2 bg-white pt-4 border-t flex items-center gap-4">
-              <div class="flex items-center gap-3 bg-gray-100 rounded-full px-2 py-1">
-                <button type="button" (click)="decreaseQuantity()" aria-label="تقليل الكمية" class="w-8 h-8 font-bold">−</button><span class="font-bold min-w-5 text-center">{{ quantity() }}</span><button type="button" (click)="increaseQuantity()" aria-label="زيادة الكمية" class="w-8 h-8 font-bold">+</button>
+
+            <div class="sticky bottom-2 z-20 mt-6 flex items-center gap-3 rounded-2xl border border-gray-100 bg-white/95 p-2 shadow-lg backdrop-blur md:gap-4 md:p-3">
+              <div class="flex shrink-0 items-center gap-2 rounded-full bg-gray-100 p-1" aria-label="تحديد الكمية">
+                <button type="button" (click)="decreaseQuantity()" aria-label="تقليل الكمية" class="flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold text-gray-700 transition hover:bg-white">−</button>
+                <span class="min-w-5 text-center font-bold tabular-nums">{{ quantity() }}</span>
+                <button type="button" (click)="increaseQuantity()" aria-label="زيادة الكمية" class="flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold text-gray-700 transition hover:bg-white">+</button>
               </div>
-              <button type="button" [disabled]="!item.isAvailable" (click)="addToCart(item)" class="flex-1 rounded-full bg-primary text-white font-bold py-3 disabled:opacity-50">إضافة للسلة <span>({{ totalPrice() }} درهم)</span></button>
+              <button type="button" [disabled]="!item.isAvailable" (click)="addToCart(item)" class="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primaryDark active:scale-[.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none md:text-base">
+                <span>أضف إلى السلة</span><span class="rounded-full bg-white/15 px-2 py-0.5 text-xs">{{ totalPrice() }} جنيه</span>
+              </button>
             </div>
           </section>
         </div>
+
         @if (recommendations().length) {
-          <section class="mt-12"><h2 class="text-xl font-bold mb-4">قد يعجبك أيضاً</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            @for (suggestion of recommendations(); track suggestion.productId) {
-              <a [routerLink]="['/product', suggestion.productId]" class="rounded-2xl border border-gray-100 overflow-hidden bg-white hover:shadow-md transition-shadow"><img [src]="imageUrl(suggestion.imageUrl)" [alt]="suggestion.nameAr" class="w-full aspect-square object-cover"><div class="p-3"><b class="block truncate">{{ suggestion.nameAr }}</b><span class="text-primary text-sm">{{ suggestion.discountPrice || suggestion.basePrice }} درهم</span></div></a>
-            }
-          </div></section>
+          <section class="mt-10 border-t border-gray-100 pt-7 md:mt-14 md:pt-9">
+            <div class="mb-4 flex items-end justify-between"><div><p class="text-xs font-bold text-primary">اختيارات تانية ليك</p><h2 class="mt-1 text-xl font-extrabold text-primaryDark">قد يعجبك أيضاً</h2></div><a routerLink="/menu" class="text-xs font-bold text-primary hover:underline">عرض المنيو</a></div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3 md:gap-4">
+              @for (suggestion of recommendations(); track suggestion.productId) { <app-product-card [product]="suggestion"></app-product-card> }
+            </div>
+          </section>
         }
       } @else {
         <div class="py-24 text-center text-gray-500">{{ loading() ? 'جاري تحميل المنتج...' : 'المنتج غير موجود' }}</div>
       }
-    </div>
+    </main>
   `
 })
 export class ProductDetailComponent implements OnInit {

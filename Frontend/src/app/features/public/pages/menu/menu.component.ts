@@ -73,9 +73,9 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
           <p class="text-xs text-gray-400">جرب البحث بكلمة أخرى أو اختر قسماً آخر.</p>
         </div>
       } @else {
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
           @for (prod of filteredProducts(); track prod.productId) {
-            <app-product-card [product]="prod"></app-product-card>
+            <app-product-card [product]="prod" layout="menu"></app-product-card>
           }
         </div>
       }
