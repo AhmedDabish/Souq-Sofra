@@ -32,8 +32,8 @@ import { Category, Product } from '../../../../core/models/models';
         <section class="container-wide widget-spacing">
           <div class="grid gap-5 grid-cols-1 lg:grid-cols-2">
             @for (offer of offers; track offer.title) {
-              <div class="flex items-center relative max-md:mt-25 min-h-[220px] md:min-h-[380px] max-h-[440px]">
-                <div class="relative w-full min-h-[220px] md:min-h-[350px] md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+              <div class="flex items-center relative max-md:mt-25 min-h-[200px] md:min-h-[310px] max-h-[360px]">
+                <div class="relative w-full min-h-[200px] md:min-h-[300px] md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
                      [style.backgroundColor]="offer.color">
                   <div class="md:pe-2 lg:pe-6 2xl:!pe-2 flex flex-col justify-center gap-3.5 md:gap-3.5 max-w-full md:max-w-[50%] 2xl:!max-w-[55%]">
                     <h2 class="text-base text-black md:text-xl xl:text-2xl font-bold leading-tight line-clamp-1">{{ offer.title }}</h2>
