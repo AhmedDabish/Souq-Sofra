@@ -270,3 +270,9 @@ body {
 .stroke-3 {
   stroke-width: 3px;
 }
+
+
+.bg-background,
+.rounded-spin-img-wrapper {
+  background-color: var(--color-background, #fff7ec);
+}

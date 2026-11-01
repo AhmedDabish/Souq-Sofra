@@ -27,25 +27,46 @@ import { Category, Product } from '../../../../core/models/models';
     }
 
     <!-- More-In style rotating offer cards -->
-    <section class="widget-container overflow-x-clip">
-      <div class="container-wide widget-spacing grid grid-cols-1 lg:grid-cols-2 gap-5">
-        @for (offer of offers; track offer.title) {
-          <article class="relative flex items-center min-h-[180px] md:min-h-[300px] max-h-[400px]">
-            <div class="relative w-full min-h-[180px] md:min-h-[270px] ps-6 pe-24 md:pe-32 py-8 md:py-10 rounded-s-[20px] md:rounded-s-[10rem] rounded-e-[20px] md:rounded-e-[10rem] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300" [style.backgroundColor]="offer.color">
-              <div class="relative z-10 flex flex-col justify-center gap-3 max-w-full md:max-w-[58%]">
-                <h2 class="text-base md:text-xl xl:text-2xl font-bold leading-tight line-clamp-1 text-gray-950">{{ offer.title }}</h2>
-                <p class="text-xs md:text-sm leading-relaxed line-clamp-2 text-gray-900">{{ offer.description }}</p>
-                <a routerLink="/menu" class="w-fit px-4 py-2 rounded-full bg-black text-white text-xs md:text-sm font-semibold hover:bg-black/80 transition-all duration-300">احصل على العرض</a>
+    <div class="widget-container">
+      <div class="w-full overflow-x-clip">
+        <section class="container-wide widget-spacing">
+          <div class="grid gap-5 grid-cols-1 lg:grid-cols-2">
+            @for (offer of offers; track offer.title) {
+              <div class="flex items-center relative max-md:mt-25 min-h-[160px] md:min-h-[350px] max-h-[400px]">
+                <div class="relative w-full md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                     [style.backgroundColor]="offer.color">
+                  <div class="md:pe-2 lg:pe-6 2xl:!pe-2 flex flex-col justify-center gap-3.5 md:gap-3.5 max-w-full md:max-w-[50%] 2xl:!max-w-[55%]">
+                    <h2 class="text-base text-black md:text-xl xl:text-2xl font-bold leading-tight line-clamp-1">{{ offer.title }}</h2>
+                    <span class="text-xs md:text-sm lg:text-base line-clamp-2">
+                      <p>{{ offer.description }}</p>
+                    </span>
+                    <a class="text-white w-fit px-4 py-2 rounded-full text-xs md:text-base font-medium hover:opacity-85 transition-all duration-300"
+                       routerLink="/menu"
+                       style="background-color: rgb(0, 0, 0);">
+                      {{ offer.buttonText }}
+                    </a>
+                  </div>
+                  <div class="absolute top-0 start-5 px-3 py-1.5 rounded-b-[10px] font-bold text-xs md:text-sm shadow-md z-20"
+                       [style.backgroundColor]="offer.badgeBg"
+                       style="color: rgb(255, 255, 255);">
+                    {{ offer.badge }}
+                  </div>
+                </div>
+                <div class="absolute h-full max-md:top-0 max-md:end-1/2 md:top-1/2 md:end-0 -translate-y-[65%] md:-translate-y-1/2 ltr:max-md:translate-x-1/2 rtl:max-md:-translate-x-1/2 flex items-center h-fit w-[165px] md:w-[200px] lg:w-[270px] 3xl:!w-[350px] z-30 rounded-full overflow-hidden">
+                  <div class="relative w-full h-full overflow-hidden">
+                    <div class="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center max-md:items-end rounded-spin-img-wrapper">
+                      <img [alt]="offer.title" width="350" height="350"
+                           class="bg-background p-4 animate-spin [animation-duration:150s] rounded-full relative block object-contain overflow-hidden max-md:object-bottom"
+                           [src]="offer.image">
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span class="absolute top-0 right-5 px-3 py-1.5 rounded-b-[10px] bg-[#fbb042] text-white font-bold text-xs md:text-sm shadow-md z-20">{{ offer.badge }}</span>
-            </div>
-            <div class="absolute top-1/2 left-0 -translate-x-1/3 md:translate-x-1/3 -translate-y-1/2 w-[145px] md:w-[200px] lg:w-[250px] aspect-square z-30 rounded-full overflow-hidden pointer-events-none">
-              <img [src]="offer.image" [alt]="offer.title" class="w-full h-full object-contain bg-[#faf7f2] p-3 md:p-4 rounded-full animate-spin [animation-duration:150s]">
-            </div>
-          </article>
-        }
+            }
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <!-- More-In style paired promotional banners -->
     <section class="widget-container">
@@ -93,8 +114,24 @@ export class HomeComponent implements OnInit {
     return this.products().filter(p => p.isFeatured);
   });
   offers = [
-    { title: 'فامـلي بوكس كلاسيك', description: 'جبنة موتزاريلا، خضار طازجة، سلامي وتركي مدخن، مع كراست الشيدر والموتزاريلا.', badge: 'جديد', color: '#f58229', image: 'assets/morein-family.png' },
-    { title: 'ناشفيل تشيكن بان', description: 'دجاج ناشفيل مع الفلفل والبصل والزيتون الأخضر والموتزاريلا وصوص الرانش.', badge: 'مميز', color: '#f58229', image: 'assets/morein-nashville.png' }
+    {
+      title: 'فامـلي بوكس كلاسيك',
+      description: 'جبنه موتزريلا- مكيس خضار(فلفل اخضر ومشروم وبصل وزيتون اسود) -سلامي مدخن -تركي مدخن- بيف بيكون -كراست شيدر وموتزريلا',
+      badge: 'جديد',
+      badgeBg: 'rgb(251, 176, 66)',
+      color: 'rgb(245, 130, 41)',
+      image: 'assets/morein-family.png',
+      buttonText: 'احصل علي العرض'
+    },
+    {
+      title: 'ناشفيل تشيكن بان',
+      description: 'صلصة ناشفيل +فلفل اخضر+بصل+زيتون اخضر +جبنه موتزريلا+دجاج +زيت ناشفيل+توابل ناشفيل+صوص رانش',
+      badge: 'مميز',
+      badgeBg: 'rgb(245, 130, 41)',
+      color: 'rgb(251, 176, 66)',
+      image: 'assets/morein-nashville.png',
+      buttonText: 'احصل على العرض'
+    }
   ];
   promoBanners = ['assets/morein-banner-1.png', 'assets/morein-banner-2.png'];
 

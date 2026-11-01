@@ -206,3 +206,4 @@ Souq-Sofra/
 - [x] **Task 10.3**: Featured products section driven by active discounts (`DiscountPrice < BasePrice`), ensuring on-sale items headline the homepage showcase.
 - [x] **Task 10.4**: Admin Dashboard discount management: Added quick discount modal dialog, one-click discount presets (10%-50%), automatic discount percentage calculation, table filter for on-sale items, and backend `PATCH /api/products/{id}/discount` endpoint.
 - [x] **Task 10.5**: Menu page category slider integration: Replaced generic category pill filter in `/menu` with the exact rich interactive category carousel slider from the homepage.
+- [x] **Task 10.6**: Promotional offer cards exact More-In HTML/CSS parity: Applied exact widget container hierarchy, rounded spin wrapper with 150s animation, top-start pill badges, and RTL responsive dimensions matching reference markup.
