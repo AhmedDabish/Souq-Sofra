@@ -1,20 +1,34 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Category, Product, OrderCreate } from '../models/models';
+import {
+  Category,
+  CategoryCreate,
+  Product,
+  ProductCreate,
+  OrderCreate,
+  AdminOrder,
+  Branch,
+  SiteSettings
+} from '../models/models';
 
 export interface OrderCreateResponse {
   success: boolean;
   orderId: number;
   orderNumber: string;
   total: number;
+  message?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  // Matches Backend/SouqSofra.API/Properties/launchSettings.json.
+  // Matches Backend/SouqSofra.API/Properties/launchSettings.json
   private readonly apiUrl = 'http://localhost:2811/api';
+
+  // -------------------------------------------------------------
+  // Public Catalog & Storefront Endpoints
+  // -------------------------------------------------------------
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`);
@@ -30,5 +44,88 @@ export class ApiService {
 
   createOrder(order: OrderCreate): Observable<OrderCreateResponse> {
     return this.http.post<OrderCreateResponse>(`${this.apiUrl}/orders`, order);
+  }
+
+  getBranches(): Observable<Branch[]> {
+    return this.http.get<Branch[]>(`${this.apiUrl}/branches`);
+  }
+
+  getSettings(): Observable<SiteSettings> {
+    return this.http.get<SiteSettings>(`${this.apiUrl}/settings`);
+  }
+
+  // -------------------------------------------------------------
+  // Admin Products & Categories Endpoints
+  // -------------------------------------------------------------
+
+  getAllAdminProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products/admin/all`);
+  }
+
+  getProductById(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/products/${id}`);
+  }
+
+  createProduct(product: ProductCreate): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/products`, product);
+  }
+
+  updateProduct(id: number, product: ProductCreate): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, product);
+  }
+
+  toggleProductAvailability(id: number): Observable<{ productId: number; isAvailable: boolean }> {
+    return this.http.patch<{ productId: number; isAvailable: boolean }>(`${this.apiUrl}/products/${id}/availability`, {});
+  }
+
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${id}`);
+  }
+
+  createCategory(category: CategoryCreate): Observable<Category> {
+    return this.http.post<Category>(`${this.apiUrl}/categories`, category);
+  }
+
+  updateCategory(id: number, category: CategoryCreate): Observable<Category> {
+    return this.http.put<Category>(`${this.apiUrl}/categories/${id}`, category);
+  }
+
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/categories/${id}`);
+  }
+
+  // -------------------------------------------------------------
+  // Admin Orders Endpoints
+  // -------------------------------------------------------------
+
+  getAdminOrders(): Observable<AdminOrder[]> {
+    return this.http.get<AdminOrder[]>(`${this.apiUrl}/orders`);
+  }
+
+  getOrderById(id: number): Observable<AdminOrder> {
+    return this.http.get<AdminOrder>(`${this.apiUrl}/orders/${id}`);
+  }
+
+  updateOrderStatus(id: number, status: string): Observable<{ success: boolean; orderId: number; status: string }> {
+    return this.http.patch<{ success: boolean; orderId: number; status: string }>(`${this.apiUrl}/orders/${id}/status`, { status });
+  }
+
+  deleteOrder(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/orders/${id}`);
+  }
+
+  // -------------------------------------------------------------
+  // Admin Settings & Branches Endpoints
+  // -------------------------------------------------------------
+
+  updateSetting(key: string, value: string): Observable<{ settingKey: string; settingValue: string }> {
+    return this.http.put<{ settingKey: string; settingValue: string }>(`${this.apiUrl}/settings`, {
+      settingKey: key,
+      settingValue: value
+    });
+  }
+
+  createBranch(branch: Partial<Branch>): Observable<Branch> {
+    return this.http.post<Branch>(`${this.apiUrl}/branches`, branch);
   }
 }
