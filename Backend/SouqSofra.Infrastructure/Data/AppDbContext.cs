@@ -10,6 +10,7 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+        public DbSet<Branch> Branches => Set<Branch>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<User> Users => Set<User>();
@@ -22,6 +23,7 @@ namespace SouqSofra.Infrastructure.Data
             modelBuilder.Entity<Category>().HasKey(c => c.CategoryId);
             modelBuilder.Entity<Product>().HasKey(p => p.ProductId);
             modelBuilder.Entity<ProductVariant>().HasKey(v => v.VariantId);
+            modelBuilder.Entity<Branch>().HasKey(b => b.BranchId);
             modelBuilder.Entity<Order>().HasKey(o => o.OrderId);
             modelBuilder.Entity<OrderItem>().HasKey(oi => oi.OrderItemId);
             modelBuilder.Entity<User>().HasKey(u => u.UserId);

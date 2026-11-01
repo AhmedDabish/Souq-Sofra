@@ -1,8 +1,42 @@
 namespace SouqSofra.Application.DTOs
 {
-    public record CategoryDto(int CategoryId, string NameAr, string NameEn, string Slug, string? IconUrl, int DisplayOrder);
-    
-    public record ProductVariantDto(int VariantId, string NameAr, string NameEn, decimal Price, bool IsDefault);
+    // Categories
+    public record CategoryDto(
+        int CategoryId, 
+        string NameAr, 
+        string NameEn, 
+        string Slug, 
+        string? IconUrl, 
+        string? ImageUrl,
+        int DisplayOrder, 
+        bool IsActive
+    );
+
+    public record CategoryCreateDto(
+        string NameAr, 
+        string NameEn, 
+        string Slug, 
+        string? IconUrl, 
+        string? ImageUrl,
+        int DisplayOrder, 
+        bool IsActive
+    );
+
+    // Products & Variants
+    public record ProductVariantDto(
+        int VariantId, 
+        string NameAr, 
+        string NameEn, 
+        decimal Price, 
+        bool IsDefault
+    );
+
+    public record ProductVariantCreateDto(
+        string NameAr, 
+        string NameEn, 
+        decimal Price, 
+        bool IsDefault
+    );
 
     public record ProductDto(
         int ProductId, 
@@ -19,7 +53,57 @@ namespace SouqSofra.Application.DTOs
         List<ProductVariantDto> Variants
     );
 
-    public record OrderItemCreateDto(int ProductId, int? VariantId, int Quantity, decimal UnitPrice);
+    public record ProductCreateDto(
+        int CategoryId, 
+        string NameAr, 
+        string NameEn, 
+        string? DescriptionAr, 
+        string? DescriptionEn, 
+        decimal BasePrice, 
+        decimal? DiscountPrice, 
+        string? ImageUrl, 
+        bool IsAvailable, 
+        bool IsFeatured,
+        List<ProductVariantCreateDto>? Variants
+    );
+
+    // Orders
+    public record OrderItemDto(
+        int OrderItemId, 
+        int ProductId, 
+        int? VariantId, 
+        string ProductNameAr, 
+        string ProductNameEn, 
+        string? VariantNameAr, 
+        decimal UnitPrice, 
+        int Quantity, 
+        decimal TotalPrice
+    );
+
+    public record OrderDto(
+        int OrderId, 
+        string OrderNumber, 
+        string CustomerName, 
+        string CustomerPhone, 
+        string? CustomerEmail, 
+        string DeliveryAddress, 
+        int BranchId, 
+        decimal SubTotal, 
+        decimal DeliveryFee, 
+        decimal TotalAmount, 
+        string PaymentMethod, 
+        string OrderStatus, 
+        string? Notes, 
+        DateTime CreatedAt, 
+        List<OrderItemDto> Items
+    );
+
+    public record OrderItemCreateDto(
+        int ProductId, 
+        int? VariantId, 
+        int Quantity, 
+        decimal UnitPrice
+    );
 
     public record OrderCreateDto(
         string CustomerName, 
@@ -32,6 +116,36 @@ namespace SouqSofra.Application.DTOs
         List<OrderItemCreateDto> Items
     );
 
+    public record UpdateOrderStatusDto(string Status);
+
+    // Auth
     public record LoginRequestDto(string Email, string Password);
-    public record LoginResponseDto(string Token, string FullName, string Email, string Role);
+    
+    public record LoginResponseDto(
+        string Token, 
+        string FullName, 
+        string Email, 
+        string Role, 
+        DateTime ExpiresAt
+    );
+
+    public record ChangePasswordDto(string OldPassword, string NewPassword);
+
+    // Branches
+    public record BranchDto(
+        int BranchId, 
+        string NameAr, 
+        string NameEn, 
+        string AddressAr, 
+        string AddressEn, 
+        string Phone, 
+        string WhatsApp, 
+        decimal? Latitude, 
+        decimal? Longitude, 
+        bool IsActive
+    );
+
+    // Settings
+    public record SiteSettingDto(string SettingKey, string SettingValue, string? Description);
+    public record UpdateSiteSettingDto(string SettingKey, string SettingValue);
 }

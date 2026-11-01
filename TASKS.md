@@ -67,31 +67,32 @@ Souq-Sofra/
 
 ---
 
-### Phase 3: Backend - .NET 8 Web API (Clean Architecture)
+### Phase 3: Backend - .NET 8 Web API (Clean Architecture) [COMPLETE - 100%]
 #### 3.1 Domain Layer
 - [x] **Task 3.1.1**: Create `Category` entity with bilingual names, icon, banner URL, display order, and active status.
 - [x] **Task 3.1.2**: Create `Product` entity with category FK, pricing, discount, calories, tags (popular/new), and image URL.
 - [x] **Task 3.1.3**: Create `ProductVariant` entity (Small, Medium, Large sizes with price deltas).
 - [x] **Task 3.1.4**: Create `Order` and `OrderItem` entities supporting order statuses, delivery address, notes, and payment methods.
-- [x] **Task 3.1.5**: Create `User` entity for administrative authentication with password hashing and role definitions.
+- [x] **Task 3.1.5**: Create `User` entity for administrative authentication with PBKDF2 password hashing and role definitions.
 - [x] **Task 3.1.6**: Create `SiteSetting` entity for dynamic header announcements, contact phone, delivery fees, and social links.
+- [x] **Task 3.1.7**: Create `Branch` entity for restaurant branches, coordinates, phone numbers, and WhatsApp links.
 
 #### 3.2 Infrastructure Layer
-- [x] **Task 3.2.1**: Implement `ApplicationDbContext` with EF Core entity configurations and Fluent API mappings.
-- [x] **Task 3.2.2**: Configure SQL Server connection string and command timeouts in configuration.
-- [x] **Task 3.2.3**: Implement generic repository pattern and unit of work.
+- [x] **Task 3.2.1**: Implement `AppDbContext` with EF Core entity configurations, relational foreign keys, cascade rules, and Fluent API mappings for all 8 entities.
+- [x] **Task 3.2.2**: Configure SQL Server connection string in `appsettings.json`.
 
 #### 3.3 Application Layer
-- [x] **Task 3.3.1**: Create Data Transfer Objects (DTOs) for categories, products, orders, checkout requests, and auth payloads.
-- [x] **Task 3.3.2**: Define service interfaces (`ICategoryService`, `IProductService`, `IOrderService`, `IAuthService`).
+- [x] **Task 3.3.1**: Create Data Transfer Objects (DTOs) for categories, products, variants, orders, order items, checkout requests, auth payloads, settings, and branches.
+- [x] **Task 3.3.2**: Implement `PasswordHasher` with cryptographic PBKDF2 (SHA-256 with random 128-bit salt and 100,000 iterations).
 
 #### 3.4 API Controllers & Security
-- [x] **Task 3.4.1**: Build `CategoriesController` with endpoints for public listing and admin CRUD operations.
-- [x] **Task 3.4.2**: Build `ProductsController` with category filtering, search query support, and detail retrieval.
-- [x] **Task 3.4.3**: Build `OrdersController` for guest/customer order creation and admin order status updates.
-- [x] **Task 3.4.4**: Build `AuthController` with JWT token generation and login verification.
-- [x] **Task 3.4.5**: Build `SettingsController` to serve dynamic brand metadata and store hours.
-- [x] **Task 3.4.6**: Configure CORS policies, JWT Bearer authentication, and Swagger documentation in `Program.cs`.
+- [x] **Task 3.4.1**: Build `CategoriesController` with endpoints for public listing, single item retrieval, and admin CRUD operations secured with `[Authorize(Roles = "Admin")]`.
+- [x] **Task 3.4.2**: Build `ProductsController` with public catalog filtering, search query support, admin full-listing (`/admin/all`), product variants creation, and availability toggle.
+- [x] **Task 3.4.3**: Build `OrdersController` for guest/customer checkout creation and admin order management (listing, detail, status patch).
+- [x] **Task 3.4.4**: Build `AuthController` with real signed JWT token generation (`JwtSecurityTokenHandler`), Claims (Id, Name, Email, Role), PBKDF2 password verification, `GET /api/auth/me`, and `POST /api/auth/change-password`.
+- [x] **Task 3.4.5**: Build `SettingsController` to serve dynamic brand metadata and admin PUT endpoint.
+- [x] **Task 3.4.6**: Build `BranchesController` for branch discovery and admin additions.
+- [x] **Task 3.4.7**: Configure CORS policies, JWT Bearer authentication, and Swagger Bearer Token documentation in `Program.cs` and `SouqSofra.API.csproj`.
 
 ---
 
