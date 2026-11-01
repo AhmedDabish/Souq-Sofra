@@ -161,6 +161,6 @@ Souq-Sofra/
 ### Phase 8: Source Control & GitHub Delivery
 - [x] **Task 8.1**: Initialize local Git repository with `.gitignore` for .NET, Angular, and SQL Server artifacts.
 - [x] **Task 8.2**: Create structured commit history for initial project scaffolding.
-- [ ] **Task 8.3**: Configure remote origin to `https://github.com/AhmedDabish/Souq-Sofra.git`.
-- [ ] **Task 8.4**: Push all branches, assets, database scripts, backend code, and frontend code to GitHub repository.
+- [x] **Task 8.3**: Configure remote origin to `https://github.com/AhmedDabish/Souq-Sofra.git`.
+- [x] **Task 8.4**: Push all branches, assets, database scripts, backend code, and frontend code to GitHub repository.
 - [ ] **Task 8.5**: Maintain and update `TASKS.md` with every subsequent feature branch and commit.
