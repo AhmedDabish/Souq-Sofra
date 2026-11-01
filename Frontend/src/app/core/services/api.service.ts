@@ -26,6 +26,13 @@ export class ApiService {
   // Matches Backend/SouqSofra.API/Properties/launchSettings.json
   private readonly apiUrl = 'http://localhost:2811/api';
 
+  // Upload an image to the API's wwwroot/uploads directory.
+  uploadImage(file: File, folder: 'products' | 'categories' | 'banners' | 'logo' = 'products'): Observable<{ url: string; fullUrl: string; fileName: string; folder: string }> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{ url: string; fullUrl: string; fileName: string; folder: string }>(`${this.apiUrl}/upload?folder=${folder}`, form);
+  }
+
   // -------------------------------------------------------------
   // Public Catalog & Storefront Endpoints
   // -------------------------------------------------------------

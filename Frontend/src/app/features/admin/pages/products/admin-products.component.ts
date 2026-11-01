@@ -206,9 +206,20 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-1">رابط الصورة (Image URL)</label>
-                <input type="text" [(ngModel)]="formProduct.imageUrl" name="imageUrl" placeholder="https://... أو assets/..."
-                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+                <label class="block font-bold text-gray-700 mb-2">صورة المنتج</label>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  @if (formProduct.imageUrl) {
+                    <img [src]="imagePreviewUrl(formProduct.imageUrl)" alt="معاينة صورة المنتج" class="w-24 h-24 rounded-2xl object-cover border border-gray-200 bg-orange-50">
+                  }
+                  <div class="space-y-2">
+                    <label class="inline-flex items-center gap-2 cursor-pointer px-4 py-2.5 rounded-xl bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition-colors">
+                      <span>اختيار صورة ورفعها</span>
+                      <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onImageSelected($event)" class="sr-only">
+                    </label>
+                    @if (isUploadingImage()) { <span class="text-xs text-gray-500">جارٍ رفع الصورة إلى الخادم...</span> }
+                    <p class="text-[11px] text-gray-400">JPG, PNG, WEBP أو GIF، حتى 10MB. تحفظ الصورة في wwwroot/uploads/products.</p>
+                  </div>
+                </div>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -274,6 +285,7 @@ export class AdminProductsComponent implements OnInit {
   showModal = signal<boolean>(false);
   isEditing = signal<boolean>(false);
   isSaving = signal<boolean>(false);
+  isUploadingImage = signal<boolean>(false);
   editingProductId = signal<number | null>(null);
 
   formProduct: ProductCreate = {
@@ -399,7 +411,40 @@ export class AdminProductsComponent implements OnInit {
     this.showModal.set(false);
   }
 
+  imagePreviewUrl(url: string): string {
+    if (/^https?:\/\//i.test(url) || url.startsWith('data:') || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      this.showFeedback('حجم الصورة أكبر من 10 ميجابايت.', 'error');
+      input.value = '';
+      return;
+    }
+    this.isUploadingImage.set(true);
+    this.api.uploadImage(file, 'products').subscribe({
+      next: result => {
+        this.formProduct.imageUrl = result.url;
+        this.isUploadingImage.set(false);
+        this.showFeedback('تم رفع الصورة وحفظ مسارها بنجاح.', 'success');
+      },
+      error: () => {
+        this.isUploadingImage.set(false);
+        this.showFeedback('تعذر رفع الصورة. تأكد من تشغيل الباك إند وتسجيل الدخول.', 'error');
+      }
+    });
+    input.value = '';
+  }
+
   saveProduct() {
+    if (this.isUploadingImage()) {
+      this.showFeedback('انتظر حتى ينتهي رفع الصورة.', 'error');
+      return;
+    }
     if (!this.formProduct.nameAr || !this.formProduct.nameEn || this.formProduct.basePrice <= 0) {
       alert('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.');
       return;

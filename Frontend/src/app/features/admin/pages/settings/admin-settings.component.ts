@@ -130,6 +130,29 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
+          <!-- Homepage banner management -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
+            <div class="border-b border-gray-100 pb-4">
+              <h2 class="text-base font-bold font-baloo text-gray-800">صور واجهة المتجر</h2>
+              <p class="text-[11px] text-gray-400">اختيار ورفع صور شرائح الصفحة الرئيسية إلى مجلد wwwroot/uploads/banners</p>
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+              @for (index of [1, 2, 3]; track index) {
+                <div class="flex items-center gap-4 rounded-2xl border border-gray-100 p-3">
+                  <img [src]="bannerPreview(index)" [alt]="'معاينة الشريحة ' + index" class="w-28 h-16 rounded-xl object-cover bg-orange-50">
+                  <div class="flex-1">
+                    <p class="font-bold text-xs text-gray-700 mb-2">الشريحة {{ index }}</p>
+                    <label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">
+                      اختيار صورة ورفعها
+                      <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadBanner($event, index)" class="sr-only">
+                    </label>
+                    @if (uploadingBanner() === index) { <span class="mr-2 text-[10px] text-gray-500">جارٍ الرفع...</span> }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
           <!-- Restaurant Branches Management -->
           <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-6">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -259,6 +282,7 @@ export class AdminSettingsComponent implements OnInit {
   branches = signal<Branch[]>([]);
 
   isSaving = signal<boolean>(false);
+  uploadingBanner = signal<number | null>(null);
   isSavingBranch = signal<boolean>(false);
   showBranchModal = signal<boolean>(false);
 
@@ -274,6 +298,46 @@ export class AdminSettingsComponent implements OnInit {
     whatsApp: '',
     isActive: true
   };
+
+  bannerPreview(index: number): string {
+    const url = this.settings[`HeroBanner${index}`];
+    if (!url) return `assets/banners/banner-${index}.jpg`;
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  uploadBanner(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      this.showFeedback('حجم الصورة أكبر من 10 ميجابايت.', 'error');
+      input.value = '';
+      return;
+    }
+    this.uploadingBanner.set(index);
+    this.api.uploadImage(file, 'banners').subscribe({
+      next: result => {
+        const key = `HeroBanner${index}`;
+        this.api.updateSetting(key, result.url).subscribe({
+          next: () => {
+            this.settings[key] = result.url;
+            this.uploadingBanner.set(null);
+            this.showFeedback('تم رفع صورة الشريحة وحفظها بنجاح.', 'success');
+          },
+          error: () => {
+            this.uploadingBanner.set(null);
+            this.showFeedback('تم رفع الصورة لكن تعذر حفظ إعدادها.', 'error');
+          }
+        });
+      },
+      error: () => {
+        this.uploadingBanner.set(null);
+        this.showFeedback('تعذر رفع الصورة. تأكد من تشغيل الباك إند وتسجيل الدخول.', 'error');
+      }
+    });
+    input.value = '';
+  }
 
   ngOnInit() {
     this.loadData();

@@ -3,34 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --primary: #c5a059;
-  --primary-dark: #2d2013;
-  --secondary: #e65100;
+  --primary: #f47621;
+  --primary-dark: #681c0f;
+  --secondary: #fbb042;
+  --color-background: #fff7ec;
+  --color-foreground: #28333e;
+  --header-background: #fff;
 }
 
+html { scroll-behavior: smooth; }
 body {
+  margin: 0;
   font-family: 'Cairo', sans-serif;
+  color: var(--color-foreground);
+  background: var(--color-background);
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-  background: #c5a059;
-  border-radius: 4px;
-}
-
-/* Swiper / Slider helpers */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #fff7ec; }
+::-webkit-scrollbar-thumb { background: #fbb042; border-radius: 4px; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

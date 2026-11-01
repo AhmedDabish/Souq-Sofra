@@ -8,21 +8,21 @@ import { CartService } from '../../../../core/services/cart.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-white rounded-3xl p-4 shadow-xs hover:shadow-xl border border-gray-100 hover:border-primary/30 transition-all duration-300 flex flex-col justify-between group h-full">
+    <div class="rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md border-0 transition-all duration-300 flex flex-col justify-between group h-full">
       
       <div>
         <!-- Product Image Placeholder or Thumbnail -->
-        <div class="relative w-full aspect-square rounded-2xl bg-[#f5efe6] overflow-hidden mb-3 flex items-center justify-center">
-          <img [src]="product.imageUrl || 'assets/MAIN.jpg'" [alt]="product.nameAr" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        <div class="relative w-full aspect-[4/3] rounded-xl bg-[#fff7ec] overflow-hidden mb-3 flex items-center justify-center">
+          <img [src]="imageUrl(product.imageUrl)" [alt]="product.nameAr" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
           @if (product.discountPrice) {
-            <span class="absolute top-2 right-2 bg-secondary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+            <span class="absolute top-2 right-2 bg-[#f47621] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
               عرض خاص
             </span>
           }
         </div>
 
         <!-- Info -->
-        <h3 class="font-bold text-gray-800 text-base mb-1 group-hover:text-primary transition-colors">
+        <h3 class="font-bold text-gray-800 text-base mb-1 group-hover:text-[#f47621] transition-colors">
           {{ product.nameAr }}
         </h3>
         <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
@@ -49,16 +49,16 @@ import { CartService } from '../../../../core/services/cart.service';
         <div class="flex flex-col">
           <span class="text-xs text-gray-400">السعر</span>
           <div class="flex items-baseline gap-1">
-            <span class="text-lg font-black text-primaryDark">
+            <span class="text-lg font-black text-[#681c0f]">
               {{ selectedVariant ? selectedVariant.price : (product.discountPrice || product.basePrice) }}
             </span>
-            <span class="text-xs font-bold text-primary">درهم</span>
+            <span class="text-xs font-bold text-[#f47621]">درهم</span>
           </div>
         </div>
 
         <button 
           (click)="addToCart()"
-          class="flex items-center justify-center w-10 h-10 rounded-2xl bg-primary hover:bg-primaryHover text-white shadow-md active:scale-95 transition-all">
+          class="flex items-center justify-center w-10 h-10 rounded-full bg-[#f47621] hover:bg-[#e66b1c] text-white shadow-sm active:scale-95 transition-all">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
         </button>
       </div>
@@ -76,6 +76,12 @@ export class ProductCardComponent {
     if (this.product.variants && this.product.variants.length > 0) {
       this.selectedVariant = this.product.variants[0];
     }
+  }
+
+  imageUrl(url?: string): string {
+    if (!url) return 'assets/MAIN.jpg';
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/') || url.startsWith('data:')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
   }
 
   addToCart() {

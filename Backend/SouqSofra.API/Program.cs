@@ -137,6 +137,7 @@ if (app.Environment.IsDevelopment())
 // 1. CORS Middleware MUST be placed at the very top of request pipeline
 app.UseRouting();
 app.UseCors("AllowAngular");
+app.UseStaticFiles();
 
 // Only redirect to HTTPS in production (preserves local HTTP port 2811 for Angular)
 if (!app.Environment.IsDevelopment())
