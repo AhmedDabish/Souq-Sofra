@@ -1,0 +1,53 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Category } from '../../../../core/models/models';
+
+@Component({
+  selector: 'app-category-slider',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl sm:text-2xl font-black font-baloo text-primaryDark">أقسام منيو سوق وسفرة</h2>
+        <span class="text-xs sm:text-sm font-bold text-primary cursor-pointer hover:underline">عرض جميع الأقسام</span>
+      </div>
+
+      <!-- Scrollable horizontal category badges matching More-In -->
+      <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
+        <button 
+          (click)="selectCategory(0)"
+          [class]="selectedId === 0 
+            ? 'bg-primary text-white border-primary shadow-md' 
+            : 'bg-white text-gray-700 border-gray-200 hover:border-primary/50'"
+          class="shrink-0 px-5 py-2.5 rounded-full border text-sm font-bold transition-all duration-200 flex items-center gap-2">
+          <span>🍽</span>
+          <span>الكل</span>
+        </button>
+
+        @for (cat of categories; track cat.categoryId) {
+          <button 
+            (click)="selectCategory(cat.categoryId)"
+            [class]="selectedId === cat.categoryId 
+              ? 'bg-primary text-white border-primary shadow-md' 
+              : 'bg-white text-gray-700 border-gray-200 hover:border-primary/50'"
+            class="shrink-0 px-4 py-2 rounded-full border text-sm font-bold transition-all duration-200 flex items-center gap-2 shadow-xs group">
+            <span class="w-7 h-7 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-xs">
+              🥐
+            </span>
+            <span>{{ cat.nameAr }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  `
+})
+export class CategorySliderComponent {
+  @Input() categories: Category[] = [];
+  @Input() selectedId: number = 0;
+  @Output() categorySelected = new EventEmitter<number>();
+
+  selectCategory(id: number) {
+    this.categorySelected.emit(id);
+  }
+}
