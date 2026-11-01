@@ -1,0 +1,353 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { ApiService } from '../../../../core/services/api.service';
+import { Branch, SiteSettings } from '../../../../core/models/models';
+import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { forkJoin } from 'rxjs';
+
+@Component({
+  selector: 'app-admin-settings',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
+  template: `
+    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+      
+      <!-- Shared Sidebar -->
+      <app-admin-sidebar />
+
+      <!-- Main Settings Content -->
+      <main class="flex-1 p-6 md:p-8 overflow-y-auto max-h-screen">
+        
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 class="text-2xl font-black font-baloo text-gray-800">إعدادات المتجر والفروع</h1>
+            <p class="text-xs text-gray-400">إدارة معلومات الاتصال، شريط الإعلانات، رسوم التوصيل وفروع المطعم</p>
+          </div>
+          <button 
+            (click)="saveSettings()" 
+            [disabled]="isSaving()"
+            class="px-6 py-2.5 rounded-2xl bg-primary hover:bg-primaryHover text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-2 self-start sm:self-auto">
+            @if (isSaving()) {
+              <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            }
+            <span>💾 حفظ التغييرات</span>
+          </button>
+        </header>
+
+        <!-- Feedback Alert -->
+        @if (feedbackMessage()) {
+          <div [class]="feedbackType() === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'" 
+               class="mb-6 p-4 rounded-2xl border text-xs font-semibold flex items-center justify-between">
+            <span>{{ feedbackMessage() }}</span>
+            <button (click)="feedbackMessage.set('')" class="text-gray-400 hover:text-gray-600">✕</button>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          <!-- General Store Configuration -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-6">
+            <div class="border-b border-gray-100 pb-4">
+              <h2 class="text-base font-bold font-baloo text-gray-800">إعدادات الواجهة والطلبات</h2>
+              <p class="text-[11px] text-gray-400">القيم المعروضة للزبائن في المتجر وشريط الإعلانات</p>
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">نص شريط الإعلانات العلوي (Announcement Banner)</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="settings.Announcement" 
+                  name="announcement"
+                  placeholder="مثال: خصم 15% على الفطير المشلتت لطلبات الأونلاين!"
+                  class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">رقم هاتف الاتصال الرئيسي</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="settings.PhoneNumber" 
+                    name="phone"
+                    placeholder="02 633 3136"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">رقم خدمة الواتساب</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="settings.WhatsApp" 
+                    name="whatsapp"
+                    placeholder="+971 50 315 7884"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">رسوم التوصيل الافتراضية (درهم)</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="settings.DeliveryFee" 
+                    name="deliveryFee"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">الحد الأدنى للطلب (درهم)</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="settings.MinOrderAmount" 
+                    name="minOrder"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">ساعات عمل المطعم والتوصيل</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="settings.WorkingHours" 
+                  name="workingHours"
+                  placeholder="يومياً من 7:00 ص وحتى 12:00 منتصف الليل"
+                  class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">نسبة ضريبة القيمة المضافة (VAT %)</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="settings.VATPercentage" 
+                  name="vat"
+                  placeholder="5%"
+                  class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurant Branches Management -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-6">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div>
+                <h2 class="text-base font-bold font-baloo text-gray-800">فروع سوق وسفرة</h2>
+                <p class="text-[11px] text-gray-400">الفروع المتاحة لاستلام وتوصيل الطلبات</p>
+              </div>
+              <button 
+                (click)="showBranchModal.set(true)"
+                class="px-3.5 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors">
+                + إضافة فرع
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              @for (branch of branches(); track branch.branchId) {
+                <div class="p-4 rounded-2xl border border-gray-100 hover:border-primary/30 transition-colors flex flex-col justify-between gap-3 bg-gray-50/50">
+                  <div class="flex items-center justify-between">
+                    <div class="font-bold text-xs text-gray-800 flex items-center gap-2">
+                      <span class="text-base">📍</span>
+                      <span>{{ branch.nameAr }}</span>
+                      <span class="text-[10px] text-gray-400">({{ branch.nameEn }})</span>
+                    </div>
+                    <span class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">
+                      {{ branch.isActive ? 'نشط' : 'معطل' }}
+                    </span>
+                  </div>
+
+                  <div class="text-[11px] text-gray-500">
+                    <div>{{ branch.addressAr }}</div>
+                    <div class="text-gray-400 text-[10px]">{{ branch.addressEn }}</div>
+                  </div>
+
+                  <div class="flex items-center gap-4 text-[11px] text-primary font-medium pt-2 border-t border-gray-100">
+                    <div>📞 {{ branch.phone }}</div>
+                    <div>💬 {{ branch.whatsApp }}</div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="p-8 text-center text-gray-400 text-xs">
+                  لا توجد فروع مسجلة حالياً
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+      <!-- Add Branch Modal -->
+      @if (showBranchModal()) {
+        <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+              <h2 class="text-base font-bold font-baloo text-gray-800">إضافة فرع جديد</h2>
+              <button (click)="showBranchModal.set(false)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm font-bold">✕</button>
+            </div>
+
+            <form (ngSubmit)="saveBranch()" class="space-y-4 text-xs">
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">اسم الفرع بالعربية *</label>
+                <input type="text" [(ngModel)]="newBranch.nameAr" name="nameAr" required placeholder="مثال: فرع الخالدية"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">اسم الفرع بالإنجليزية *</label>
+                <input type="text" [(ngModel)]="newBranch.nameEn" name="nameEn" required placeholder="e.g. Al Khalidiyah Branch"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">العنوان بالعربية</label>
+                <input type="text" [(ngModel)]="newBranch.addressAr" name="addressAr" placeholder="أبوظبي - الخالدية"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">العنوان بالإنجليزية</label>
+                <input type="text" [(ngModel)]="newBranch.addressEn" name="addressEn" placeholder="Abu Dhabi - Al Khalidiyah"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                  <input type="text" [(ngModel)]="newBranch.phone" name="phone" placeholder="02 633 3136"
+                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+                </div>
+                <div>
+                  <label class="block font-bold text-gray-700 mb-1">رقم الواتساب</label>
+                  <input type="text" [(ngModel)]="newBranch.whatsApp" name="whatsApp" placeholder="+971503157884"
+                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" (click)="showBranchModal.set(false)" class="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200">
+                  إلغاء
+                </button>
+                <button type="submit" [disabled]="isSavingBranch()" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
+                  إضافة الفرع
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+    </div>
+  `
+})
+export class AdminSettingsComponent implements OnInit {
+  private api = inject(ApiService);
+
+  settings: SiteSettings = {
+    Announcement: 'أهلاً بكم في مطعم ومخبز سوق وسفرة (Good Food, Good Mood) - التوصيل متاح الآن بأبوظبي!',
+    PhoneNumber: '02 633 3136',
+    WhatsApp: '+971 50 315 7884',
+    DeliveryFee: '10.00',
+    MinOrderAmount: '30.00',
+    WorkingHours: 'يومياً من 7:00 ص وحتى 12:00 منتصف الليل',
+    VATPercentage: '5%'
+  };
+
+  branches = signal<Branch[]>([]);
+
+  isSaving = signal<boolean>(false);
+  isSavingBranch = signal<boolean>(false);
+  showBranchModal = signal<boolean>(false);
+
+  feedbackMessage = signal<string>('');
+  feedbackType = signal<'success' | 'error'>('success');
+
+  newBranch: Partial<Branch> = {
+    nameAr: '',
+    nameEn: '',
+    addressAr: '',
+    addressEn: '',
+    phone: '',
+    whatsApp: '',
+    isActive: true
+  };
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  loadData() {
+    forkJoin({
+      settings: this.api.getSettings(),
+      branches: this.api.getBranches()
+    }).subscribe({
+      next: (res) => {
+        if (res.settings && Object.keys(res.settings).length > 0) {
+          this.settings = { ...this.settings, ...res.settings };
+        }
+        this.branches.set(res.branches || []);
+      },
+      error: () => {
+        // Keep defaults on connection error
+      }
+    });
+  }
+
+  saveSettings() {
+    this.isSaving.set(true);
+
+    const keys = Object.keys(this.settings) as (keyof SiteSettings)[];
+    const updates = keys
+      .filter((k) => this.settings[k] !== undefined)
+      .map((k) => this.api.updateSetting(k as string, this.settings[k] as string));
+
+    if (updates.length === 0) {
+      this.isSaving.set(false);
+      return;
+    }
+
+    forkJoin(updates).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.showFeedback('تم حفظ وتحديث إعدادات المتجر بنجاح.', 'success');
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.showFeedback('فشل حفظ بعض الإعدادات على الخادم.', 'error');
+      }
+    });
+  }
+
+  saveBranch() {
+    if (!this.newBranch.nameAr || !this.newBranch.nameEn) {
+      alert('يرجى كتابة اسم الفرع بالعربية والإنجليزية.');
+      return;
+    }
+
+    this.isSavingBranch.set(true);
+    this.api.createBranch(this.newBranch).subscribe({
+      next: (b) => {
+        this.isSavingBranch.set(false);
+        this.showBranchModal.set(false);
+        this.branches.set([...this.branches(), b]);
+        this.newBranch = { nameAr: '', nameEn: '', addressAr: '', addressEn: '', phone: '', whatsApp: '', isActive: true };
+        this.showFeedback('تمت إضافة الفرع الجديد بنجاح.', 'success');
+      },
+      error: () => {
+        this.isSavingBranch.set(false);
+        this.showFeedback('فشل إضافة الفرع على الخادم.', 'error');
+      }
+    });
+  }
+
+  private showFeedback(msg: string, type: 'success' | 'error') {
+    this.feedbackMessage.set(msg);
+    this.feedbackType.set(type);
+    setTimeout(() => {
+      if (this.feedbackMessage() === msg) this.feedbackMessage.set('');
+    }, 4000);
+  }
+}

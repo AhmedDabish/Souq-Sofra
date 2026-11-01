@@ -9,18 +9,19 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4" dir="rtl">
+    <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-cairo" dir="rtl">
       <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6 border border-gray-200">
         
         <div class="text-center space-y-2">
-          <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-16 h-16 rounded-full mx-auto border-2 border-primary/40 shadow-sm">
+          <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-16 h-16 rounded-full mx-auto border-2 border-primary/40 shadow-sm object-cover">
           <h1 class="text-2xl font-bold font-baloo text-primaryDark">تسجيل دخول الإدارة</h1>
           <p class="text-xs text-gray-500">لوحة تحكم مطعم ومخبز سوق وسفرة</p>
         </div>
 
         @if (errorMessage()) {
-          <div class="p-3 bg-red-50 text-red-600 rounded-xl text-xs font-semibold text-center">
-            {{ errorMessage() }}
+          <div class="p-3.5 bg-red-50 text-red-600 rounded-2xl text-xs font-semibold text-center border border-red-100 flex items-center justify-center gap-2">
+            <span>⚠️</span>
+            <span>{{ errorMessage() }}</span>
           </div>
         }
 
@@ -49,13 +50,19 @@ import { AuthService } from '../../../../core/services/auth.service';
 
           <button 
             type="submit" 
-            class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primaryHover text-white font-bold text-sm shadow-md transition-all active:scale-95">
-            تسجيل الدخول
+            [disabled]="isLoading()"
+            class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primaryHover disabled:opacity-60 text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+            @if (isLoading()) {
+              <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>جاري التحقق...</span>
+            } @else {
+              <span>تسجيل الدخول</span>
+            }
           </button>
         </form>
 
         <div class="pt-4 border-t border-gray-100 text-center">
-          <a routerLink="/" class="text-xs text-gray-500 hover:text-primary">
+          <a routerLink="/" class="text-xs text-gray-500 hover:text-primary font-medium">
             ← العودة للمتجر العام
           </a>
         </div>
@@ -71,14 +78,32 @@ export class AdminLoginComponent {
   email = 'admin@souqsofra.com';
   password = '';
   errorMessage = signal<string>('');
+  isLoading = signal<boolean>(false);
 
   handleLogin() {
-    this.errorMessage.set('');
-    const success = this.auth.login(this.email, this.password);
-    if (success) {
-      this.router.navigate(['/admin']);
-    } else {
-      this.errorMessage.set('بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور.');
+    if (!this.email || !this.password) {
+      this.errorMessage.set('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
+      return;
     }
+
+    this.errorMessage.set('');
+    this.isLoading.set(true);
+
+    this.auth.login(this.email, this.password).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/admin']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        if (err.status === 401) {
+          this.errorMessage.set('بيانات تسجيل الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور.');
+        } else if (err.status === 0) {
+          this.errorMessage.set('تعذر الاتصال بـ API Backend (تأكد من تشغيل سيرفر .NET على المنفذ 2811).');
+        } else {
+          this.errorMessage.set(err.error?.message || 'حدث خطأ أثناء محاولة الدخول.');
+        }
+      }
+    });
   }
 }

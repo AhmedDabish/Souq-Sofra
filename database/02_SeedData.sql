@@ -11,10 +11,10 @@ INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Manager'), ('Cashier'), ('Custo
 
 -- 2. Insert Default Admin (Password: Admin@123456 - PBKDF2/SHA256 Hash placeholder)
 INSERT INTO Users (FullName, Email, PasswordHash, PhoneNumber, RoleId, IsActive)
-VALUES (N'مدير سوق وسفرة', 'admin@souqsofra.com', 'AQAAAAIAAYagAAAAEI8uW+xV0m...samplehash...', '+971503157884', 1, 1);
+VALUES (N'مدير سوق وسفرة', 'admin@souqsofra.com', 'jm5qtRcShtk8AL+DvQozYQ==:t9jeA8Uawu/5NkZyj3ydmT1h5hF5hQrEisCPxOUX8/Y=', '+971503157884', 1, 1);
 
 -- 3. Insert Branch
-INSERT INTO Branches (NameAr, NameEn, AddressAr, AddressEn, Phone, WhatsApp, Latitude, LongLongitude)
+INSERT INTO Branches (NameAr, NameEn, AddressAr, AddressEn, Phone, WhatsApp, Latitude, Longitude)
 VALUES (
     N'فرع الكورنيش - أبوظبي',
     'Corniche Branch - Abu Dhabi',
