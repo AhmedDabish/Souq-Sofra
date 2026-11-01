@@ -10,10 +10,10 @@ import { LocationService } from '../../../../core/services/location.service';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <!-- Desktop & Tablet Header - Elevated Height & Exact More-In Structure -->
-    <header class="relative md:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-sm py-1.5 md:py-2.5">
+    <!-- Desktop & Tablet Header - Balanced Sleek Height & Exact More-In Structure -->
+    <header class="relative md:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-sm py-1 md:py-1.5">
       <div class="container-wide mx-auto px-2 md:px-4">
-        <div class="flex items-center justify-between flex-nowrap min-h-[76px] md:min-h-[84px]">
+        <div class="flex items-center justify-between flex-nowrap min-h-[64px] md:min-h-[68px]">
           
           <!-- Start/Right: Logo and Location -->
           <div class="flex gap-2.5 md:gap-3.5 items-center">
@@ -22,15 +22,15 @@ import { LocationService } from '../../../../core/services/location.service';
                 <div class="relative py-1 logo-img">
                   <img 
                     alt="سوق وسفرة" 
-                    width="54" 
-                    height="54" 
-                    class="w-13 h-13 object-cover rounded-full border border-secondary/40 shadow-xs" 
+                    width="52" 
+                    height="52" 
+                    class="w-12 h-12 md:w-13 md:h-13 object-cover rounded-full border border-secondary/40 shadow-xs" 
                     src="assets/MAIN.jpg">
                 </div>
               </div>
             </a>
 
-            <!-- Location Selector Pill - Exact More-In Classes & Specs -->
+            <!-- Location Selector Pill - Exact More-In Classes, Size & Specs -->
             <button 
               type="button"
               (click)="openLocationModal()"
@@ -41,26 +41,26 @@ import { LocationService } from '../../../../core/services/location.service';
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
               </div>
-              <span class="hidden lg:inline-block xl:max-w-[250px] max-w-[150px] truncate font-bold text-gray-700" [title]="locationService.selectedLocation()">
-                {{ locationService.selectedLocation() || 'اختر الموقع...' }}
+              <span class="hidden lg:inline-block xl:max-w-[250px] max-w-[150px] truncate" [title]="locationService.selectedLocation()">
+                {{ locationService.selectedLocation() }}
               </span>
             </button>
           </div>
 
-          <!-- End/Left: Navigation Links, Search, Lang, Cart, User -->
+          <!-- Middle: Navigation Links -->
           <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
             <nav class="hidden pe-5 font-bold navbar-links md:flex items-center gap-6 2xl:gap-8 flex-nowrap overflow-hidden transition-[opacity,transform,max-width] duration-500 max-w-[1000px] opacity-100">
               <a 
                 routerLink="/menu" 
-                routerLinkActive="text-headerTextActive after:scale-x-100" 
+                routerLinkActive="text-headerTextActive after:scale-x-100"
                 class="itm header-link relative text-sm lg:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
-                منيو سوق وسفرة
+                قائمة الطعام
               </a>
               <a 
                 routerLink="/contact" 
-                routerLinkActive="text-headerTextActive after:scale-x-100" 
+                routerLinkActive="text-headerTextActive after:scale-x-100"
                 class="itm header-link relative text-sm lg:text-lg transition-colors hover:text-headerTextActive after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-headerTextActive after:transition-transform after:duration-300 after:origin-center text-headerText after:scale-x-0 hover:after:scale-x-100">
-                عن سوق وسفرة
+                الفروع وتواصل معنا
               </a>
             </nav>
 
@@ -73,13 +73,11 @@ import { LocationService } from '../../../../core/services/location.service';
                   placeholder="ابحث عن منتج..." 
                   [(ngModel)]="searchQuery"
                   (keyup.enter)="onSearch()"
-                  class="bg-transparent outline-none border-0 transition-all duration-300 ease-in-out text-sm w-0 px-0 opacity-0 group-focus-within:w-full group-focus-within:opacity-100 group-focus-within:px-1 text-gray-800">
-                <button type="button" (click)="onSearch()" aria-label="بحث" class="shrink-0 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-700 size-[20px]" aria-hidden="true">
-                    <path d="m21 21-4.34-4.34"></path>
-                    <circle cx="11" cy="11" r="8"></circle>
-                  </svg>
-                </button>
+                  class="bg-transparent outline-none border-0 transition-all duration-300 ease-in-out text-sm w-0 px-0 opacity-0 focus:w-full focus:opacity-100 text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-700 size-[20px] pointer-events-none" aria-hidden="true">
+                  <path d="m21 21-4.34-4.34"></path>
+                  <circle cx="11" cy="11" r="8"></circle>
+                </svg>
               </div>
             </div>
 
@@ -96,7 +94,7 @@ import { LocationService } from '../../../../core/services/location.service';
                 type="button" 
                 (click)="cart.toggleDrawer()" 
                 aria-label="سلة المشتريات" 
-                class="relative p-2 rounded-full transition-colors text-gray-800 cursor-pointer flex items-center justify-center">
+                class="relative p-2 rounded-full transition-colors text-gray-800 cursor-pointer">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="176" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
                   <circle cx="400" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
@@ -104,7 +102,7 @@ import { LocationService } from '../../../../core/services/location.service';
                   <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 288h249.44a8 8 0 0 0 7.85-6.43l28.8-144a8 8 0 0 0-7.85-9.57H128"></path>
                 </svg>
                 @if (cart.totalCount() > 0) {
-                  <span class="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  <span class="absolute -top-1.5 -right-1.5 bg-primary text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                     {{ cart.totalCount() }}
                   </span>
                 }
@@ -116,18 +114,17 @@ import { LocationService } from '../../../../core/services/location.service';
               <a 
                 class="hidden md:flex p-2 rounded-full transition-colors text-white" 
                 routerLink="/admin/login" 
-                title="تسجيل الدخول">
+                title="لوحة الإدارة">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user" aria-hidden="true">
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </a>
             </div>
-
           </div>
 
           <!-- Mobile Header (Visible on screens < md) -->
-          <div class="md:hidden flex items-center justify-between w-full py-2">
+          <div class="md:hidden flex items-center justify-between w-full py-1.5">
             <a routerLink="/" class="shrink-0 flex items-center gap-2">
               <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-11 h-11 rounded-full object-cover border border-secondary shadow-sm">
               <span class="text-base font-extrabold font-baloo text-primaryDark">سوق وسفرة</span>
@@ -139,7 +136,7 @@ import { LocationService } from '../../../../core/services/location.service';
                 (click)="openLocationModal()" 
                 class="flex items-center gap-1.5 px-3 py-1.5 border border-secondary/80 rounded-full text-xs font-bold text-gray-700 bg-white shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                <span class="max-w-[110px] truncate">{{ locationService.selectedLocation() }}</span>
+                <span class="max-w-[120px] truncate">{{ locationService.selectedLocation() }}</span>
               </button>
 
               <button 
@@ -154,7 +151,7 @@ import { LocationService } from '../../../../core/services/location.service';
                   <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 288h249.44a8 8 0 0 0 7.85-6.43l28.8-144a8 8 0 0 0-7.85-9.57H128"></path>
                 </svg>
                 @if (cart.totalCount() > 0) {
-                  <span class="absolute -top-1 -right-1 bg-secondary text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  <span class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
                     {{ cart.totalCount() }}
                   </span>
                 }
@@ -166,20 +163,20 @@ import { LocationService } from '../../../../core/services/location.service';
       </div>
     </header>
 
-    <!-- Location & Delivery Selection Modal (Radix/More-In Style Parity) -->
+    <!-- Location & Delivery Selection Modal (Exact More-In Specs & Classes) -->
     @if (locationService.isModalOpen()) {
       <!-- Backdrop -->
       <div 
-        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs transition-opacity duration-300"
         (click)="locationService.closeModal()">
       </div>
 
-      <!-- Dialog Body -->
+      <!-- Dialog Body - Exact More-In Sizing & Classes -->
       <div 
         role="dialog" 
         aria-modal="true"
         data-state="open" 
-        class="fixed left-[50%] top-[50%] z-50 grid w-[94%] sm:w-full -translate-x-1/2 -translate-y-1/2 border border-white/20 shadow-2xl rounded-3xl max-w-2xl xl:max-w-3xl p-0 overflow-hidden gap-0 bg-white max-h-[92vh] animate-in fade-in zoom-in-95"
+        class="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] border shadow-lg duration-200 sm:rounded-3xl max-w-2xl xl:max-w-3xl p-0 overflow-hidden gap-0 bg-theme-bg/50 backdrop-blur-sm border-white/20 max-h-[95vh] animate-in fade-in zoom-in-95"
         tabindex="-1">
         
         <!-- Close Button -->
@@ -194,17 +191,17 @@ import { LocationService } from '../../../../core/services/location.service';
           </svg>
         </button>
 
-        <div class="flex flex-col h-full max-h-[90vh] bg-white relative">
+        <div class="flex flex-col h-full md:h-[90vh] bg-white relative">
           
           <!-- Top Header: Title & Segmented Delivery / Pickup Switch -->
-          <div class="shrink-0 px-4 pt-4 md:pt-5 pb-3 border-b border-gray-100 bg-linear-to-b from-orange-50/50 to-white">
-            <div class="text-center mb-3">
+          <div class="shrink-0 px-4 pt-3 md:pt-5 pb-3 border-b border-gray-100 bg-linear-to-b from-orange-50/40 to-white">
+            <div class="text-center mb-4">
               <h2 class="tracking-tight text-xl 2xl:text-2xl font-bold text-gray-900 font-baloo">كيف تود أن تطلب؟</h2>
               <p class="text-gray-500 text-xs mt-1">اختر الطريقة المفضلة لديك.</p>
             </div>
 
             <!-- Segmented Pill Tabs -->
-            <div class="relative flex bg-gray-100 p-1 rounded-xl max-w-md mx-auto">
+            <div class="relative flex bg-gray-100 p-1 rounded-xl">
               <!-- Sliding Active Pill Indicator -->
               <div 
                 class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-out"
@@ -246,7 +243,7 @@ import { LocationService } from '../../../../core/services/location.service';
           </div>
 
           <!-- Middle Content Area -->
-          <div class="flex flex-col flex-1 min-h-[340px] md:min-h-[400px] relative p-4 pb-2 overflow-y-auto">
+          <div class="flex flex-col flex-1 min-h-0 relative p-4 pb-0">
             
             <!-- 1. Delivery Mode View -->
             @if (modalOrderType === 'delivery') {
@@ -254,11 +251,11 @@ import { LocationService } from '../../../../core/services/location.service';
                 
                 @if (!isManualMode) {
                   <!-- Interactive Map Container -->
-                  <div class="relative flex-1 min-h-[290px] md:min-h-[350px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex flex-col">
+                  <div class="relative flex-1 min-h-0 rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex flex-col">
                     
                     <!-- Search Input Floating over Map -->
-                    <div class="absolute top-3 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-20">
-                      <div class="relative w-full shadow-lg shadow-black/10">
+                    <div class="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-[1000]">
+                      <div class="relative w-full shadow-xl shadow-black/5">
                         <div class="relative group">
                           <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors z-10">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search w-5 h-5">
@@ -268,18 +265,18 @@ import { LocationService } from '../../../../core/services/location.service';
                           </div>
                           <input 
                             aria-label="Search for location" 
-                            placeholder="ابحث عن منطقتك في أبوظبي..." 
+                            placeholder="ابحث عن موقعك..." 
                             [(ngModel)]="searchLocationText"
                             (keyup.enter)="onLocationSearch()"
-                            class="w-full pl-12 pr-4 py-3 rounded-full border-0 bg-white/95 text-gray-800 placeholder:text-gray-400 shadow-sm ring-1 ring-gray-200 focus:ring-2 focus:ring-primary transition-all text-sm font-medium" 
+                            class="w-full pl-12 pr-4 py-3.5 rounded-full border-0 bg-white text-gray-800 placeholder:text-gray-400 shadow-sm ring-1 ring-gray-200 focus:ring-2 focus:ring-primary transition-all text-sm font-medium" 
                             autocomplete="off" 
                             type="text">
                         </div>
                       </div>
                     </div>
 
-                    <!-- Map Tiles -->
-                    <div class="relative w-full flex-1 h-full min-h-[290px] bg-slate-100 overflow-hidden">
+                    <!-- Map Tiles Container -->
+                    <div class="relative w-full flex-1 h-full min-h-[300px] bg-slate-100 overflow-hidden">
                       <iframe 
                         class="w-full h-full border-0 pointer-events-auto filter saturate-110"
                         loading="lazy"
@@ -287,7 +284,7 @@ import { LocationService } from '../../../../core/services/location.service';
                         title="خريطة توصيل سوق وسفرة أبوظبي">
                       </iframe>
 
-                      <!-- Center Brand Pin Marker - Matching Exact Design -->
+                      <!-- Center Brand Pin Marker -->
                       <div class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
                         <div class="flex flex-col items-center -translate-y-6">
                           <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 28 40" class="drop-shadow-xl animate-bounce">
@@ -298,11 +295,11 @@ import { LocationService } from '../../../../core/services/location.service';
                         </div>
                       </div>
 
-                      <!-- Locate Me Button -->
+                      <!-- Locate Me Button Floating on Map -->
                       <button 
                         type="button" 
                         (click)="detectLocation()" 
-                        class="absolute bottom-4 right-4 bg-white p-2.5 rounded-full shadow-lg hover:bg-gray-100 transition-colors z-20 text-gray-700 cursor-pointer border border-gray-200" 
+                        class="absolute bottom-6 right-4 bg-white p-2.5 rounded-full shadow-lg hover:bg-gray-100 transition-colors z-[500] text-gray-600 cursor-pointer border border-gray-200" 
                         title="تحديد موقعي الحالي" 
                         aria-label="تحديد موقعي الحالي">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-crosshair w-5 h-5">
@@ -315,10 +312,43 @@ import { LocationService } from '../../../../core/services/location.service';
                       </button>
 
                       <!-- Selected Location Chip on Map -->
-                      <div class="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-gray-200 shadow-md text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                      <div class="absolute bottom-6 left-4 z-[500] bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-gray-200 shadow-md text-xs font-bold text-gray-800 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span>{{ tempLocationName }}</span>
                       </div>
+
+                      <!-- Initial Pulsing Locate Me Overlay (Exact More-In Design) -->
+                      @if (!locationDetected) {
+                        <div class="absolute inset-0 z-[1100] flex flex-col items-center justify-center gap-5 bg-gray-950/55 px-6 text-center animate-in fade-in duration-300">
+                          <button 
+                            type="button" 
+                            (click)="detectLocation()" 
+                            aria-label="تحديد موقعي" 
+                            class="group relative grid gap-5 place-items-center cursor-pointer disabled:cursor-default focus:outline-none">
+                            <span class="w-24 h-24 grid place-items-center rounded-full relative">
+                              <span aria-hidden="true" class="pointer-events-none absolute inset-0 rounded-full bg-primary/25 animate-ping"></span>
+                              <span aria-hidden="true" class="pointer-events-none absolute inset-3 rounded-full bg-primary/35 animate-ping" style="animation-delay: 0.6s;"></span>
+                              <span aria-hidden="true" class="pointer-events-none absolute inset-2 rounded-full border border-white/30"></span>
+                              <span class="relative grid place-items-center w-16 h-16 rounded-full bg-primary text-white shadow-xl shadow-primary/40 ring-4 ring-white/20 transition-transform duration-200 group-hover:scale-105 group-active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-7 h-7">
+                                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                                  <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                              </span>
+                            </span>
+                            <div class="max-w-65 space-y-1">
+                              <p class="text-base font-bold text-white drop-shadow-sm">تحديد موقعي</p>
+                              <p class="text-xs font-medium leading-relaxed text-white/70">فعّل الموقع وهنحدد أقرب فرع ليك تلقائياً.</p>
+                            </div>
+                          </button>
+                          <button 
+                            type="button" 
+                            (click)="toggleManualMode()" 
+                            class="text-xs font-bold text-white/80 underline underline-offset-4 hover:text-white transition-colors cursor-pointer">
+                            أدخل العنوان يدوياً
+                          </button>
+                        </div>
+                      }
                     </div>
 
                     <!-- Quick Area Selection Pills -->
@@ -340,53 +370,80 @@ import { LocationService } from '../../../../core/services/location.service';
                     </div>
                   </div>
                 } @else {
-                  <!-- Manual Form Mode -->
-                  <div class="bg-gray-50/70 rounded-2xl p-4 sm:p-5 border border-gray-200 space-y-3">
-                    <h4 class="font-bold text-sm text-gray-800 flex items-center gap-2">
-                      <span>📝</span> تفاصيل عنوان التوصيل في أبوظبي
-                    </h4>
+                  <!-- Manual Form Mode (Exact More-In Layout & Styling) -->
+                  <div class="flex flex-col gap-4 flex-1 overflow-y-auto pb-4 pr-1">
+                    <div class="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-sm">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                            المحافظة / الإمارة <span class="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            [(ngModel)]="manualCity" 
+                            class="w-full rounded-xl h-11 text-sm font-medium border bg-orange-50/40 px-3 py-2 border-orange-200 focus:outline-none focus:border-primary text-gray-800">
+                        </div>
+                        <div>
+                          <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                            المنطقة / الحي <span class="text-red-500">*</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            [(ngModel)]="manualArea" 
+                            placeholder="مثال: الكورنيش، الخالدية، المرور" 
+                            class="w-full rounded-xl h-11 text-sm font-medium border bg-orange-50/40 px-3 py-2 border-orange-200 focus:outline-none focus:border-primary text-gray-800">
+                        </div>
+                      </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div>
-                        <label class="block font-semibold text-gray-600 mb-1">المدينة / الإمارة</label>
-                        <input 
-                          type="text" 
-                          [(ngModel)]="manualCity" 
-                          class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
-                      </div>
-                      <div>
-                        <label class="block font-semibold text-gray-600 mb-1">المنطقة / الحي *</label>
-                        <input 
-                          type="text" 
-                          [(ngModel)]="manualArea" 
-                          placeholder="مثال: الكورنيش، الخالدية، المرور" 
-                          class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
-                      </div>
-                      <div>
-                        <label class="block font-semibold text-gray-600 mb-1">اسم الشارع *</label>
-                        <input 
-                          type="text" 
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                          العنوان بالتفصيل
+                        </label>
+                        <textarea 
                           [(ngModel)]="manualStreet" 
-                          placeholder="مثال: شارع الكورنيش، مقابل بنك النيلين" 
-                          class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
+                          rows="3" 
+                          placeholder="مثال: شارع الكورنيش، مقابل بنك النيلين، الدور الثاني" 
+                          class="w-full border rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 font-medium text-gray-800 resize-none placeholder:text-gray-400 transition-all border-gray-200 focus:border-primary focus:ring-primary/10">
+                        </textarea>
                       </div>
-                      <div>
-                        <label class="block font-semibold text-gray-600 mb-1">اسم / رقم المبنى ورقم الشقة</label>
-                        <input 
-                          type="text" 
-                          [(ngModel)]="manualBuilding" 
-                          placeholder="رقم المبنى، الطابق، الشقة" 
-                          class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <label class="block font-semibold text-gray-600 mb-1">اسم / رقم المبنى والشقة</label>
+                          <input 
+                            type="text" 
+                            [(ngModel)]="manualBuilding" 
+                            placeholder="رقم المبنى، الطابق، الشقة" 
+                            class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                          <label class="block font-semibold text-gray-600 mb-1">ملاحظات للمندوب</label>
+                          <input 
+                            type="text" 
+                            [(ngModel)]="manualNotes" 
+                            placeholder="أي تفاصيل لتسهيل الوصول..." 
+                            class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label class="block text-xs font-semibold text-gray-600 mb-1">علامة مميزة أو ملاحظات خاصة للمندوب</label>
-                      <input 
-                        type="text" 
-                        [(ngModel)]="manualNotes" 
-                        placeholder="أي تفاصيل لتسهيل وصول المندوب إليك سريعاً..." 
-                        class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary text-xs">
+                    <div class="flex items-center justify-between gap-2 text-sm px-1">
+                      <button 
+                        type="button" 
+                        class="text-gray-500 font-medium hover:text-primary hover:underline transition-colors cursor-pointer text-xs">
+                        لا يمكن العثور على موقعك؟
+                      </button>
+                      <button 
+                        type="button" 
+                        (click)="toggleManualMode()" 
+                        class="text-primary font-bold hover:underline flex items-center gap-1.5 cursor-pointer text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map w-4 h-4">
+                          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                          <line x1="9" x2="9" y1="3" y2="18"></line>
+                          <line x1="15" x2="15" y1="6" y2="21"></line>
+                        </svg>
+                        حدد الموقع على الخريطة
+                      </button>
                     </div>
                   </div>
                 }
@@ -394,55 +451,65 @@ import { LocationService } from '../../../../core/services/location.service';
               </div>
             }
 
-            <!-- 2. Pickup Mode View (Branches) -->
+            <!-- 2. Pickup Mode View (Exact More-In Branches Layout) -->
             @if (modalOrderType === 'pickup') {
-              <div class="flex flex-col gap-3 py-2">
-                <div class="p-4 sm:p-5 rounded-2xl border-2 border-primary bg-orange-50/40 flex flex-col gap-2.5 relative shadow-xs">
-                  <div class="flex items-center justify-between">
-                    <span class="font-bold text-sm sm:text-base text-primaryDark flex items-center gap-2">
-                      <span>🏪</span> فرع الكورنيش الرئيسي (أبوظبي)
-                    </span>
-                    <span class="text-[11px] font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span> يستقبل الطلبات
-                    </span>
-                  </div>
+              <div class="bg-white w-full flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between shrink-0 mb-3">
+                  <h3 class="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store w-4 h-4 text-primary">
+                      <path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"></path>
+                      <path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"></path>
+                      <path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"></path>
+                    </svg>
+                    الفروع المتاحة
+                  </h3>
+                  <span class="text-[10px] font-semibold bg-orange-100 text-primary px-2 py-0.5 rounded-full">
+                    فرع متاح
+                  </span>
+                </div>
 
-                  <p class="text-xs text-gray-700 leading-relaxed font-medium">
-                    أبوظبي - الكورنيش - مقابل المدينة فريش مارت وبنك النيلين
-                  </p>
-
-                  <div class="flex flex-wrap items-center gap-4 text-xs text-gray-600 pt-2 border-t border-orange-200/50">
-                    <span class="flex items-center gap-1">
-                      <span>🕒</span> 8:00 صباحاً - 12:00 منتصف الليل
-                    </span>
-                    <a href="tel:026333136" class="flex items-center gap-1 text-primary hover:underline font-bold">
-                      <span>📞</span> 02 633 3136
-                    </a>
-                    <a href="https://wa.me/971503157884" target="_blank" class="flex items-center gap-1 text-green-600 hover:underline font-bold">
-                      <span>💬</span> واتساب: 0503157884
-                    </a>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto flex-1 content-start auto-rows-max pb-2 pr-1">
+                  <div class="p-3.5 rounded-xl border-2 transition-all flex flex-col justify-between relative min-h-[96px] border-primary/50 bg-orange-50/20 cursor-pointer shadow-xs">
+                    <div>
+                      <div class="flex justify-between items-start gap-1 mb-1.5">
+                        <h4 class="font-bold text-xs md:text-sm line-clamp-1 branchname text-gray-900">
+                          فرع الكورنيش الرئيسي (أبوظبي)
+                        </h4>
+                        <span class="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">مفتوح</span>
+                      </div>
+                      <p class="text-[10px] md:text-[11px] text-gray-500 line-clamp-2 leading-snug">
+                        أبوظبي - الكورنيش - مقابل المدينة فريش مارت وبنك النيلين
+                      </p>
+                      <div class="flex items-center gap-1 mt-2 text-[9px] md:text-[10px] text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-3.5 h-3.5 shrink-0">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>8:00 صباحاً - 12:00 منتصف الليل</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div class="p-3.5 bg-gray-50 rounded-xl text-xs text-gray-500 leading-relaxed border border-gray-200">
-                  ✨ <strong>ميزة الاستلام من الفرع:</strong> يتم تجهيز طلبك طازجاً وساخناً فور وصولك دون أي رسوم توصيل أو انتظار في الطابور.
+                <div class="p-3 bg-gray-50 rounded-xl text-xs text-gray-500 leading-relaxed border border-gray-100 mt-2">
+                  ✨ <strong>ميزة الاستلام من الفرع:</strong> يتم تجهيز طلبك طازجاً وساخناً فور وصولك دون أي رسوم توصيل أو انتظار.
                 </div>
               </div>
             }
 
           </div>
 
-          <!-- Bottom Actions Bar -->
-          <div class="shrink-0 p-4 border-t border-gray-100 flex flex-col gap-2 bg-white">
+          <!-- Bottom Actions Bar (Exact More-In Specs) -->
+          <div class="shrink-0 pb-4 pt-2 px-4 flex flex-col gap-2 bg-white">
             <button 
               type="button" 
               (click)="confirmModalSelection()" 
-              class="w-full py-3.5 rounded-xl bg-primary hover:bg-primaryDark text-white font-bold text-sm shadow-md transition-all flex items-center justify-center cursor-pointer active:scale-98">
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-4 py-2 w-full theme-btn cursor-pointer font-bold">
               تأكيد
             </button>
 
             @if (modalOrderType === 'delivery') {
-              <div class="flex items-center justify-between text-xs md:text-sm pt-1 px-1">
+              <div class="flex items-center justify-between text-xs sm:text-sm pt-1">
                 <button 
                   type="button" 
                   (click)="toggleManualMode()" 
@@ -454,14 +521,23 @@ import { LocationService } from '../../../../core/services/location.service';
                   type="button" 
                   (click)="toggleManualMode()" 
                   class="text-primary font-bold hover:underline flex items-center gap-1.5 cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks w-4 h-4">
-                    <path d="M13 5h8"></path>
-                    <path d="M13 12h8"></path>
-                    <path d="M13 19h8"></path>
-                    <path d="m3 17 2 2 4-4"></path>
-                    <path d="m3 7 2 2 4-4"></path>
-                  </svg>
-                  {{ isManualMode ? 'تحديد عبر الخريطة' : 'أدخل العنوان يدوياً' }}
+                  @if (isManualMode) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map w-4 h-4">
+                      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                      <line x1="9" x2="9" y1="3" y2="18"></line>
+                      <line x1="15" x2="15" y1="6" y2="21"></line>
+                    </svg>
+                    حدد الموقع على الخريطة
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks w-4 h-4">
+                      <path d="M13 5h8"></path>
+                      <path d="M13 12h8"></path>
+                      <path d="M13 19h8"></path>
+                      <path d="m3 17 2 2 4-4"></path>
+                      <path d="m3 7 2 2 4-4"></path>
+                    </svg>
+                    أدخل العنوان يدوياً
+                  }
                 </button>
               </div>
             }
@@ -482,6 +558,7 @@ export class HeaderComponent implements OnInit {
   // Modal State
   modalOrderType: 'delivery' | 'pickup' = 'delivery';
   isManualMode = false;
+  locationDetected = false;
   searchLocationText = '';
   tempLocationName = 'أبوظبي - الكورنيش';
 
@@ -509,7 +586,11 @@ export class HeaderComponent implements OnInit {
 
   private syncFromService() {
     this.modalOrderType = this.locationService.orderType();
-    this.tempLocationName = this.locationService.selectedLocation();
+    const currentLoc = this.locationService.selectedLocation();
+    this.tempLocationName = (currentLoc && currentLoc !== 'اختر الموقع...') ? currentLoc : 'أبوظبي - الكورنيش';
+    if (currentLoc && currentLoc !== 'اختر الموقع...') {
+      this.locationDetected = true;
+    }
     const manual = this.locationService.manualAddress();
     this.manualCity = manual.city || 'أبوظبي';
     this.manualArea = manual.area || 'الكورنيش';
@@ -528,7 +609,8 @@ export class HeaderComponent implements OnInit {
     if (type === 'pickup') {
       this.tempLocationName = 'استلام من فرع الكورنيش';
     } else {
-      this.tempLocationName = this.locationService.selectedLocation() || 'أبوظبي - الكورنيش';
+      const cur = this.locationService.selectedLocation();
+      this.tempLocationName = (cur && cur !== 'اختر الموقع...') ? cur : 'أبوظبي - الكورنيش';
     }
   }
 
@@ -537,25 +619,28 @@ export class HeaderComponent implements OnInit {
   }
 
   selectArea(area: string) {
+    this.locationDetected = true;
     this.tempLocationName = `أبوظبي - ${area}`;
     this.manualArea = area;
   }
 
   onLocationSearch() {
     if (this.searchLocationText.trim()) {
+      this.locationDetected = true;
       this.tempLocationName = `أبوظبي - ${this.searchLocationText.trim()}`;
       this.manualArea = this.searchLocationText.trim();
     }
   }
 
   detectLocation() {
+    this.locationDetected = true;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         () => {
           this.tempLocationName = 'أبوظبي - شارع الكورنيش (موقعي الحالي)';
         },
         () => {
-          this.tempLocationName = 'أبوظبي - شارع الكورنيش (موقع تقديري)';
+          this.tempLocationName = 'أبوظبي - شارع الكورنيش';
         }
       );
     } else {

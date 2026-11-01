@@ -280,7 +280,7 @@ export class CheckoutComponent implements OnInit {
       const manual = this.locationService.manualAddress();
       if (manual && (manual.street || manual.building)) {
         this.deliveryAddress = [manual.city, manual.area, manual.street, manual.building, manual.notes].filter(Boolean).join(' - ');
-      } else if (loc && loc !== 'أبوظبي - الكورنيش') {
+      } else if (loc && loc !== 'اختر الموقع...') {
         this.deliveryAddress = loc;
       }
     }

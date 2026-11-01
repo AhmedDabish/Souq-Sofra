@@ -17,7 +17,7 @@ export class LocationService {
   private readonly STORAGE_KEY_MANUAL_ADDR = 'souq_sofra_manual_address';
 
   orderType = signal<'delivery' | 'pickup'>('delivery');
-  selectedLocation = signal<string>('أبوظبي - الكورنيش');
+  selectedLocation = signal<string>('اختر الموقع...');
   isModalOpen = signal<boolean>(false);
   
   manualAddress = signal<ManualAddress>({
