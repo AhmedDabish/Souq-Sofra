@@ -31,6 +31,7 @@ namespace SouqSofra.Domain.Entities
         public string ProductNameAr { get; set; } = string.Empty;
         public string ProductNameEn { get; set; } = string.Empty;
         public string? VariantNameAr { get; set; }
+        public string? VariantNameEn { get; set; }
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; } = 1;
         public decimal TotalPrice { get; set; }

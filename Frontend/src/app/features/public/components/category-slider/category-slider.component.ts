@@ -16,67 +16,67 @@ import { Category } from '../../../../core/models/models';
             {{ title }}
           </h2>
           @if (showViewAll) {
-            <a 
-              routerLink="/menu" 
+            <a
+              routerLink="/menu"
               class="bg-gray text-primary px-4 py-2 rounded-full font-medium text-xs sm:text-sm cursor-pointer hover:bg-primary hover:text-white transition-colors duration-200 shrink-0">
-              عرض الكل
+              {{ isEnglish ? 'View all' : 'عرض الكل' }}
             </a>
           }
         </div>
 
         <!-- Carousel Container with More-In style & navigation buttons -->
         <div class="relative group/swiper w-full select-none" dir="ltr">
-          
+
           <!-- Scrollable Track (RTL) -->
-          <div 
+          <div
             #sliderRef
             (scroll)="onScroll()"
             (scrollend)="onScroll()"
             class="flex snap-x snap-mandatory gap-2.5 overscroll-x-contain overflow-x-auto scroll-smooth py-2 px-4 touch-pan-x sm:gap-3 sm:px-5 items-stretch" dir="ltr">
-            
+
             <!-- "All" (جميع الأقسام) Category Card -->
-            <div dir="rtl" class="w-[135px] shrink-0 snap-start sm:w-[150px] h-auto">
-              <div 
+            <div [attr.dir]="isEnglish ? 'ltr' : 'rtl'" class="w-[135px] shrink-0 snap-start sm:w-[150px] h-auto">
+              <div
                 role="button"
                 tabindex="0"
                 (click)="selectCategory(0)"
                 (keydown.enter)="selectCategory(0)"
                 [class.active]="selectedId === 0"
                 class="w-full flex flex-col justify-between items-center bg-gray h-full hover:bg-primaryDark/10 px-3 py-2 sm:py-3 theme-rounded transition-all duration-300 group cursor-pointer border-b-3 border-transparent hover:border-primaryDark hover:shadow-sm category-card">
-                
+
                 <div class="py-1 relative transition-transform duration-300 rounded-[inherit] group-hover:scale-110 group-hover:-translate-y-2 group-hover:rotate-6 flex items-center justify-center category-img">
                   <div class="w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-full bg-[#fdefd8] border-2 border-[#fdefd8] group-hover:border-primary/30 flex items-center justify-center p-2 transition-all">
-                    <img 
-                      src="https://morein-pro.fsn1.your-objectstorage.com/categories-image/bcedef61-639b-4d93-8e49-e9d974586a8f.png" 
-                      alt="جميع الأقسام" 
-                      loading="lazy" 
+                    <img
+                      src="https://morein-pro.fsn1.your-objectstorage.com/categories-image/bcedef61-639b-4d93-8e49-e9d974586a8f.png"
+                      [alt]="isEnglish ? 'All categories' : 'جميع الأقسام'"
+                      loading="lazy"
                       class="object-contain w-full h-full rounded-[inherit]" />
                   </div>
                 </div>
 
                 <h3 class="pb-2 2xl:text-base text-xs sm:text-sm text-primaryDark transition-colors text-center category-card-text font-bold mt-2">
-                  جميع الأقسام
+                  {{ isEnglish ? 'All categories' : 'جميع الأقسام' }}
                 </h3>
               </div>
             </div>
 
             <!-- Dynamic Category Cards from Backend -->
             @for (cat of categories; track cat.categoryId) {
-              <div dir="rtl" class="w-[135px] shrink-0 snap-start sm:w-[150px] h-auto">
-                <div 
+              <div [attr.dir]="isEnglish ? 'ltr' : 'rtl'" class="w-[135px] shrink-0 snap-start sm:w-[150px] h-auto">
+                <div
                   role="button"
                   tabindex="0"
                   (click)="selectCategory(cat.categoryId)"
                   (keydown.enter)="selectCategory(cat.categoryId)"
                   [class.active]="selectedId === cat.categoryId"
                   class="w-full flex flex-col justify-between items-center bg-gray h-full hover:bg-primaryDark/10 px-3 py-2 sm:py-3 theme-rounded transition-all duration-300 group cursor-pointer border-b-3 border-transparent hover:border-primaryDark hover:shadow-sm category-card">
-                  
+
                   <div class="py-1 relative transition-transform duration-300 rounded-[inherit] group-hover:scale-110 group-hover:-translate-y-2 group-hover:rotate-6 flex items-center justify-center category-img">
                     <div class="w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-full bg-[#fdefd8] border-2 border-[#fdefd8] group-hover:border-primary/30 flex items-center justify-center p-2 transition-all">
-                      <img 
-                        [src]="getCategoryImage(cat)" 
-                        [alt]="cat.nameAr" 
-                        loading="lazy" 
+                      <img
+                        [src]="getCategoryImage(cat)"
+                        [alt]="isEnglish ? (cat.nameEn || cat.nameAr) : cat.nameAr"
+                        loading="lazy"
                         (error)="onImageError($event, cat)"
                         class="object-contain w-full h-full rounded-[inherit]" />
                     </div>
@@ -92,24 +92,24 @@ import { Category } from '../../../../core/models/models';
 
           <!-- Carousel Navigation Buttons matching More-In -->
           <!-- In RTL: Prev is on the Right (scrolls towards start) -->
-          <button 
+          <button
             type="button"
-            (click)="scrollPrev()" 
+            (click)="scrollPrev()"
             [disabled]="isAtStart"
-            class="cursor-pointer cat-swiper-prev absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-700 hover:text-primary transition-all duration-300 opacity-100 md:opacity-0 md:group-hover/swiper:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed pointer-events-auto" 
-            aria-label="الأقسام السابقة">
+            class="cursor-pointer cat-swiper-prev absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-700 hover:text-primary transition-all duration-300 opacity-100 md:opacity-0 md:group-hover/swiper:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed pointer-events-auto"
+            [attr.aria-label]="isEnglish ? 'Previous categories' : 'الأقسام السابقة'">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 rtl:rotate-180">
               <path d="m15 18-6-6 6-6"/>
             </svg>
           </button>
 
           <!-- In RTL: Next is on the Left (scrolls towards end) -->
-          <button 
+          <button
             type="button"
-            (click)="scrollNext()" 
+            (click)="scrollNext()"
             [disabled]="isAtEnd"
-            class="cursor-pointer cat-swiper-next absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-700 hover:text-primary transition-all duration-300 opacity-100 md:opacity-0 md:group-hover/swiper:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed pointer-events-auto" 
-            aria-label="الأقسام التالية">
+            class="cursor-pointer cat-swiper-next absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-gray-700 hover:text-primary transition-all duration-300 opacity-100 md:opacity-0 md:group-hover/swiper:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed pointer-events-auto"
+            [attr.aria-label]="isEnglish ? 'Next categories' : 'الأقسام التالية'">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 rtl:rotate-180">
               <path d="m9 18 6-6-6-6"/>
             </svg>

@@ -1,12 +1,14 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import * as L from 'leaflet';
+import { LanguageService } from '../../../../core/services/language.service';
 
 @Component({
   selector: 'app-delivery-map',
   standalone: true,
-  template: `<div #mapHost class="h-64 w-full overflow-hidden rounded-2xl border border-orange-100 bg-orange-50 sm:h-72" role="application" aria-label="خريطة تحديد عنوان التوصيل"></div>`,
+  template: `<div #mapHost class="h-64 w-full overflow-hidden rounded-2xl border border-orange-100 bg-orange-50 sm:h-72" role="application" [attr.aria-label]="language.t('خريطة تحديد عنوان التوصيل', 'Pin delivery address on map')"></div>`,
 })
 export class DeliveryMapComponent implements AfterViewInit, OnChanges, OnDestroy {
+  language = inject(LanguageService);
   @Input() latitude: number | null = null;
   @Input() longitude: number | null = null;
   @Output() locationChange = new EventEmitter<{ latitude: number; longitude: number }>();

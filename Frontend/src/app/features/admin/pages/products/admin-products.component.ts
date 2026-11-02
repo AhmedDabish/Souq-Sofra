@@ -1,3 +1,4 @@
+import { LanguageService } from '../../../../core/services/language.service';
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,31 +12,31 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
-      
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
+
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
       <!-- Main Content -->
       <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
-        
+
         <!-- Header -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 class="text-2xl font-black font-baloo text-gray-800">إدارة أصناف ومنتجات المنيو</h1>
-            <p class="text-xs text-gray-400">إضافة وتعديل وحذف الأصناف والتحكم في الخصومات والعروض والأسعار وتوفر المنتجات</p>
+            <h1 class="text-2xl font-black font-baloo text-gray-800">{{ language.t('إدارة أصناف ومنتجات المنيو', 'Manage menu products') }}</h1>
+            <p class="text-xs text-gray-400">{{ language.t('إضافة وتعديل وحذف الأصناف والتحكم في الخصومات والعروض والأسعار وتوفر المنتجات', 'Add, edit, and manage products, discounts, prices, and availability') }}</p>
           </div>
-          <button 
+          <button
             (click)="openAddModal()"
             class="px-5 py-2.5 rounded-2xl bg-primary hover:bg-primaryHover text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-2 self-start sm:self-auto cursor-pointer">
             <span>+</span>
-            <span>إضافة صنف جديد</span>
+            <span>{{ language.t('إضافة صنف جديد', 'Add product') }}</span>
           </button>
         </header>
 
         <!-- Feedback Alert -->
         @if (feedbackMessage()) {
-          <div [class]="feedbackType() === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'" 
+          <div [class]="feedbackType() === 'success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'"
                class="mb-6 p-4 rounded-2xl border text-xs font-semibold flex items-center justify-between">
             <span>{{ feedbackMessage() }}</span>
             <button (click)="feedbackMessage.set('')" class="text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
@@ -45,35 +46,35 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
         <!-- Filter & Search Toolbar -->
         <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-xs mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2 w-full md:w-auto">
-            <span class="text-xs font-bold text-gray-500">التصنيف:</span>
-            <select 
-              [ngModel]="selectedCategory()" 
+            <span class="text-xs font-bold text-gray-500">{{ language.t('التصنيف:', 'Category:') }}</span>
+            <select
+              [ngModel]="selectedCategory()"
               (ngModelChange)="selectedCategory.set($event)"
               class="text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
-              <option [ngValue]="null">كافة التصنيفات ({{ products().length }})</option>
+              <option [ngValue]="null">{{ language.t('كافة التصنيفات', 'All categories') }} ({{ products().length }})</option>
               @for (cat of categories(); track cat.categoryId) {
-                <option [ngValue]="cat.categoryId">{{ cat.nameAr }} ({{ cat.nameEn }})</option>
+                <option [ngValue]="cat.categoryId">{{ language.isEnglish() ? (cat.nameEn || cat.nameAr) : cat.nameAr }}</option>
               }
             </select>
           </div>
 
           <!-- Quick Filter by Discount / Featured -->
           <div class="flex items-center gap-2">
-            <button 
+            <button
               type="button"
               (click)="toggleDiscountFilter()"
               [class]="onlyDiscounted() ? 'bg-primary text-white font-bold shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
               class="text-xs px-3 py-2 rounded-xl transition-all font-medium cursor-pointer">
-              🏷️ الأصناف المخفضة فقط
+              {{ language.t('🏷️ الأصناف المخفضة فقط', '🏷️ Discounted only') }}
             </button>
           </div>
 
           <div class="w-full md:w-72">
-            <input 
-              type="text" 
+            <input
+              type="text"
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
-              placeholder="ابحث بالاسم العربي أو الإنجليزي..."
+              [placeholder]="language.t('ابحث بالاسم العربي أو الإنجليزي...', 'Search Arabic or English names...')"
               class="w-full text-xs px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
           </div>
         </div>
@@ -84,14 +85,14 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
             <table class="w-full text-right text-xs">
               <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
                 <tr>
-                  <th class="p-4">الصنف</th>
-                  <th class="p-4">القسم</th>
-                  <th class="p-4">السعر الأساسي</th>
-                  <th class="p-4">الخصم والعرض</th>
-                  <th class="p-4">التوفر</th>
-                  <th class="p-4">مميز</th>
-                  <th class="p-4">الأكثر مبيعًا</th>
-                  <th class="p-4 text-center">إجراءات</th>
+                  <th class="p-4">{{ language.t('الصنف', 'Product') }}</th>
+                  <th class="p-4">{{ language.t('القسم', 'Category') }}</th>
+                  <th class="p-4">{{ language.t('السعر الأساسي', 'Base price') }}</th>
+                  <th class="p-4">{{ language.t('الخصم والعرض', 'Discount') }}</th>
+                  <th class="p-4">{{ language.t('التوفر', 'Availability') }}</th>
+                  <th class="p-4">{{ language.t('مميز', 'Featured') }}</th>
+                  <th class="p-4">{{ language.t('الأكثر مبيعًا', 'Best seller') }}</th>
+                  <th class="p-4 text-center">{{ language.t('إجراءات', 'Actions') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -101,11 +102,11 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       <div class="flex items-center gap-3">
                         <img [src]="prod.imageUrl || 'assets/MAIN.jpg'" class="w-12 h-12 rounded-2xl object-cover border border-gray-100 shrink-0">
                         <div>
-                          <div class="font-bold text-gray-800 text-xs">{{ prod.nameAr }}</div>
-                          <div class="text-[11px] text-gray-400">{{ prod.nameEn }}</div>
+                          <div class="font-bold text-gray-800 text-xs">{{ language.isEnglish() ? (prod.nameEn || prod.nameAr) : prod.nameAr }}</div>
+
                           @if (prod.variants && prod.variants.length) {
                             <span class="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-block mt-1">
-                              {{ prod.variants.length }} أحجام / خيارات
+                              {{ prod.variants.length }} {{ language.t('أحجام / خيارات', 'sizes / options') }}
                             </span>
                           }
                         </div>
@@ -114,72 +115,72 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                     <td class="p-4 font-medium text-gray-600">
                       {{ getCategoryName(prod.categoryId) }}
                     </td>
-                    <td class="p-4 font-black text-gray-900">{{ prod.basePrice }} درهم</td>
-                    
+                    <td class="p-4 font-black text-gray-900">{{ prod.basePrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</td>
+
                     <!-- Discount Cell with Quick Action -->
                     <td class="p-4">
                       @if (prod.discountPrice && prod.discountPrice > 0 && prod.discountPrice < prod.basePrice) {
                         <div class="flex items-center gap-2 flex-wrap">
-                          <span class="text-green-600 font-black text-xs">{{ prod.discountPrice }} درهم</span>
+                          <span class="text-green-600 font-black text-xs">{{ prod.discountPrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                           <span class="bg-primary/10 text-primary text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                            خصم {{ getDiscountPercent(prod) }}%
+                            {{ language.t('خصم', 'Save') }} {{ getDiscountPercent(prod) }}%
                           </span>
-                          <button 
+                          <button
                             type="button"
                             (click)="openQuickDiscountModal(prod)"
                             class="text-xs text-blue-600 hover:text-blue-800 font-bold p-1 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
-                            title="تعديل الخصم">
-                            ✏️ تعديل
+                            [title]="language.t('تعديل الخصم', 'Edit discount')">
+                            {{ language.t('✏️ تعديل', '✏️ Edit') }}
                           </button>
                         </div>
                       } @else {
-                        <button 
+                        <button
                           type="button"
                           (click)="openQuickDiscountModal(prod)"
                           class="px-2.5 py-1 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold text-[11px] transition-colors cursor-pointer border border-orange-200">
-                          + إضافة خصم
+                          {{ language.t('+ إضافة خصم', '+ Add discount') }}
                         </button>
                       }
                     </td>
 
                     <td class="p-4">
-                      <button 
+                      <button
                         (click)="toggleAvailability(prod)"
                         [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isAvailable ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'"
                         class="text-[11px] px-3 py-1 rounded-full font-bold transition-colors cursor-pointer">
-                        {{ prod.isAvailable ? '✓ متوفر' : '✕ غير متوفر' }}
+                        {{ language.t(prod.isAvailable ? '✓ متوفر' : '✕ غير متوفر', prod.isAvailable ? '✓ Available' : '✕ Unavailable') }}
                       </button>
                     </td>
                     <td class="p-4">
-                      <button 
+                      <button
                         (click)="toggleFeatured(prod)"
                         [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isFeatured ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-300' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200'"
                         class="text-[11px] px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
-                        title="تبديل حالة الصنف المميز">
-                        <span>{{ prod.isFeatured ? '⭐ مميز' : '☆ عادي' }}</span>
+                        [title]="language.t('تبديل حالة الصنف المميز', 'Toggle featured status')">
+                        <span>{{ language.t(prod.isFeatured ? '⭐ مميز' : '☆ عادي', prod.isFeatured ? '⭐ Featured' : '☆ Standard') }}</span>
                       </button>
                     </td>
                     <td class="p-4">
                       <button type="button" (click)="toggleBestSelling(prod)" [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isManuallyBestSelling ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-gray-100 text-gray-500 border-gray-200'"
                         class="rounded-full border px-3 py-1 text-xs font-bold transition hover:opacity-80">
-                        {{ prod.isManuallyBestSelling ? '♥ مختار يدويًا' : '♡ اختيار' }}
+                        {{ language.t(prod.isManuallyBestSelling ? '♥ مختار يدويًا' : '♡ اختيار', prod.isManuallyBestSelling ? '♥ Pinned' : '♡ Pin') }}
                       </button>
-                      <div class="mt-1 text-center text-xs text-gray-500">{{ prod.completedSalesQuantity || 0 }} مبيع مكتمل</div>
+                      <div class="mt-1 text-center text-xs text-gray-500">{{ prod.completedSalesQuantity || 0 }} {{ language.t('مبيع مكتمل', 'completed sales') }}</div>
                     </td>
                     <td class="p-4">
                       <div class="flex items-center justify-center gap-2">
-                        <button 
+                        <button
                           (click)="openEditModal(prod)"
                           class="px-3 py-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold transition-colors cursor-pointer">
-                          تعديل
+                          {{ language.t('تعديل', 'Edit') }}
                         </button>
-                        <button 
+                        <button
                           (click)="deleteProduct(prod)"
                           class="px-3 py-1 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 font-bold transition-colors cursor-pointer">
-                          حذف
+                          {{ language.t('حذف', 'Delete') }}
                         </button>
                       </div>
                     </td>
@@ -187,7 +188,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                 } @empty {
                   <tr>
                     <td colspan="8" class="p-10 text-center text-gray-400 text-sm">
-                      لا توجد أصناف تطابق معايير البحث
+                      {{ language.t('لا توجد أصناف تطابق معايير البحث', 'No products match your search') }}
                     </td>
                   </tr>
                 }
@@ -204,39 +205,39 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
           <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 border border-gray-100 shadow-2xl animate-fadeIn">
             <div class="flex items-center justify-between pb-3 border-b border-gray-100">
               <div>
-                <h3 class="text-base font-bold font-baloo text-gray-800">إدارة خصم الصنف</h3>
-                <p class="text-xs text-primary font-bold mt-0.5">{{ targetDiscountProduct.nameAr }}</p>
+                <h3 class="text-base font-bold font-baloo text-gray-800">{{ language.t('إدارة خصم الصنف', 'Manage product discount') }}</h3>
+                <p class="text-xs text-primary font-bold mt-0.5">{{ language.isEnglish() ? (targetDiscountProduct.nameEn || targetDiscountProduct.nameAr) : targetDiscountProduct.nameAr }}</p>
               </div>
               <button (click)="closeDiscountModal()" class="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-xs font-bold cursor-pointer">✕</button>
             </div>
 
             <div class="bg-orange-50/50 p-3 rounded-2xl border border-orange-100 text-xs flex justify-between items-center">
-              <span class="text-gray-600 font-medium">السعر الأساسي الحالي:</span>
-              <span class="text-gray-900 font-black text-sm">{{ targetDiscountProduct.basePrice }} درهم</span>
+              <span class="text-gray-600 font-medium">{{ language.t('السعر الأساسي الحالي:', 'Current base price:') }}</span>
+              <span class="text-gray-900 font-black text-sm">{{ targetDiscountProduct.basePrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
             </div>
 
             <div class="space-y-2">
-              <label class="block font-bold text-gray-700 text-xs">سعر الخصم المطلوب (درهم):</label>
+              <label class="block font-bold text-gray-700 text-xs">{{ language.t('سعر الخصم المطلوب (درهم):', 'Discount price (AED):') }}</label>
               <div class="flex items-center gap-2">
-                <input 
-                  type="number" 
-                  [(ngModel)]="quickDiscountValue" 
-                  min="0" 
-                  [max]="targetDiscountProduct.basePrice - 0.5" 
+                <input
+                  type="number"
+                  [(ngModel)]="quickDiscountValue"
+                  min="0"
+                  [max]="targetDiscountProduct.basePrice - 0.5"
                   step="0.5"
-                  placeholder="مثال: 120"
+                  [placeholder]="language.t('مثال: 120', 'e.g. 120')"
                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold focus:outline-none focus:border-primary">
-                <span class="text-xs text-gray-500 font-bold shrink-0">درهم</span>
+                <span class="text-xs text-gray-500 font-bold shrink-0">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
               </div>
             </div>
 
             <!-- Quick Percentage Pills -->
             <div class="space-y-1.5">
-              <span class="text-[11px] text-gray-400 font-bold">نسب خصم جاهزة:</span>
+              <span class="text-[11px] text-gray-400 font-bold">{{ language.t('نسب خصم جاهزة:', 'Quick discounts:') }}</span>
               <div class="flex flex-wrap gap-1.5">
                 @for (pct of [10, 15, 20, 25, 30, 40, 50]; track pct) {
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     (click)="applyQuickPercentToTarget(pct)"
                     class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-primary hover:text-white text-gray-700 text-xs font-bold transition-colors cursor-pointer">
                     {{ pct }}%
@@ -247,31 +248,31 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 
             @if (quickDiscountValue && quickDiscountValue > 0 && quickDiscountValue < targetDiscountProduct.basePrice) {
               <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-800 flex items-center justify-between font-bold">
-                <span>نسبة الخصم المحسوبة:</span>
+                <span>{{ language.t('نسبة الخصم المحسوبة:', 'Calculated discount:') }}</span>
                 <span class="text-sm font-black">{{ calculateTargetPercent() }}%</span>
               </div>
             }
 
             <div class="flex items-center justify-between pt-3 border-t border-gray-100 gap-2">
-              <button 
-                type="button" 
-                (click)="removeTargetDiscount()" 
+              <button
+                type="button"
+                (click)="removeTargetDiscount()"
                 class="px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-bold transition-colors cursor-pointer">
-                إزالة الخصم
+                {{ language.t('إزالة الخصم', 'Remove discount') }}
               </button>
               <div class="flex items-center gap-2">
-                <button 
-                  type="button" 
-                  (click)="closeDiscountModal()" 
+                <button
+                  type="button"
+                  (click)="closeDiscountModal()"
                   class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200 transition-colors cursor-pointer">
-                  إلغاء
+                  {{ language.t('إلغاء', 'Cancel') }}
                 </button>
-                <button 
-                  type="button" 
-                  (click)="saveQuickDiscount()" 
+                <button
+                  type="button"
+                  (click)="saveQuickDiscount()"
                   [disabled]="isSavingDiscount()"
                   class="px-5 py-2 rounded-xl bg-primary hover:bg-primaryHover text-white text-xs font-bold transition-all shadow-md cursor-pointer">
-                  حفظ الخصم
+                  {{ language.t('حفظ الخصم', 'Save discount') }}
                 </button>
               </div>
             </div>
@@ -283,25 +284,25 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
       @if (showModal()) {
         <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl">
-            
+
             <div class="flex items-center justify-between pb-4 border-b border-gray-100">
               <h2 class="text-lg font-bold font-baloo text-gray-800">
-                {{ isEditing() ? 'تعديل صنف: ' + formProduct.nameAr : 'إضافة صنف جديد للمنيو' }}
+                {{ isEditing() ? language.t('تعديل صنف: ', 'Edit product: ') + (language.isEnglish() ? formProduct.nameEn : formProduct.nameAr) : language.t('إضافة صنف جديد للمنيو', 'Add a menu product') }}
               </h2>
               <button (click)="closeModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm font-bold cursor-pointer">✕</button>
             </div>
 
             <form (ngSubmit)="saveProduct()" class="space-y-4 text-xs">
-              
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">الاسم بالعربية *</label>
-                  <input type="text" [(ngModel)]="formProduct.nameAr" name="nameAr" required placeholder="مثال: فطيرة مشلتت بالسمن البلدي"
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('الاسم بالعربية *', 'Arabic name *') }}</label>
+                  <input type="text" [(ngModel)]="formProduct.nameAr" name="nameAr" required [placeholder]="language.t('مثال: فطيرة مشلتت بالسمن البلدي', 'Example: Traditional ghee feteer')"
                          class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
                 </div>
 
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">الاسم بالإنجليزية *</label>
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('الاسم بالإنجليزية *', 'English name *') }}</label>
                   <input type="text" [(ngModel)]="formProduct.nameEn" name="nameEn" required placeholder="e.g., Feteer Meshaltet"
                          class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
                 </div>
@@ -309,106 +310,106 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">التصنيف *</label>
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('التصنيف *', 'Category *') }}</label>
                   <select [ngModel]="formProduct.categoryId" (ngModelChange)="onProductCategoryChange($event)" name="categoryId" required
                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary bg-white">
                     @for (cat of categories(); track cat.categoryId) {
-                      <option [value]="cat.categoryId">{{ cat.nameAr }}</option>
+                      <option [value]="cat.categoryId">{{ language.isEnglish() ? (cat.nameEn || cat.nameAr) : cat.nameAr }}</option>
                     }
                   </select>
                 </div>
 
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">السعر الأساسي (درهم) *</label>
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('السعر الأساسي (درهم) *', 'Base price (AED) *') }}</label>
                   <input type="number" [(ngModel)]="formProduct.basePrice" name="basePrice" min="0" step="0.5" required
                          class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
                 </div>
 
                 <div>
                   <div class="flex items-center justify-between mb-1">
-                    <label class="block font-bold text-gray-700">سعر الخصم (درهم)</label>
+                    <label class="block font-bold text-gray-700">{{ language.t('سعر الخصم (درهم)', 'Discount price (AED)') }}</label>
                     @if (formDiscountPercent() > 0) {
                       <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.2 rounded-full">
-                        خصم {{ formDiscountPercent() }}%
+                        {{ language.t('خصم', 'Save') }} {{ formDiscountPercent() }}%
                       </span>
                     }
                   </div>
-                  <input type="number" [(ngModel)]="formProduct.discountPrice" name="discountPrice" min="0" step="0.5" placeholder="اختياري"
+                  <input type="number" [(ngModel)]="formProduct.discountPrice" name="discountPrice" min="0" step="0.5" [placeholder]="language.t('اختياري', 'Optional')"
                          class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
                 </div>
               </div>
 
               <!-- Quick Discount Presets for Form -->
               <div class="flex items-center gap-2 text-xs pt-1">
-                <span class="text-gray-400 font-bold">تحديد خصم سريع:</span>
+                <span class="text-gray-400 font-bold">{{ language.t('تحديد خصم سريع:', 'Quick discount:') }}</span>
                 @for (pct of [10, 15, 20, 25, 30]; track pct) {
-                  <button 
-                    type="button" 
-                    (click)="applyFormDiscountPercent(pct)" 
+                  <button
+                    type="button"
+                    (click)="applyFormDiscountPercent(pct)"
                     class="px-2 py-0.5 rounded-md bg-gray-100 hover:bg-orange-100 hover:text-primary font-bold transition-colors cursor-pointer">
                     {{ pct }}%
                   </button>
                 }
                 @if (formProduct.discountPrice) {
-                  <button 
-                    type="button" 
-                    (click)="formProduct.discountPrice = undefined" 
+                  <button
+                    type="button"
+                    (click)="formProduct.discountPrice = undefined"
                     class="text-red-500 hover:underline mr-auto font-bold text-[11px] cursor-pointer">
-                    إلغاء الخصم
+                    {{ language.t('إلغاء الخصم', 'Remove discount') }}
                   </button>
                 }
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-2">صورة المنتج</label>
+                <label class="block font-bold text-gray-700 mb-2">{{ language.t('صورة المنتج', 'Product image') }}</label>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   @if (formProduct.imageUrl) {
-                    <img [src]="imagePreviewUrl(formProduct.imageUrl)" alt="معاينة صورة المنتج" class="w-24 h-24 rounded-2xl object-cover border border-gray-200 bg-orange-50">
+                    <img [src]="imagePreviewUrl(formProduct.imageUrl)" [alt]="language.t('معاينة صورة المنتج', 'Product image preview')" class="w-24 h-24 rounded-2xl object-cover border border-gray-200 bg-orange-50">
                   }
                   <div class="space-y-2">
                     <label class="inline-flex items-center gap-2 cursor-pointer px-4 py-2.5 rounded-xl bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition-colors">
-                      <span>اختيار صورة ورفعها</span>
+                      <span>{{ language.t('اختيار صورة ورفعها', 'Choose and upload image') }}</span>
                       <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onImageSelected($event)" class="sr-only">
                     </label>
-                    @if (isUploadingImage()) { <span class="text-xs text-gray-500">جارٍ رفع الصورة إلى الخادم...</span> }
-                    <p class="text-[11px] text-gray-400">JPG, PNG, WEBP أو GIF، حتى 10MB.</p>
+                    @if (isUploadingImage()) { <span class="text-xs text-gray-500">{{ language.t('جارٍ رفع الصورة إلى الخادم...', 'Uploading image...') }}</span> }
+                    <p class="text-[11px] text-gray-400">{{ language.t('JPG, PNG, WEBP أو GIF، حتى 10MB.', 'JPG, PNG, WEBP, or GIF, up to 10MB.') }}</p>
                   </div>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">الوصف بالعربية</label>
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('الوصف بالعربية', 'Arabic description') }}</label>
                   <textarea [(ngModel)]="formProduct.descriptionAr" name="descriptionAr" rows="2"
                             class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary"></textarea>
                 </div>
                 <div>
-                  <label class="block font-bold text-gray-700 mb-1">الوصف بالإنجليزية</label>
+                  <label class="block font-bold text-gray-700 mb-1">{{ language.t('الوصف بالإنجليزية', 'English description') }}</label>
                   <textarea [(ngModel)]="formProduct.descriptionEn" name="descriptionEn" rows="2"
                             class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right"></textarea>
                 </div>
               </div>
 
               <section class="rounded-2xl border border-orange-100 bg-orange-50/50 p-4 space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-bold text-gray-800">الإضافات من المكتبة</h3><p class="text-[10px] text-gray-500">اختَر الإضافات المشتركة التي تناسب هذا الصنف، أو أضف خيارًا خاصًا به بالأسفل.</p></div><a routerLink="/admin/addons" class="rounded-xl border border-orange-200 bg-white px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">إدارة المنتجات الإضافية</a></div>
-                @if (loadingCatalogAddons()) { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">جارٍ تحميل إضافات القسم...</p> }
+                <div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-bold text-gray-800">{{ language.t('الإضافات من المكتبة', 'Shared extras') }}</h3><p class="text-[10px] text-gray-500">{{ language.t('اختَر الإضافات المشتركة التي تناسب هذا الصنف، أو أضف خيارًا خاصًا به بالأسفل.', 'Choose shared extras for this product, or add a custom option below.') }}</p></div><a routerLink="/admin/addons" class="rounded-xl border border-orange-200 bg-white px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">{{ language.t('إدارة المنتجات الإضافية', 'Manage extras') }}</a></div>
+                @if (loadingCatalogAddons()) { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">{{ language.t('جارٍ تحميل إضافات القسم...', 'Loading shared extras...') }}</p> }
                 @else if (applicableAddonTemplates().length) {
                   <div class="grid gap-2 sm:grid-cols-2">
                     @for (template of applicableAddonTemplates(); track template.addonTemplateId) {
                       <label class="flex cursor-pointer items-center gap-3 rounded-xl border bg-white p-3 transition hover:border-orange-300" [class.border-orange-400]="isCatalogAddonSelected(template.addonTemplateId)" [class.ring-2]="isCatalogAddonSelected(template.addonTemplateId)" [class.ring-orange-100]="isCatalogAddonSelected(template.addonTemplateId)">
                         <input type="checkbox" [checked]="isCatalogAddonSelected(template.addonTemplateId)" (change)="toggleCatalogAddon(template.addonTemplateId, $event)" class="h-4 w-4 accent-orange-600">
-                        <span class="min-w-0 flex-1"><span class="block truncate text-xs font-bold text-gray-800">{{template.nameAr}}</span><span class="block truncate text-[10px] text-gray-400" dir="ltr">{{template.nameEn}}</span></span><span class="text-xs font-black text-orange-700">{{template.price}} درهم</span>
+                        <span class="min-w-0 flex-1"><span class="block truncate text-xs font-bold text-gray-800">{{ language.isEnglish() ? (template.nameEn || template.nameAr) : template.nameAr }}</span></span><span class="text-xs font-black text-orange-700">{{template.price}} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                       </label>
                     }
                   </div>
-                } @else { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">لا توجد إضافات مشتركة لهذا الصنف. يمكنك إنشاؤها من صفحة المنتجات الإضافية.</p> }
-                <div class="flex items-center justify-between border-t border-orange-100 pt-3"><div><h3 class="font-bold text-gray-800">إضافة خاصة بهذا الصنف</h3><p class="text-[10px] text-gray-500">خيار إضافي غير موجود في المكتبة المشتركة.</p></div><button type="button" (click)="addAddon()" class="rounded-xl bg-primary px-3 py-2 text-[11px] font-bold text-white">+ إضافة خيار خاص</button></div>
+                } @else { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">{{ language.t('لا توجد إضافات مشتركة لهذا الصنف. يمكنك إنشاؤها من صفحة المنتجات الإضافية.', 'No shared extras for this product. Create them on the Product Extras page.') }}</p> }
+                <div class="flex items-center justify-between border-t border-orange-100 pt-3"><div><h3 class="font-bold text-gray-800">{{ language.t('إضافة خاصة بهذا الصنف', 'Product-specific extra') }}</h3><p class="text-[10px] text-gray-500">{{ language.t('خيار إضافي غير موجود في المكتبة المشتركة.', 'An extra not in the shared library.') }}</p></div><button type="button" (click)="addAddon()" class="rounded-xl bg-primary px-3 py-2 text-[11px] font-bold text-white">{{ language.t('+ إضافة خيار خاص', '+ Add custom option') }}</button></div>
                 @for (addon of formProduct.addons || []; track $index; let i = $index) {
                   <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto] gap-2 items-center rounded-xl bg-white p-3">
-                    <input [(ngModel)]="addon.nameAr" [name]="'addonAr' + i" placeholder="اسم الإضافة بالعربية" class="rounded-lg border border-gray-200 px-3 py-2">
-                    <input [(ngModel)]="addon.nameEn" [name]="'addonEn' + i" placeholder="Addon name in English" class="rounded-lg border border-gray-200 px-3 py-2 dir-ltr text-right">
-                    <input type="number" [(ngModel)]="addon.price" [name]="'addonPrice' + i" min="0" step="0.5" placeholder="السعر" class="rounded-lg border border-gray-200 px-3 py-2">
-                    <button type="button" (click)="removeAddon(i)" class="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50">حذف</button>
+                    <input [(ngModel)]="addon.nameAr" [name]="'addonAr' + i" [placeholder]="language.t('اسم الإضافة بالعربية', 'Extra name in Arabic')" class="rounded-lg border border-gray-200 px-3 py-2">
+                    <input [(ngModel)]="addon.nameEn" [name]="'addonEn' + i" [placeholder]="language.t('اسم الإضافة بالإنجليزية', 'Addon name in English')" class="rounded-lg border border-gray-200 px-3 py-2 dir-ltr text-right">
+                    <input type="number" [(ngModel)]="addon.price" [name]="'addonPrice' + i" min="0" step="0.5" [placeholder]="language.t('السعر', 'Price')" class="rounded-lg border border-gray-200 px-3 py-2">
+                    <button type="button" (click)="removeAddon(i)" class="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50">{{ language.t('حذف', 'Delete') }}</button>
                   </div>
                 }
               </section>
@@ -416,29 +417,29 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               <div class="flex items-center gap-6 pt-2">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" [(ngModel)]="formProduct.isAvailable" name="isAvailable" class="rounded text-primary focus:ring-primary w-4 h-4">
-                  <span class="font-bold text-gray-700">متوفر للطلب المباشر</span>
+                  <span class="font-bold text-gray-700">{{ language.t('متوفر للطلب المباشر', 'Available to order') }}</span>
                 </label>
 
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" [(ngModel)]="formProduct.isFeatured" name="isFeatured" class="rounded text-primary focus:ring-primary w-4 h-4">
-                  <span class="font-bold text-gray-700">صنف مميز ⭐</span>
+                  <span class="font-bold text-gray-700">{{ language.t('صنف مميز ⭐', 'Featured product ⭐') }}</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" [(ngModel)]="formProduct.isManuallyBestSelling" name="isManuallyBestSelling" class="rounded text-rose-600 focus:ring-rose-500 w-4 h-4">
-                  <span class="font-bold text-gray-700">اختيار ضمن الأكثر مبيعًا ♥</span>
+                  <span class="font-bold text-gray-700">{{ language.t('اختيار ضمن الأكثر مبيعًا ♥', 'Pin as best seller ♥') }}</span>
                 </label>
               </div>
 
               <!-- Action buttons -->
               <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                 <button type="button" (click)="closeModal()" class="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors cursor-pointer">
-                  إلغاء
+                  {{ language.t('إلغاء', 'Cancel') }}
                 </button>
                 <button type="submit" [disabled]="isSaving()" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer">
                   @if (isSaving()) {
                     <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   }
-                  <span>{{ isEditing() ? 'حفظ التعديلات' : 'إضافة الصنف' }}</span>
+                  <span>{{ isEditing() ? language.t('حفظ التعديلات', 'Save changes') : language.t('إضافة الصنف', 'Add product') }}</span>
                 </button>
               </div>
 
@@ -452,6 +453,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   `
 })
 export class AdminProductsComponent implements OnInit {
+  language = inject(LanguageService);
   private api = inject(ApiService);
 
   products = signal<Product[]>([]);
@@ -516,8 +518,8 @@ export class AdminProductsComponent implements OnInit {
     }
 
     if (q) {
-      list = list.filter(p => 
-        p.nameAr.toLowerCase().includes(q) || 
+      list = list.filter(p =>
+        p.nameAr.toLowerCase().includes(q) ||
         p.nameEn.toLowerCase().includes(q)
       );
     }
@@ -532,7 +534,7 @@ export class AdminProductsComponent implements OnInit {
   loadData() {
     this.api.getAllAdminProducts().subscribe({
       next: (prods) => this.products.set(prods),
-      error: () => this.showFeedback('تعذر تحميل المنتجات من الخادم.', 'error')
+      error: () => this.showFeedback(this.language.t('تعذر تحميل المنتجات من الخادم.', 'Could not load products from the server.'), 'error')
     });
 
     this.api.getCategories().subscribe({
@@ -542,7 +544,7 @@ export class AdminProductsComponent implements OnInit {
 
   getCategoryName(id: number): string {
     const cat = this.categories().find(c => c.categoryId === id);
-    return cat ? cat.nameAr : `قسم #${id}`;
+    return cat ? (this.language.isEnglish() ? (cat.nameEn || cat.nameAr) : cat.nameAr) : this.language.t('قسم', 'Category') + ` #${id}`;
   }
 
   getDiscountPercent(prod: Product): number {
@@ -582,7 +584,7 @@ export class AdminProductsComponent implements OnInit {
   saveQuickDiscount() {
     if (!this.targetDiscountProduct) return;
     if (this.quickDiscountValue !== null && (this.quickDiscountValue <= 0 || this.quickDiscountValue >= this.targetDiscountProduct.basePrice)) {
-      alert('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.');
+      alert(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'));
       return;
     }
 
@@ -594,12 +596,12 @@ export class AdminProductsComponent implements OnInit {
       next: (res) => {
         this.isSavingDiscount.set(false);
         this.products.update(list => list.map(p => p.productId === prodId ? { ...p, discountPrice: res.discountPrice ?? undefined } : p));
-        this.showFeedback(`تم تحديث الخصم للصنف بنجاح (${discountPrice ? discountPrice + ' درهم' : 'بدون خصم'}).`, 'success');
+        this.showFeedback(this.language.t(`تم تحديث الخصم للصنف بنجاح (${discountPrice ? discountPrice + ' درهم' : 'بدون خصم'}).`, `Discount updated (${discountPrice ? discountPrice + ' AED' : 'no discount'}).`), 'success');
         this.closeDiscountModal();
       },
       error: () => {
         this.isSavingDiscount.set(false);
-        this.showFeedback('فشل حفظ الخصم على الخادم.', 'error');
+        this.showFeedback(this.language.t('فشل حفظ الخصم على الخادم.', 'Could not save the discount.'), 'error');
       }
     });
   }
@@ -613,12 +615,12 @@ export class AdminProductsComponent implements OnInit {
       next: () => {
         this.isSavingDiscount.set(false);
         this.products.update(list => list.map(p => p.productId === prodId ? { ...p, discountPrice: undefined } : p));
-        this.showFeedback('تمت إزالة الخصم عن الصنف.', 'success');
+        this.showFeedback(this.language.t('تمت إزالة الخصم عن الصنف.', 'Discount removed.'), 'success');
         this.closeDiscountModal();
       },
       error: () => {
         this.isSavingDiscount.set(false);
-        this.showFeedback('فشل تحديث الخصم.', 'error');
+        this.showFeedback(this.language.t('فشل تحديث الخصم.', 'Could not update the discount.'), 'error');
       }
     });
   }
@@ -637,15 +639,15 @@ export class AdminProductsComponent implements OnInit {
         this.isUpdatingId.set(null);
         this.feedbackType.set('success');
         this.feedbackMessage.set(
-          res.isFeatured 
-            ? `تم تمييز الصنف "${prod.nameAr}" ⭐` 
+          res.isFeatured
+            ? `تم تمييز الصنف "${prod.nameAr}" ⭐`
             : `تم إلغاء تمييز الصنف "${prod.nameAr}".`
         );
       },
       error: () => {
         this.isUpdatingId.set(null);
         this.feedbackType.set('error');
-        this.feedbackMessage.set('فشل تحديث حالة الصنف المميز.');
+        this.feedbackMessage.set(this.language.t('فشل تحديث حالة الصنف المميز.', 'Could not update the featured product status.'));
       }
     });
   }
@@ -656,9 +658,9 @@ export class AdminProductsComponent implements OnInit {
       next: result => {
         this.products.update(rows => rows.map(row => row.productId === prod.productId ? { ...row, isManuallyBestSelling: result.isManuallyBestSelling } : row));
         this.isUpdatingId.set(null);
-        this.showFeedback(result.isManuallyBestSelling ? `تم اختيار ${prod.nameAr} ضمن الأكثر مبيعًا.` : `تم إلغاء الاختيار اليدوي لـ ${prod.nameAr}.`, 'success');
+        this.showFeedback(this.language.isEnglish() ? (result.isManuallyBestSelling ? `${prod.nameEn || prod.nameAr} marked as a best seller.` : `${prod.nameEn || prod.nameAr} removed from manual best sellers.`) : (result.isManuallyBestSelling ? `تم اختيار ${prod.nameAr} ضمن الأكثر مبيعًا.` : `تم إلغاء الاختيار اليدوي لـ ${prod.nameAr}.`), 'success');
       },
-      error: () => { this.isUpdatingId.set(null); this.showFeedback('تعذر تحديث قائمة الأكثر مبيعًا.', 'error'); }
+      error: () => { this.isUpdatingId.set(null); this.showFeedback(this.language.t('تعذر تحديث قائمة الأكثر مبيعًا.', 'Could not update the best sellers list.'), 'error'); }
     });
   }
 
@@ -669,24 +671,24 @@ export class AdminProductsComponent implements OnInit {
         this.isUpdatingId.set(null);
         const updated = this.products().map(p => p.productId === prod.productId ? { ...p, isAvailable: res.isAvailable } : p);
         this.products.set(updated);
-        this.showFeedback(`تم تحديث توفر الصنف (${prod.nameAr}) بنجاح.`, 'success');
+        this.showFeedback(this.language.t(`تم تحديث توفر الصنف (${prod.nameAr}) بنجاح.`, `Availability updated for ${prod.nameEn || prod.nameAr}.`), 'success');
       },
       error: () => {
         this.isUpdatingId.set(null);
-        this.showFeedback('فشل تحديث حالة الصنف.', 'error');
+        this.showFeedback(this.language.t('فشل تحديث حالة الصنف.', 'Could not update the product status.'), 'error');
       }
     });
   }
 
   deleteProduct(prod: Product) {
-    if (!confirm(`هل أنت متأكد من حذف الصنف "${prod.nameAr}" نهائياً من المنيو؟`)) return;
+    if (!confirm(this.language.t(`هل أنت متأكد من حذف الصنف "${prod.nameAr}" نهائياً من المنيو؟`, `Permanently delete "${prod.nameEn || prod.nameAr}" from the menu?`))) return;
 
     this.api.deleteProduct(prod.productId).subscribe({
       next: () => {
         this.products.set(this.products().filter(p => p.productId !== prod.productId));
-        this.showFeedback(`تم حذف الصنف (${prod.nameAr}) بنجاح.`, 'success');
+        this.showFeedback(this.language.t(`تم حذف الصنف (${prod.nameAr}) بنجاح.`, `Product ${prod.nameEn || prod.nameAr} deleted.`), 'success');
       },
-      error: () => this.showFeedback('تعذر حذف الصنف من الخادم.', 'error')
+      error: () => this.showFeedback(this.language.t('تعذر حذف الصنف من الخادم.', 'Could not delete the product from the server.'), 'error')
     });
   }
 
@@ -787,7 +789,7 @@ export class AdminProductsComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      this.showFeedback('حجم الصورة أكبر من 10 ميجابايت.', 'error');
+      this.showFeedback(this.language.t('حجم الصورة أكبر من 10 ميجابايت.', 'Image exceeds 10 MB.'), 'error');
       input.value = '';
       return;
     }
@@ -796,11 +798,11 @@ export class AdminProductsComponent implements OnInit {
       next: result => {
         this.formProduct.imageUrl = result.url;
         this.isUploadingImage.set(false);
-        this.showFeedback('تم رفع الصورة وحفظ مسارها بنجاح.', 'success');
+        this.showFeedback(this.language.t('تم رفع الصورة وحفظ مسارها بنجاح.', 'Image uploaded and saved.'), 'success');
       },
       error: () => {
         this.isUploadingImage.set(false);
-        this.showFeedback('تعذر رفع الصورة. تأكد من تشغيل الباك إند وتسجيل الدخول.', 'error');
+        this.showFeedback(this.language.t('تعذر رفع الصورة. تأكد من تشغيل الباك إند وتسجيل الدخول.', 'Could not upload image. Check the backend and your admin sign-in.'), 'error');
       }
     });
     input.value = '';
@@ -808,19 +810,19 @@ export class AdminProductsComponent implements OnInit {
 
   saveProduct() {
     if (this.isUploadingImage()) {
-      this.showFeedback('انتظر حتى ينتهي رفع الصورة.', 'error');
+      this.showFeedback(this.language.t('انتظر حتى ينتهي رفع الصورة.', 'Wait for the image upload to finish.'), 'error');
       return;
     }
     if (!this.formProduct.nameAr || !this.formProduct.nameEn || this.formProduct.basePrice <= 0) {
-      alert('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.');
+      alert(this.language.t('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.', 'Complete all required fields and check the price.'));
       return;
     }
     if ((this.formProduct.addons || []).some(a => !a.nameAr.trim() || !a.nameEn.trim() || a.price < 0)) {
-      alert('أكمل اسم كل إضافة بالعربية والإنجليزية وسعرًا صالحًا.');
+      alert(this.language.t('أكمل اسم كل إضافة بالعربية والإنجليزية وسعرًا صالحًا.', 'Enter Arabic and English names and a valid price for each extra.'));
       return;
     }
     if (this.formProduct.discountPrice && (this.formProduct.discountPrice <= 0 || this.formProduct.discountPrice >= this.formProduct.basePrice)) {
-      alert('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.');
+      alert(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'));
       return;
     }
 
@@ -831,12 +833,12 @@ export class AdminProductsComponent implements OnInit {
         next: (res) => {
           this.isSaving.set(false);
           this.closeModal();
-          this.showFeedback('تم تحديث بيانات الصنف بنجاح.', 'success');
+          this.showFeedback(this.language.t('تم تحديث بيانات الصنف بنجاح.', 'Product updated successfully.'), 'success');
           this.loadData();
         },
         error: () => {
           this.isSaving.set(false);
-          this.showFeedback('حدث خطأ أثناء تحديث بيانات الصنف.', 'error');
+          this.showFeedback(this.language.t('حدث خطأ أثناء تحديث بيانات الصنف.', 'Could not update the product.'), 'error');
         }
       });
     } else {
@@ -844,12 +846,12 @@ export class AdminProductsComponent implements OnInit {
         next: (res) => {
           this.isSaving.set(false);
           this.closeModal();
-          this.showFeedback('تمت إضافة الصنف الجديد بنجاح.', 'success');
+          this.showFeedback(this.language.t('تمت إضافة الصنف الجديد بنجاح.', 'Product added successfully.'), 'success');
           this.loadData();
         },
         error: () => {
           this.isSaving.set(false);
-          this.showFeedback('حدث خطأ أثناء إضافة الصنف.', 'error');
+          this.showFeedback(this.language.t('حدث خطأ أثناء إضافة الصنف.', 'Could not add the product.'), 'error');
         }
       });
     }

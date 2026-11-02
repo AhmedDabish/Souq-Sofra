@@ -244,6 +244,10 @@ namespace SouqSofra.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("VariantNameEn")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("OrderItemId");
 
                     b.HasIndex("OrderId");

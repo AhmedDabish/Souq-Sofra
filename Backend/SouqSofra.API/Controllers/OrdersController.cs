@@ -44,6 +44,7 @@ namespace SouqSofra.API.Controllers
                         i.ProductNameAr,
                         i.ProductNameEn,
                         i.VariantNameAr,
+                        i.VariantNameEn,
                         i.UnitPrice,
                         i.Quantity,
                         i.TotalPrice,
@@ -69,7 +70,7 @@ namespace SouqSofra.API.Controllers
                 o.PaymentMethod, o.OrderStatus, o.Notes, o.CreatedAt,
                 o.Items.Select(i => new OrderItemDto(
                     i.OrderItemId, i.ProductId, i.VariantId, i.ProductNameAr, i.ProductNameEn,
-                    i.VariantNameAr, i.UnitPrice, i.Quantity, i.TotalPrice,
+                    i.VariantNameAr, i.VariantNameEn, i.UnitPrice, i.Quantity, i.TotalPrice,
                     i.Addons.Select(addon => new OrderItemAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList()
                 )).ToList(),
                 o.OrderChannel
@@ -143,6 +144,7 @@ namespace SouqSofra.API.Controllers
 
                 decimal unitPrice;
                 string? variantNameAr = null;
+                string? variantNameEn = null;
                 if (item.VariantId.HasValue)
                 {
                     var variant = prod.Variants.FirstOrDefault(candidate => candidate.VariantId == item.VariantId.Value);
@@ -151,6 +153,7 @@ namespace SouqSofra.API.Controllers
 
                     unitPrice = variant.Price;
                     variantNameAr = variant.NameAr;
+                    variantNameEn = variant.NameEn;
                     if (variant.IsDefault && prod.DiscountPrice.HasValue && prod.DiscountPrice.Value > 0 && prod.DiscountPrice.Value < prod.BasePrice)
                         unitPrice = decimal.Round(variant.Price * (prod.DiscountPrice.Value / prod.BasePrice), 2, MidpointRounding.AwayFromZero);
                 }
@@ -183,6 +186,7 @@ namespace SouqSofra.API.Controllers
                     ProductNameAr = prod.NameAr,
                     ProductNameEn = prod.NameEn,
                     VariantNameAr = variantNameAr,
+                    VariantNameEn = variantNameEn,
                     UnitPrice = unitPrice,
                     Quantity = item.Quantity,
                     TotalPrice = total

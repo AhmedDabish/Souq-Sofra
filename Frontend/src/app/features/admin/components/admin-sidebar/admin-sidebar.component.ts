@@ -1,16 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { LanguageService } from '../../../../core/services/language.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-sidebar', standalone: true, imports: [CommonModule, RouterModule],
   template: `
     @if (mobileOpen()) {
-      <button class="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-sm lg:hidden" aria-label="إغلاق القائمة" (click)="mobileOpen.set(false)"></button>
+      <button class="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-sm lg:hidden" [attr.aria-label]="language.t('إغلاق القائمة', 'Close menu')" (click)="mobileOpen.set(false)"></button>
     }
 
-    <button type="button" class="fixed right-4 top-4 z-[70] flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-[#42150f] text-amber-100 shadow-xl transition hover:bg-[#6a2415] focus:outline-none focus:ring-4 focus:ring-amber-400/40 lg:hidden" (click)="toggleMobile()" [attr.aria-label]="mobileOpen() ? 'إغلاق القائمة' : 'فتح القائمة'" [attr.aria-expanded]="mobileOpen()">
+    <button type="button" class="fixed right-4 top-4 z-[70] flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-[#42150f] text-amber-100 shadow-xl transition hover:bg-[#6a2415] focus:outline-none focus:ring-4 focus:ring-amber-400/40 lg:hidden" (click)="toggleMobile()" [style.right]="language.isEnglish() ? 'auto' : '1rem'" [style.left]="language.isEnglish() ? '1rem' : 'auto'" [attr.aria-label]="mobileOpen() ? language.t('إغلاق القائمة', 'Close menu') : language.t('فتح القائمة', 'Open menu')" [attr.aria-expanded]="mobileOpen()">
       @if (mobileOpen()) {
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg>
       } @else {
@@ -18,25 +19,25 @@ import { AuthService } from '../../../../core/services/auth.service';
       }
     </button>
 
-    <button type="button" class="admin-sidebar-toggle fixed top-5 z-[70] hidden h-10 w-10 items-center justify-center rounded-xl border border-[#681c0f]/10 bg-white text-[#681c0f] shadow-md transition hover:bg-orange-50 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-200 lg:flex" (click)="toggleCollapsed()" [style.right]="collapsed() ? '4.25rem' : '17.25rem'" [attr.aria-label]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'" [attr.title]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'">
+    <button type="button" class="admin-sidebar-toggle fixed top-5 z-[70] hidden h-10 w-10 items-center justify-center rounded-xl border border-[#681c0f]/10 bg-white text-[#681c0f] shadow-md transition hover:bg-orange-50 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-200 lg:flex" (click)="toggleCollapsed()" [style.right]="language.isEnglish() ? 'auto' : (collapsed() ? '4.25rem' : '17.25rem')" [style.left]="language.isEnglish() ? (collapsed() ? '4.25rem' : '17.25rem') : 'auto'" [attr.aria-label]="collapsed() ? language.t('فتح القائمة الجانبية', 'Expand sidebar') : language.t('طي القائمة الجانبية', 'Collapse sidebar')" [attr.title]="collapsed() ? language.t('فتح القائمة الجانبية', 'Expand sidebar') : language.t('طي القائمة الجانبية', 'Collapse sidebar')">
       <svg viewBox="0 0 24 24" class="h-5 w-5 transition-transform" [class.rotate-180]="!collapsed()" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg>
     </button>
 
-    <aside [style.width]="collapsed() ? '5rem' : '18rem'" [class.sidebar-mobile-open]="mobileOpen()" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-[#32120e] text-white shadow-[0_20px_70px_rgba(36,12,8,.32)] transition-[width,transform] duration-300 ease-out translate-x-full lg:translate-x-0">
+    <aside [style.width]="collapsed() ? '5rem' : '18rem'" [style.right]="language.isEnglish() ? 'auto' : '0'" [style.left]="language.isEnglish() ? '0' : 'auto'" [class.sidebar-mobile-open]="mobileOpen()" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-[#32120e] text-white shadow-[0_20px_70px_rgba(36,12,8,.32)] transition-[width,transform] duration-300 ease-out translate-x-full lg:translate-x-0">
       <div class="sidebar-brand relative flex h-[6.25rem] shrink-0 items-center gap-3 border-b border-white/[.08] px-4">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l from-amber-300 via-orange-400 to-transparent"></div>
         <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-[0_5px_22px_rgba(247,176,77,.18)] ring-1 ring-amber-200/30">
-          <img src="assets/favicon.png" alt="شعار مطعم سوق وسفرة" class="h-full w-full object-contain" />
+          <img src="assets/favicon.png" [alt]="language.t('شعار مطعم سوق وسفرة', 'Souq & Sofra restaurant logo')" class="h-full w-full object-contain" />
         </div>
         @if (!collapsed()) {
-          <div class="min-w-0"><h2 class="font-baloo text-lg font-black tracking-wide text-amber-100">سوق وسفرة</h2><p class="mt-0.5 text-[11px] tracking-wide text-orange-100/55">لوحة إدارة المطعم</p></div>
+          <div class="min-w-0"><h2 class="font-baloo text-lg font-black tracking-wide text-amber-100">{{ language.t('سوق وسفرة', 'Souq & Sofra') }}</h2><p class="mt-0.5 text-[11px] tracking-wide text-orange-100/55">{{ language.t('لوحة إدارة المطعم', 'Restaurant dashboard') }}</p></div>
         }
       </div>
 
-      @if (!collapsed()) { <div class="px-5 pb-1 pt-5 text-[10px] font-extrabold tracking-[.16em] text-orange-100/45">القائمة الرئيسية</div> }
+      @if (!collapsed()) { <div class="px-5 pb-1 pt-5 text-[10px] font-extrabold tracking-[.16em] text-orange-100/45">{{ language.t('القائمة الرئيسية', 'MAIN MENU') }}</div> }
       <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-3 [scrollbar-color:#ffffff28_transparent] [scrollbar-width:thin]">
         @for (item of visibleItems(); track item.path) {
-          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" (click)="mobileOpen.set(false)" [title]="collapsed() ? item.label : ''" class="admin-nav-link group relative flex min-h-[3.15rem] items-center gap-3 rounded-xl px-3 text-[13px] font-semibold text-white/65 transition duration-200 hover:bg-white/[.07] hover:text-white">
+          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" (click)="mobileOpen.set(false)" [title]="collapsed() ? language.t(item.label, item.labelEn) : ''" class="admin-nav-link group relative flex min-h-[3.15rem] items-center gap-3 rounded-xl px-3 text-[13px] font-semibold text-white/65 transition duration-200 hover:bg-white/[.07] hover:text-white">
             <span class="admin-nav-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[.055] text-amber-100/75 transition duration-200 group-hover:bg-amber-300/10 group-hover:text-amber-100">
               <svg viewBox="0 0 24 24" class="h-[19px] w-[19px]" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 @switch (item.icon) {
@@ -50,7 +51,7 @@ import { AuthService } from '../../../../core/services/auth.service';
                 }
               </svg>
             </span>
-            @if (!collapsed()) { <span class="truncate">{{item.label}}</span><span class="mr-auto h-1.5 w-1.5 rounded-full bg-transparent transition group-[.admin-nav-active]:bg-amber-200"></span> }
+            @if (!collapsed()) { <span class="truncate">{{language.t(item.label, item.labelEn)}}</span><span class="mr-auto h-1.5 w-1.5 rounded-full bg-transparent transition group-[.admin-nav-active]:bg-amber-200"></span> }
           </a>
         }
       </nav>
@@ -59,12 +60,13 @@ import { AuthService } from '../../../../core/services/auth.service';
         @if (!collapsed()) {
           <div class="mb-3 flex items-center gap-3 rounded-xl border border-white/[.07] bg-white/[.045] p-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-200 to-orange-400 font-black text-[#48170f] shadow">{{ initials() }}</div>
-            <div class="min-w-0"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || 'مستخدم لوحة التحكم'}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div>
+            <div class="min-w-0"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || language.t('مستخدم لوحة التحكم', 'Dashboard user')}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div>
           </div>
         }
-        <div class="flex items-center gap-2">
-          <a routerLink="/" class="flex min-h-10 flex-1 items-center gap-2 rounded-xl px-3 text-xs text-white/65 transition hover:bg-white/[.07] hover:text-white" [title]="collapsed() ? 'المتجر العام' : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg>@if (!collapsed()) { <span>المتجر</span> }</a>
-          <button type="button" (click)="logout()" class="flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-rose-200/75 transition hover:bg-rose-400/10 hover:text-rose-100" [title]="collapsed() ? 'تسجيل الخروج' : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>@if (!collapsed()) { <span>خروج</span> }</button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" (click)="language.toggle()" class="flex min-h-10 items-center rounded-xl px-3 text-xs font-bold text-amber-100 transition hover:bg-white/[.07]">{{ collapsed() ? (language.isEnglish() ? 'ع' : 'EN') : (language.isEnglish() ? 'العربية' : 'English') }}</button>
+          <a routerLink="/" class="flex min-h-10 flex-1 items-center gap-2 rounded-xl px-3 text-xs text-white/65 transition hover:bg-white/[.07] hover:text-white" [title]="collapsed() ? language.t('المتجر العام', 'Storefront') : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg>@if (!collapsed()) { <span>{{ language.t('المتجر', 'Storefront') }}</span> }</a>
+          <button type="button" (click)="logout()" class="flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-rose-200/75 transition hover:bg-rose-400/10 hover:text-rose-100" [title]="collapsed() ? language.t('تسجيل الخروج', 'Log out') : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>@if (!collapsed()) { <span>{{ language.t('خروج', 'Log out') }}</span> }</button>
         </div>
       </div>
     </aside>
@@ -77,22 +79,23 @@ import { AuthService } from '../../../../core/services/auth.service';
   `]
 })
 export class AdminSidebarComponent {
+  language = inject(LanguageService);
   auth = inject(AuthService); private router = inject(Router);
   collapsed = signal(localStorage.getItem('souq_admin_sidebar_collapsed') === 'true');
   mobileOpen = signal(false);
   private items = [
-    { path:'/admin', label:'لوحة المؤشرات', icon:'dashboard', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/orders', label:'إدارة الطلبات', icon:'orders', roles:['User','Admin','SuperAdmin'] },
-    { path:'/admin/products', label:'المنتجات والمنيو', icon:'products', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/categories', label:'أقسام المنيو', icon:'categories', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/addons', label:'المنتجات الإضافية', icon:'addons', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/settings', label:'إعدادات المتجر', icon:'settings', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', icon:'staff', roles:['Admin','SuperAdmin'] },
+    { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', roles:['User','Admin','SuperAdmin'] },
+    { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', roles:['Admin','SuperAdmin'] },
   ];
   visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.roles.includes(role)); }
-  roleLabel() { return ({User:'موظف الطلبات',Admin:'مدير',SuperAdmin:'مدير عام'} as Record<string,string>)[this.auth.currentUser()?.role || ''] || 'حساب'; }
+  roleLabel() { const labels: Record<string,[string,string]> = { User:['موظف الطلبات','Orders staff'], Admin:['مدير','Admin'], SuperAdmin:['مدير عام','Super Admin'] }; const pair=labels[this.auth.currentUser()?.role || '']; return pair ? this.language.t(pair[0],pair[1]) : this.language.t('حساب','Account'); }
   initials() { return (this.auth.currentUser()?.fullName || 'م').trim().slice(0,1); }
   toggleCollapsed() { this.collapsed.update(value => !value); localStorage.setItem('souq_admin_sidebar_collapsed',String(this.collapsed())); }
   toggleMobile() { this.mobileOpen.update(value => !value); }
-  logout() { if (confirm('هل أنت متأكد من تسجيل الخروج؟')) this.auth.logout(); }
+  logout() { if (confirm(this.language.t('هل أنت متأكد من تسجيل الخروج؟','Are you sure you want to log out?'))) this.auth.logout(); }
 }

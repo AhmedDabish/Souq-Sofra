@@ -154,6 +154,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(oi => oi.ProductNameAr).IsRequired().HasMaxLength(200);
                 entity.Property(oi => oi.ProductNameEn).IsRequired().HasMaxLength(200);
                 entity.Property(oi => oi.VariantNameAr).HasMaxLength(100);
+                entity.Property(oi => oi.VariantNameEn).HasMaxLength(100);
                 entity.Property(oi => oi.UnitPrice).HasPrecision(18, 2);
                 entity.Property(oi => oi.TotalPrice).HasPrecision(18, 2);
 

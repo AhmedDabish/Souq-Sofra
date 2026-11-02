@@ -286,8 +286,10 @@ body {
 .admin-shell .text-\[10px\] { font-size: .75rem !important; line-height: 1.45; }
 .admin-shell main { min-height: 100dvh; }
 .admin-shell:has(app-admin-sidebar aside[style*="5rem"]) main { margin-right: 5rem !important; }
+.admin-shell[dir="ltr"]:has(app-admin-sidebar aside[style*="5rem"]) main { margin-left: 5rem !important; margin-right: 0 !important; }
 .admin-shell:has(app-admin-sidebar aside[style*="18rem"]) main { margin-right: 18rem !important; }
-@media (max-width: 1023px) { .admin-shell main { margin-right: 0 !important; } }
+.admin-shell[dir="ltr"]:has(app-admin-sidebar aside[style*="18rem"]) main { margin-left: 18rem !important; margin-right: 0 !important; }
+@media (max-width: 1023px) { .admin-shell main { margin-left: 0 !important; margin-right: 0 !important; } }
 
 .delivery-map-pin {
   width: 25px;

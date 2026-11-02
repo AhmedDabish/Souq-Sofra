@@ -12,23 +12,23 @@ import { LanguageService } from '../../../../core/services/language.service';
   template: `
     @if (layout === 'menu') {
       <article [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="group relative flex min-h-[148px] w-full overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md md:min-h-[168px]">
-        <a class="absolute inset-0 z-0" [attr.aria-label]="product.nameAr" [routerLink]="['/product', product.productId]"></a>
+        <a class="absolute inset-0 z-0" [attr.aria-label]="language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr" [routerLink]="['/product', product.productId]"></a>
         <div class="pointer-events-none absolute inset-0 bg-gradient-to-l from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
         <div class="img-card-wrap group/image relative min-h-full w-28 shrink-0 overflow-hidden md:w-36">
-          <img [alt]="product.nameAr" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" [class.object-contain]="isHawawshiImage()" [class.p-3]="isHawawshiImage()" [style.backgroundColor]="isHawawshiImage() ? '#fff7ec' : null" [src]="imageUrl(product.imageUrl)" />
-          <button type="button" (click)="toggleWishlist($event)" aria-label="إضافة للمفضلة" [class.bg-white]="isWishlisted()" [class.text-red-500]="isWishlisted()" class="absolute left-2 top-2 z-20 rounded-full border border-white/50 bg-white/30 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-red-500">
+          <img [alt]="language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" [class.object-contain]="isHawawshiImage()" [class.p-3]="isHawawshiImage()" [style.backgroundColor]="isHawawshiImage() ? '#fff7ec' : null" [src]="imageUrl(product.imageUrl)" />
+          <button type="button" (click)="toggleWishlist($event)" [attr.aria-label]="language.t('إضافة للمفضلة', 'Add to wishlist')" [class.bg-white]="isWishlisted()" [class.text-red-500]="isWishlisted()" class="absolute left-2 top-2 z-20 rounded-full border border-white/50 bg-white/30 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-red-500">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" [attr.fill]="isWishlisted() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
           </button>
-          @if (discountPercent()) { <span class="absolute bottom-2 right-2 z-10 rounded-full bg-primary px-2 py-1 text-[10px] font-bold text-white shadow">خصم {{ discountPercent() }}%</span> }
+          @if (discountPercent()) { <span class="absolute bottom-2 right-2 z-10 rounded-full bg-primary px-2 py-1 text-[10px] font-bold text-white shadow">{{ language.t('خصم', 'Save') }} {{ discountPercent() }}%</span> }
         </div>
         <div class="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 text-start md:gap-3 md:p-4">
           <div class="min-w-0">
             <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</h3>
-            <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ language.isEnglish() ? (product.descriptionEn || product.descriptionAr || 'Freshly prepared with selected ingredients.') : (product.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.') }}</p>
+            <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ language.isEnglish() ? product.descriptionEn : product.descriptionAr }}</p>
             @if (product.variants && product.variants.length > 1) {
               <div class="pointer-events-auto mt-1.5 flex flex-wrap gap-1" (click)="$event.stopPropagation()">
                 @for (v of product.variants; track v.variantId ?? v.nameAr) {
-                  <button type="button" (click)="selectVariant(v, $event)" [class.bg-primary]="selectedVariant()?.variantId === v.variantId" [class.text-white]="selectedVariant()?.variantId === v.variantId" [class.bg-gray-100]="selectedVariant()?.variantId !== v.variantId" [class.text-gray-700]="selectedVariant()?.variantId !== v.variantId" class="rounded-md px-2 py-0.5 text-[9px] font-bold transition-colors">{{ v.nameAr }}</button>
+                  <button type="button" (click)="selectVariant(v, $event)" [class.bg-primary]="selectedVariant()?.variantId === v.variantId" [class.text-white]="selectedVariant()?.variantId === v.variantId" [class.bg-gray-100]="selectedVariant()?.variantId !== v.variantId" [class.text-gray-700]="selectedVariant()?.variantId !== v.variantId" class="rounded-md px-2 py-0.5 text-[9px] font-bold transition-colors">{{ language.isEnglish() ? (v.nameEn || v.nameAr) : v.nameAr }}</button>
                 }
               </div>
             }
@@ -46,19 +46,19 @@ import { LanguageService } from '../../../../core/services/language.service';
       </article>
     } @else {
     <div [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="rounded-xl bg-card text-card-foreground border-0 shadow-none group product-card h-full flex flex-col">
-      <a 
-        class="inset-0 z-0 flex flex-col h-full rounded-[inherit] cursor-pointer" 
-        [attr.aria-label]="product.nameAr" 
+      <a
+        class="inset-0 z-0 flex flex-col h-full rounded-[inherit] cursor-pointer"
+        [attr.aria-label]="language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr"
         [routerLink]="['/product', product.productId]">
-        
+
         <!-- Image Card Wrap & Visual Overlays -->
         <div class="flex flex-col space-y-1.5 p-0 relative rounded-[inherit]">
           <div class="relative w-full max-md:aspect-square aspect-[4/3] overflow-hidden group/image cursor-pointer img-card-wrap">
-            <img 
-              [alt]="product.nameAr" 
-              loading="lazy" 
-              decoding="async" 
-              data-nimg="fill" 
+            <img
+              [alt]="language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr"
+              loading="lazy"
+              decoding="async"
+              data-nimg="fill"
               class="transform transition-transform duration-700 ease-out group-hover:scale-105"
               [class.object-cover]="!isHawawshiImage()"
               [class.object-contain]="isHawawshiImage()"
@@ -68,24 +68,24 @@ import { LanguageService } from '../../../../core/services/language.service';
               [src]="imageUrl(product.imageUrl)" />
 
             <!-- Wishlist Heart Button -->
-            <button 
+            <button
               type="button"
               (click)="toggleWishlist($event)"
-              aria-label="Add to wishlist" 
+              [attr.aria-label]="language.t('إضافة للمفضلة', 'Add to wishlist')"
               [class]="isWishlisted() ? 'bg-white text-red-500 shadow-md' : 'text-white hover:text-primaryDark hover:bg-white bg-white/30'"
               class="cursor-pointer absolute max-md:top-2 max-md:left-2 top-4 left-4 backdrop-blur-sm max-md:p-1.5 p-2 rounded-full transition-colors border border-white/50 z-20">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
                 [attr.fill]="isWishlisted() ? 'currentColor' : 'none'"
-                stroke="currentColor" 
-                stroke-width="2" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                class="lucide lucide-heart max-md:w-4 max-md:h-4 w-5 h-5" 
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-heart max-md:w-4 max-md:h-4 w-5 h-5"
                 aria-hidden="true">
                 <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path>
               </svg>
@@ -93,23 +93,23 @@ import { LanguageService } from '../../../../core/services/language.service';
 
             <!-- Quick View Eye Hover Overlay -->
             <div class="absolute inset-0 bg-[#b3b18a]/20 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-              <button 
+              <button
                 type="button"
                 (click)="openQuickView($event)"
-                class="bg-white text-primary p-2.5 rounded-full shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white hover:scale-110 relative z-20 cursor-pointer" 
-                title="عرض سريع" 
-                aria-label="عرض سريع">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="18" 
-                  height="18" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  stroke-width="2" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round" 
-                  class="lucide lucide-eye cursor-pointer" 
+                class="bg-white text-primary p-2.5 rounded-full shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-white hover:scale-110 relative z-20 cursor-pointer"
+                [attr.title]="language.t('عرض سريع', 'Quick view')"
+                [attr.aria-label]="language.t('عرض سريع', 'Quick view')">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-eye cursor-pointer"
                   aria-hidden="true">
                   <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
                   <circle cx="12" cy="12" r="3"></circle>
@@ -121,7 +121,7 @@ import { LanguageService } from '../../../../core/services/language.service';
             <div class="items-center absolute max-md:top-2 max-md:right-2 top-4 right-4 z-10 flex flex-wrap justify-start gap-1.5 max-w-[70%]">
               @if (discountPercent()) {
                 <div class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm backdrop-blur-sm border border-white/20">
-                  خصم {{ discountPercent() }}%
+                  {{ language.t('خصم', 'Save') }} {{ discountPercent() }}%
                 </div>
               }
             </div>
@@ -137,19 +137,19 @@ import { LanguageService } from '../../../../core/services/language.service';
               </h3>
             </div>
             <div class="max-md:text-xs text-sm text-muted font-normal max-md:mb-2 mb-2 leading-relaxed text-start line-clamp-2 max-md:min-h-[2.5rem] min-h-[3rem]">
-              <p>{{ product.descriptionAr || 'محضر طازج يومياً بمكونات نقية ووصفات تقليدية شهية ومذاق لا يُنسى.' }}</p>
+              <p>{{ language.isEnglish() ? (product.descriptionEn || 'Freshly prepared with quality ingredients and traditional recipes.') : (product.descriptionAr || 'محضر طازج يومياً بمكونات نقية ووصفات تقليدية شهية ومذاق لا يُنسى.') }}</p>
             </div>
 
             <!-- Variant Selector Pills if present -->
             @if (product.variants && product.variants.length > 1) {
               <div class="flex flex-wrap gap-1.5 mb-2" (click)="$event.stopPropagation()">
                 @for (v of product.variants; track v.variantId) {
-                  <button 
+                  <button
                     type="button"
                     (click)="selectVariant(v, $event)"
                     [class]="selectedVariant()?.variantId === v.variantId ? 'bg-primary text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                     class="text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer">
-                    {{ v.nameAr }}
+                    {{ language.isEnglish() ? (v.nameEn || v.nameAr) : v.nameAr }}
                   </button>
                 }
               </div>
@@ -164,32 +164,32 @@ import { LanguageService } from '../../../../core/services/language.service';
                   {{ currentPrice() }}
                 </span>
                 <span class="text-[12px] text-muted font-medium">
-                  درهم
+                  {{ language.isEnglish() ? 'AED' : 'درهم' }}
                 </span>
               </div>
               @if (hasDiscount()) {
                 <span class="text-xs text-[#C92127] line-through font-medium flex items-center gap-1">
                   <span>{{ originalPrice() }}</span>
-                  <span>درهم</span>
+                  <span>{{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                 </span>
               }
             </div>
 
             <!-- More-In Circular Chevron Action Button -->
-            <div 
+            <div
               class="flex items-center gap-2 bg-button border md:border-2 border-button p-2 cursor-pointer rounded-full font-bold hover:scale-105 active:scale-95 transition-all duration-300 shadow-md shadow-primary/20 text-white">
               <span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  stroke-width="2" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round" 
-                  class="lucide lucide-chevron-left size-5 stroke-3 ltr:rotate-180" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chevron-left size-5 stroke-3 ltr:rotate-180"
                   aria-hidden="true">
                   <path d="m15 18-6-6 6-6"></path>
                 </svg>
@@ -208,25 +208,25 @@ import { LanguageService } from '../../../../core/services/language.service';
               ✕
             </button>
             <div class="relative aspect-[16/10] bg-orange-50 overflow-hidden">
-              <img [src]="imageUrl(product.imageUrl)" [alt]="product.nameAr" class="w-full h-full object-cover">
+              <img [src]="imageUrl(product.imageUrl)" [alt]="language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr" class="w-full h-full object-cover">
               @if (discountPercent()) {
                 <span class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                  خصم {{ discountPercent() }}%
+                  {{ language.t('خصم', 'Save') }} {{ discountPercent() }}%
                 </span>
               }
             </div>
             <div class="p-6">
               <div class="flex items-center gap-2 mb-2">
-                <h3 class="text-xl font-black font-baloo text-primaryDark">{{ product.nameAr }}</h3>
+                <h3 class="text-xl font-black font-baloo text-primaryDark">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</h3>
               </div>
-              <p class="text-xs text-gray-500 mb-4 leading-relaxed">{{ product.descriptionAr || 'محضر طازج يومياً بأجود المكونات الطبيعية.' }}</p>
-              
+              <p class="text-xs text-gray-500 mb-4 leading-relaxed">{{ language.isEnglish() ? (product.descriptionEn || 'Freshly prepared with quality ingredients.') : (product.descriptionAr || 'محضر طازج يومياً بأجود المكونات الطبيعية.') }}</p>
+
               @if (product.variants && product.variants.length > 1) {
                 <div class="mb-4">
-                  <label class="block text-xs font-bold text-gray-700 mb-2">اختر الحجم أو الخيار:</label>
+                  <label class="block text-xs font-bold text-gray-700 mb-2">{{ language.t('اختر الحجم أو الخيار:', 'Choose a size or option:') }}</label>
                   <div class="flex flex-wrap gap-2">
                     @for (v of product.variants; track v.variantId) {
-                      <button 
+                      <button
                         type="button"
                         (click)="selectedVariant.set(v)"
                         [class]="selectedVariant()?.variantId === v.variantId ? 'bg-primary text-white border-primary shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'"
@@ -240,17 +240,17 @@ import { LanguageService } from '../../../../core/services/language.service';
 
               <div class="flex items-center justify-between pt-4 border-t border-gray-100 mt-2">
                 <div>
-                  <span class="text-xs text-gray-400 block">السعر الإجمالي</span>
+                  <span class="text-xs text-gray-400 block">{{ language.t('السعر الإجمالي', 'Total price') }}</span>
                   <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-primaryDark">{{ currentPrice() }}</span>
                     <span class="text-xs font-bold text-primary">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                   </div>
                 </div>
-                <button 
+                <button
                   type="button"
                   (click)="addFromQuickView()"
                   class="px-6 py-3 rounded-2xl bg-primary hover:bg-primaryDark text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2">
-                  <span>أضف إلى السلة</span>
+                  <span>{{ language.t('أضف إلى السلة', 'Add to cart') }}</span>
                   <span>🛒</span>
                 </button>
               </div>

@@ -13,8 +13,8 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
   standalone: true,
   imports: [CommonModule, FormsModule, ProductCardComponent, CategorySliderComponent],
   template: `
-    <div class="container-wide mx-auto px-2 md:px-4 py-6 sm:py-10 space-y-6 md:space-y-8">
-      
+    <div [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="container-wide mx-auto px-2 md:px-4 py-6 sm:py-10 space-y-6 md:space-y-8">
+
       <!-- Page Header & Search -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200">
         <div>
@@ -24,24 +24,24 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
 
         <!-- Search Bar -->
         <div class="relative w-full md:w-80">
-          <input 
-            type="text" 
+          <input
+            type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
             (keyup.enter)="applySearch()"
             [placeholder]="language.isEnglish() ? 'Search for a meal or item...' : 'ابحث عن وجبة أو صنف...'"
             class="w-full px-4 py-2.5 pr-10 rounded-2xl border border-gray-200 focus:outline-none focus:border-primary text-xs bg-white shadow-xs">
-          <button type="button" (click)="clearSearch()" aria-label="مسح البحث" class="absolute left-3 top-2.5 text-gray-400 hover:text-primary" [class.hidden]="!searchQuery()">×</button>
-          <svg class="absolute right-3 top-3 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <button type="button" (click)="clearSearch()" [attr.aria-label]="language.t('مسح البحث', 'Clear search')" class="absolute end-3 top-2.5 text-gray-400 hover:text-primary" [class.hidden]="!searchQuery()">×</button>
+          <svg class="absolute start-3 top-3 text-gray-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </div>
       </div>
 
       <!-- Category Slider Bar matching Home Page exactly -->
       <div class="-my-4">
-        <app-category-slider 
+        <app-category-slider
           [isEnglish]="language.isEnglish()"
-          [categories]="categories()" 
-          [selectedId]="selectedCategoryId() ?? 0" 
+          [categories]="categories()"
+          [selectedId]="selectedCategoryId() ?? 0"
           [showViewAll]="false"
           [title]="language.isEnglish() ? 'Browse menu categories' : 'تصفح حسب أقسام المنيو'"
           (categorySelected)="onCategorySelect($event)">
@@ -55,12 +55,12 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
           <strong class="text-primaryDark text-sm font-extrabold">
             {{ activeCategoryName() }}
           </strong>
-          <span class="text-gray-400 mr-2">({{ filteredProducts().length }} {{ language.isEnglish() ? 'items' : 'صنف' }})</span>
+          <span class="text-gray-400 ms-2">({{ filteredProducts().length }} {{ language.isEnglish() ? 'items' : 'صنف' }})</span>
         </div>
 
         @if (selectedCategoryId() !== null) {
-          <button 
-            type="button" 
+          <button
+            type="button"
             (click)="selectedCategoryId.set(null)"
             class="text-primary hover:underline font-bold text-xs cursor-pointer">
             {{ language.isEnglish() ? 'All categories ✕' : 'عرض كافة الأقسام ✕' }}
@@ -99,7 +99,7 @@ export class MenuComponent implements OnInit {
 
   activeCategoryName = computed(() => {
     const id = this.selectedCategoryId();
-    if (!id) return 'جميع الأقسام';
+    if (!id) return this.language.isEnglish() ? 'All categories' : 'جميع الأقسام';
     const cat = this.categories().find(c => c.categoryId === id);
     return cat ? (this.language.isEnglish() ? cat.nameEn || cat.nameAr : cat.nameAr) : (this.language.isEnglish() ? 'All categories' : 'جميع الأقسام');
   });
@@ -112,7 +112,7 @@ export class MenuComponent implements OnInit {
     }
     const q = this.searchQuery().trim().toLowerCase();
     if (q) {
-      list = list.filter(p => p.nameAr.toLowerCase().includes(q) || (p.nameEn && p.nameEn.toLowerCase().includes(q)));
+      list = list.filter(p => p.nameAr.toLowerCase().includes(q) || (p.nameEn && p.nameEn.toLowerCase().includes(q)) || (this.language.isEnglish() && (p.descriptionEn || '').toLowerCase().includes(q)) || (!this.language.isEnglish() && (p.descriptionAr || '').toLowerCase().includes(q)));
     }
     return list;
   });

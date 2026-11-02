@@ -112,7 +112,9 @@ export interface OrderItemCreate {
 export interface DeliveryZone {
   id: string;
   emirate: string;
+  emirateEn?: string;
   name: string;
+  nameEn?: string;
   fee: number;
   enabled: boolean;
 }
@@ -133,6 +135,13 @@ export interface OrderCreate {
   orderChannel?: 'Website' | 'WhatsApp';
 }
 
+export interface OrderItemAddon {
+  addonId: number;
+  nameAr: string;
+  nameEn: string;
+  price: number;
+}
+
 export interface OrderItem {
   orderItemId: number;
   productId: number;
@@ -140,9 +149,11 @@ export interface OrderItem {
   productNameAr: string;
   productNameEn: string;
   variantNameAr?: string;
+  variantNameEn?: string;
   unitPrice: number;
   quantity: number;
   totalPrice: number;
+  addons?: OrderItemAddon[];
   specialInstructions?: string;
 }
 
@@ -180,6 +191,7 @@ export interface Branch {
 
 export interface SiteSettings {
   Announcement?: string;
+  AnnouncementEn?: string;
   PhoneNumber?: string;
   WhatsApp?: string;
   DeliveryFee?: string;

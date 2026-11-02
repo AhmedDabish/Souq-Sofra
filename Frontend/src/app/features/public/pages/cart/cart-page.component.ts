@@ -13,17 +13,17 @@ import { LanguageService } from '../../../../core/services/language.service';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, DeliveryMapComponent],
   template: `
-    <section dir="rtl" class="min-h-[60vh] bg-[#fffaf3] px-4 py-8 sm:py-12">
+    <section [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="min-h-[60vh] bg-[#fffaf3] px-4 py-8 sm:py-12">
       <div class="mx-auto max-w-6xl">
         <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p class="mb-2 text-sm font-bold text-primary">طلبك اللذيذ يبدأ من هنا</p>
-            <h1 class="font-baloo text-3xl font-black text-primaryDark sm:text-4xl">سلة المشتريات</h1>
-            <p class="mt-2 text-sm text-gray-500">راجع المنتجات، واختر الاستلام أو التوصيل قبل إرسال الطلب عبر واتساب.</p>
+            <p class="mb-2 text-sm font-bold text-primary">{{ language.t('طلبك اللذيذ يبدأ من هنا', 'Your delicious order starts here') }}</p>
+            <h1 class="font-baloo text-3xl font-black text-primaryDark sm:text-4xl">{{ language.t('سلة المشتريات', 'Shopping cart') }}</h1>
+            <p class="mt-2 text-sm text-gray-500">{{ language.t('راجع المنتجات، واختر الاستلام أو التوصيل قبل إرسال الطلب عبر واتساب.', 'Review your items and choose pickup or delivery before sending your order via WhatsApp.') }}</p>
           </div>
           @if (cart.items().length > 0) {
             <span class="rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-bold text-primaryDark shadow-sm">
-              {{ cart.totalCount() }} منتج في السلة
+              {{ cart.totalCount() }} {{ language.t('منتج في السلة', 'items in cart') }}
             </span>
           }
         </div>
@@ -31,10 +31,10 @@ import { LanguageService } from '../../../../core/services/language.service';
         @if (cart.items().length === 0) {
           <div class="rounded-3xl border border-orange-100 bg-white px-6 py-14 text-center shadow-sm sm:py-20">
             <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-orange-50 text-4xl" aria-hidden="true">🛒</div>
-            <h2 class="font-baloo text-2xl font-extrabold text-primaryDark">سلتك فارغة حالياً</h2>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">اختار اللي بتحبه من المنيو، وهتلاقي كل منتجاتك هنا جاهزة للمراجعة.</p>
+            <h2 class="font-baloo text-2xl font-extrabold text-primaryDark">{{ language.t('سلتك فارغة حالياً', 'Your cart is empty') }}</h2>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">{{ language.t('اختار اللي بتحبه من المنيو، وهتلاقي كل منتجاتك هنا جاهزة للمراجعة.', 'Choose your favorites from the menu and they will be ready for you to review here.') }}</p>
             <a routerLink="/menu" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-primary px-7 py-3 font-bold text-white shadow-md transition hover:bg-primaryDark">
-              تصفح المنيو
+              {{ language.t('تصفح المنيو', 'Browse menu') }}
             </a>
           </div>
         } @else {
@@ -44,46 +44,46 @@ import { LanguageService } from '../../../../core/services/language.service';
                 <article class="flex flex-col gap-4 rounded-3xl border border-orange-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:p-5">
                   <img
                     [src]="imageUrl(item.product.imageUrl)"
-                    [alt]="item.product.nameAr"
+                    [alt]="language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr"
                     class="aspect-[4/3] w-full shrink-0 rounded-2xl bg-orange-50 object-cover sm:w-36">
 
                   <div class="min-w-0 flex-1">
                     <h2 class="font-baloo text-lg font-extrabold text-primaryDark">{{ language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr }}</h2>
                     @if (item.selectedVariant) {
-                      <p class="mt-1 text-xs text-gray-500">الخيار: {{ language.isEnglish() ? (item.selectedVariant.nameEn || item.selectedVariant.nameAr) : item.selectedVariant.nameAr }}</p>
+                      <p class="mt-1 text-xs text-gray-500">{{ language.t('الخيار:', 'Option:') }} {{ language.isEnglish() ? (item.selectedVariant.nameEn || item.selectedVariant.nameAr) : item.selectedVariant.nameAr }}</p>
                     }
                     @if (item.selectedAddons.length) {
-                      <p class="mt-1 text-xs text-gray-500">الإضافات: {{ addonsLabel(item) }}</p>
+                      <p class="mt-1 text-xs text-gray-500">{{ language.t('الإضافات:', 'Extras:') }} {{ addonsLabel(item) }}</p>
                     }
                     @if (item.specialInstructions) {
-                      <p class="mt-1 text-xs text-gray-500">ملاحظات: {{ item.specialInstructions }}</p>
+                      <p class="mt-1 text-xs text-gray-500">{{ language.t('ملاحظات:', 'Notes:') }} {{ item.specialInstructions }}</p>
                     }
-                    <p class="mt-2 text-sm font-bold text-primary">{{ unitPrice(item) }} درهم للقطعة</p>
+                    <p class="mt-2 text-sm font-bold text-primary">{{ unitPrice(item) }} {{ language.isEnglish() ? 'AED each' : 'درهم للقطعة' }}</p>
                   </div>
 
                   <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
                     <div class="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-1">
-                      <button type="button" (click)="cart.updateQuantity(item, -1)" [attr.aria-label]="'تقليل كمية ' + item.product.nameAr" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-lg font-bold text-gray-600 shadow-sm transition hover:text-red-500">−</button>
+                      <button type="button" (click)="cart.updateQuantity(item, -1)" [attr.aria-label]="language.t('تقليل كمية', 'Decrease quantity') + ' ' + (language.isEnglish() ? item.product.nameEn : item.product.nameAr)" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-lg font-bold text-gray-600 shadow-sm transition hover:text-red-500">−</button>
                       <span class="min-w-5 text-center text-sm font-extrabold text-gray-800">{{ item.quantity }}</span>
-                      <button type="button" (click)="cart.updateQuantity(item, 1)" [attr.aria-label]="'زيادة كمية ' + item.product.nameAr" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-lg font-bold text-primary shadow-sm transition hover:bg-orange-50">+</button>
+                      <button type="button" (click)="cart.updateQuantity(item, 1)" [attr.aria-label]="language.t('زيادة كمية', 'Increase quantity') + ' ' + (language.isEnglish() ? item.product.nameEn : item.product.nameAr)" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-lg font-bold text-primary shadow-sm transition hover:bg-orange-50">+</button>
                     </div>
                     <div class="text-left">
-                      <p class="text-xs text-gray-400">الإجمالي</p>
-                      <p class="font-extrabold text-primaryDark">{{ item.totalPrice }} درهم</p>
+                      <p class="text-xs text-gray-400">{{ language.t('الإجمالي', 'Total') }}</p>
+                      <p class="font-extrabold text-primaryDark">{{ item.totalPrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</p>
                     </div>
                   </div>
 
-                  <button type="button" (click)="cart.removeItem(item)" [attr.aria-label]="'حذف ' + item.product.nameAr + ' من السلة'" class="self-end rounded-xl px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-50 sm:self-center">
-                    حذف
+                  <button type="button" (click)="cart.removeItem(item)" [attr.aria-label]="language.t('حذف', 'Remove') + ' ' + (language.isEnglish() ? item.product.nameEn : item.product.nameAr) + ' ' + language.t('من السلة', 'from cart')" class="self-end rounded-xl px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-50 sm:self-center" >
+                    {{ language.t('حذف', 'Remove') }}
                   </button>
                 </article>
               }
 
               <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <a routerLink="/menu" class="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-bold text-primaryDark transition hover:text-primary">
-                  <span aria-hidden="true">←</span> متابعة التسوق
+                  <span aria-hidden="true">{{ language.isEnglish() ? '→' : '←' }}</span> {{ language.t('متابعة التسوق', 'Continue shopping') }}
                 </a>
-                <button type="button" (click)="cart.clear()" class="rounded-xl px-3 py-2 text-sm font-bold text-gray-500 transition hover:bg-red-50 hover:text-red-600">إفراغ السلة</button>
+                <button type="button" (click)="cart.clear()" class="rounded-xl px-3 py-2 text-sm font-bold text-gray-500 transition hover:bg-red-50 hover:text-red-600">{{ language.t('إفراغ السلة', 'Clear cart') }}</button>
               </div>
             </div>
 
@@ -92,81 +92,81 @@ import { LanguageService } from '../../../../core/services/language.service';
                 <div class="flex items-center gap-3">
                   <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm" aria-hidden="true">🧾</span>
                   <div>
-                    <p class="text-[11px] font-bold tracking-wide text-primary">راجع طلبك</p>
-                    <h2 class="mt-0.5 font-baloo text-xl font-extrabold text-primaryDark">ملخص الطلب</h2>
+                    <p class="text-[11px] font-bold tracking-wide text-primary">{{ language.t('راجع طلبك', 'Review your order') }}</p>
+                    <h2 class="mt-0.5 font-baloo text-xl font-extrabold text-primaryDark">{{ language.t('ملخص الطلب', 'Order summary') }}</h2>
                   </div>
                 </div>
               </div>
               <div class="space-y-5 p-5 sm:p-6">
                 <div class="space-y-3 text-sm">
-                  <div class="flex justify-between text-gray-500"><span>عدد المنتجات</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
-                  <div class="flex justify-between text-gray-500"><span>المجموع الفرعي</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
-                  <div class="flex justify-between text-gray-500"><span>رسوم التوصيل</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' درهم') : '—' }}</span></div>
-                  <div class="flex items-center justify-between border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>الإجمالي</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="flex justify-between text-gray-500"><span>{{ language.t('عدد المنتجات', 'Items') }}</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
+                  <div class="flex justify-between text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="flex justify-between text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : '—' }}</span></div>
+                  <div class="flex items-center justify-between border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                 </div>
 
                 <div class="border-t border-orange-100 pt-5">
                   <div class="mb-3 flex items-center justify-between gap-2">
-                    <h3 class="text-sm font-extrabold text-primaryDark">طريقة الاستلام</h3>
-                    @if (!deliveryType()) { <span class="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">مطلوب الاختيار</span> }
+                    <h3 class="text-sm font-extrabold text-primaryDark">{{ language.t('طريقة الاستلام', 'Fulfillment method') }}</h3>
+                    @if (!deliveryType()) { <span class="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">{{ language.t('مطلوب الاختيار', 'Required') }}</span> }
                   </div>
                   <div class="grid grid-cols-2 gap-2">
                     <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🚚</span>
-                      <span class="block text-xs font-extrabold">توصيل للعنوان</span>
-                      <span class="mt-1 block text-[10px] text-gray-500">حسب المنطقة</span>
+                      <span class="block text-xs font-extrabold">{{ language.t('توصيل للعنوان', 'Delivery') }}</span>
+                      <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('حسب المنطقة', 'By area') }}</span>
                     </button>
                     <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🏪</span>
-                      <span class="block text-xs font-extrabold">استلام من الفرع</span>
-                      <span class="mt-1 block text-[10px] text-gray-500">بدون رسوم توصيل</span>
+                      <span class="block text-xs font-extrabold">{{ language.t('استلام من الفرع', 'Pickup at branch') }}</span>
+                      <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('بدون رسوم توصيل', 'No delivery fee') }}</span>
                     </button>
                   </div>
                 </div>
 
                 @if (!deliveryType()) {
-                  <p class="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">اختار طريقة الاستلام أولاً علشان تظهر بيانات إكمال الطلب.</p>
+                  <p class="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">{{ language.t('اختار طريقة الاستلام أولاً علشان تظهر بيانات إكمال الطلب.', 'Choose a fulfillment method to continue with your order.') }}</p>
                 } @else {
                   <div class="space-y-4 border-t border-orange-100 pt-5">
-                    <label class="block text-xs font-bold text-gray-700">اسم العميل *
-                      <input [(ngModel)]="customerName" name="orderCustomerName" required autocomplete="name" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="الاسم الكامل">
+                    <label class="block text-xs font-bold text-gray-700">{{ language.t('اسم العميل', 'Customer name') }} *
+                      <input [(ngModel)]="customerName" name="orderCustomerName" required autocomplete="name" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('الاسم الكامل', 'Full name')">
                     </label>
-                    <label class="block text-xs font-bold text-gray-700">رقم الهاتف *
-                      <input [(ngModel)]="customerPhone" name="orderCustomerPhone" required autocomplete="tel" type="tel" dir="ltr" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-left text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="05xxxxxxxx">
+                    <label class="block text-xs font-bold text-gray-700">{{ language.t('رقم الهاتف', 'Phone number') }} *
+                      <input [(ngModel)]="customerPhone" name="orderCustomerPhone" required autocomplete="tel" type="tel" dir="ltr" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-left text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('05xxxxxxxx', 'Phone number')">
                     </label>
                     @if (deliveryType() === 'delivery') {
-                      <label class="block text-xs font-bold text-gray-700">الإمارة *
+                      <label class="block text-xs font-bold text-gray-700">{{ language.t('الإمارة', 'Emirate') }} *
                         <select [(ngModel)]="selectedEmirate" name="deliveryEmirate" (ngModelChange)="onEmirateChange()" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
-                          <option value="">اختر الإمارة</option>
-                          @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ emirate }}</option> }
+                          <option value="">{{ language.t('اختر الإمارة', 'Choose an emirate') }}</option>
+                          @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ language.isEnglish() ? emirateNameEn(emirate) : emirate }}</option> }
                         </select>
                       </label>
-                      <label class="block text-xs font-bold text-gray-700">المنطقة *
+                      <label class="block text-xs font-bold text-gray-700">{{ language.t('المنطقة', 'Area') }} *
                         <select [(ngModel)]="selectedZoneId" name="deliveryZone" (ngModelChange)="onZoneChange()" [disabled]="!selectedEmirate" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:bg-gray-100">
-                          <option value="">اختر المنطقة</option>
-                          @for (zone of emirateZones(); track zone.id) { <option [value]="zone.id" [disabled]="!zone.enabled">{{ zone.name }} — {{ zone.enabled ? zone.fee + ' درهم' : 'غير متاحة' }}</option> }
+                          <option value="">{{ language.t('اختر المنطقة', 'Choose an area') }}</option>
+                          @for (zone of emirateZones(); track zone.id) { <option [value]="zone.id" [disabled]="!zone.enabled">{{ zoneLabel(zone) }} — {{ zone.enabled ? (zone.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : language.t('غير متاحة', 'Unavailable') }}</option> }
                         </select>
-                        @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">لا يوجد توصيل متاح حالياً في هذه الإمارة.</span> }
+                        @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">{{ language.t('لا يوجد توصيل متاح حالياً في هذه الإمارة.', 'Delivery is currently unavailable in this emirate.') }}</span> }
                       </label>
                       @if (selectedZone()) {
-                        <label class="block text-xs font-bold text-gray-700">تفاصيل العنوان (شارع، مبنى، شقة) *
-                          <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="اكتب تفاصيل الوصول"></textarea>
+                        <label class="block text-xs font-bold text-gray-700">{{ language.t('تفاصيل العنوان (شارع، مبنى، شقة)', 'Address details (street, building, apartment)') }} *
+                          <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('اكتب تفاصيل الوصول', 'Enter your address details')"></textarea>
                         </label>
                         <div class="space-y-2">
-                          <p class="text-xs font-bold text-gray-700">حدد موقعك على الخريطة *</p>
+                          <p class="text-xs font-bold text-gray-700">{{ language.t('حدد موقعك على الخريطة', 'Pin your location on the map') }} *</p>
                           <app-delivery-map [latitude]="latitude()" [longitude]="longitude()" (locationChange)="setMapLocation($event)" />
-                          <p class="text-[11px] text-gray-500">اضغط على الخريطة أو اسحب الدبوس لمكان التوصيل. رسوم هذه المنطقة: {{ selectedZone()?.fee }} درهم.</p>
-                          @if (latitude() !== null) { <p class="text-[11px] text-green-700">تم تحديد الموقع: {{ latitude() | number:'1.5-5' }}, {{ longitude() | number:'1.5-5' }}</p> }
+                          <p class="text-[11px] text-gray-500">{{ language.t('اضغط على الخريطة أو اسحب الدبوس لمكان التوصيل. رسوم هذه المنطقة:', 'Tap the map or drag the pin to your delivery location. Delivery fee for this area:') }} {{ selectedZone()?.fee }} {{ language.isEnglish() ? 'AED' : 'درهم' }}.</p>
+                          @if (latitude() !== null) { <p class="text-[11px] text-green-700">{{ language.t('تم تحديد الموقع:', 'Location selected:') }} {{ latitude() | number:'1.5-5' }}, {{ longitude() | number:'1.5-5' }}</p> }
                         </div>
                       }
                     }
-                    <label class="block text-xs font-bold text-gray-700">ملاحظات إضافية <span class="font-normal text-gray-400">(اختياري)</span>
-                      <textarea [(ngModel)]="customerNotes" name="orderNotes" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="أي تفاصيل تحب تضيفها"></textarea>
+                    <label class="block text-xs font-bold text-gray-700">{{ language.t('ملاحظات إضافية', 'Additional notes') }} <span class="font-normal text-gray-400">({{ language.t('اختياري', 'optional') }})</span>
+                      <textarea [(ngModel)]="customerNotes" name="orderNotes" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('أي تفاصيل تحب تضيفها', 'Add any extra details')"></textarea>
                     </label>
-                    <p class="rounded-2xl border border-green-100 bg-green-50 p-3 text-[11px] leading-5 text-green-800">الدفع نقداً عند الاستلام أو الاستلام من الفرع. بعد حفظ الطلب هيفتح واتساب برسالة الطلب الجاهزة.</p>
+                    <p class="rounded-2xl border border-green-100 bg-green-50 p-3 text-[11px] leading-5 text-green-800">{{ language.t('الدفع نقداً عند الاستلام أو الاستلام من الفرع. بعد حفظ الطلب هيفتح واتساب برسالة الطلب الجاهزة.', 'Pay cash on delivery or at the branch. WhatsApp will open with your order message after it is saved.') }}</p>
                     @if (errorMessage()) { <p role="alert" class="rounded-xl bg-red-50 p-3 text-xs text-red-700">{{ errorMessage() }}</p> }
                     <button type="button" (click)="buyNow()" [disabled]="isSubmitting()" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-green-700/15 transition hover:-translate-y-0.5 hover:bg-green-700 active:translate-y-0 disabled:cursor-wait disabled:opacity-50">
-                      <span aria-hidden="true">☘</span>{{ isSubmitting() ? 'جارٍ تجهيز الطلب…' : 'تأكيد الطلب عبر واتساب' }}
+                      <span aria-hidden="true">☘</span>{{ isSubmitting() ? language.t('جارٍ تجهيز الطلب…', 'Preparing your order…') : language.t('تأكيد الطلب عبر واتساب', 'Confirm order via WhatsApp') }}
                     </button>
                   </div>
                 }
@@ -186,6 +186,8 @@ export class CartPageComponent implements OnInit {
   language = inject(LanguageService);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
   zones = signal<DeliveryZone[]>(this.emirates.map((emirate, index) => ({ id: `uae-${index + 1}`, emirate, name: emirate, fee: 10, enabled: true })));
+  emirateNameEn(name: string): string { return ({ 'أبوظبي': 'Abu Dhabi', 'دبي': 'Dubai', 'الشارقة': 'Sharjah', 'عجمان': 'Ajman', 'أم القيوين': 'Umm Al Quwain', 'رأس الخيمة': 'Ras Al Khaimah', 'الفجيرة': 'Fujairah' } as Record<string, string>)[name] || name; }
+  zoneLabel(zone: DeliveryZone): string { return this.language.isEnglish() ? (zone.nameEn || this.emirateNameEn(zone.name)) : zone.name; }
   emirateZones = computed(() => this.zones().filter(zone => zone.emirate === this.selectedEmirate));
   availableZones = computed(() => this.emirateZones().filter(zone => zone.enabled));
   selectedZone = computed(() => this.availableZones().find(zone => zone.id === this.selectedZoneId) ?? null);
@@ -239,23 +241,23 @@ export class CartPageComponent implements OnInit {
     const name = this.customerName.trim();
     const phone = this.customerPhone.trim();
     const zone = this.selectedZone();
-    if (!deliveryType) { this.errorMessage.set('اختار توصيل أو استلام من الفرع أولاً.'); return; }
-    if (!name || !phone) { this.errorMessage.set('اكتب اسم العميل ورقم الهاتف أولاً.'); return; }
-    if (!this.cart.items().length) { this.errorMessage.set('السلة فارغة.'); return; }
+    if (!deliveryType) { this.errorMessage.set(this.language.t('اختار توصيل أو استلام من الفرع أولاً.', 'Choose delivery or branch pickup first.')); return; }
+    if (!name || !phone) { this.errorMessage.set(this.language.t('اكتب اسم العميل ورقم الهاتف أولاً.', 'Enter your name and phone number first.')); return; }
+    if (!this.cart.items().length) { this.errorMessage.set(this.language.t('السلة فارغة.', 'Your cart is empty.')); return; }
     if (deliveryType === 'delivery' && (!zone || !this.addressDetails.trim() || this.latitude() === null || this.longitude() === null)) {
-      this.errorMessage.set('اختر منطقة توصيل متاحة، واكتب تفاصيل العنوان وحدد موقعك على الخريطة.'); return;
+      this.errorMessage.set(this.language.t('اختر منطقة توصيل متاحة، واكتب تفاصيل العنوان وحدد موقعك على الخريطة.', 'Choose an available delivery area, enter your address, and pin your location on the map.')); return;
     }
 
     const whatsappWindow = window.open('about:blank', '_blank');
-    if (!whatsappWindow) { this.errorMessage.set('اسمح بفتح النوافذ المنبثقة لإكمال الطلب. لم يتم مسح السلة.'); return; }
+    if (!whatsappWindow) { this.errorMessage.set(this.language.t('اسمح بفتح النوافذ المنبثقة لإكمال الطلب. لم يتم مسح السلة.', 'Allow pop-ups to continue. Your cart has not been cleared.')); return; }
     this.isSubmitting.set(true);
     this.errorMessage.set('');
     const cartSnapshot = this.cart.items().map(item => ({
       name: this.language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr,
-      variant: item.selectedVariant?.nameAr,
+      variant: item.selectedVariant ? (this.language.isEnglish() ? (item.selectedVariant.nameEn || item.selectedVariant.nameAr) : item.selectedVariant.nameAr) : undefined,
       quantity: item.quantity,
       totalPrice: item.totalPrice,
-      addons: item.selectedAddons.map(addon => ({ name: addon.nameAr, price: addon.price })),
+      addons: item.selectedAddons.map(addon => ({ name: this.language.isEnglish() ? (addon.nameEn || addon.nameAr) : addon.nameAr, price: addon.price })),
       instructions: item.specialInstructions,
       productId: item.product.productId,
       variantId: item.selectedVariant?.variantId,
@@ -278,19 +280,21 @@ export class CartPageComponent implements OnInit {
       items: cartSnapshot.map(item => ({ productId: item.productId, variantId: item.variantId, quantity: item.quantity, unitPrice: item.unitPrice, addonIds: item.addonIds }))
     }).subscribe({
       next: order => {
+        const english = this.language.isEnglish();
+        const currency = english ? 'AED' : 'درهم';
         const lines = cartSnapshot.map(item => {
-          const addons = item.addons.map(addon => `+ ${addon.name} (${addon.price} درهم)`).join('، ');
-          const notes = item.instructions ? `\n  ملاحظة: ${item.instructions}` : '';
-          return `• ${item.name}${item.variant ? ` - ${item.variant}` : ''} × ${item.quantity} | ${item.totalPrice} درهم${addons ? `\n  الإضافات: ${addons}` : ''}${notes}`;
+          const addons = item.addons.map(addon => `+ ${addon.name} (${addon.price} ${currency})`).join(english ? ', ' : '، ');
+          const notes = item.instructions ? `\n  ${english ? 'Note' : 'ملاحظة'}: ${item.instructions}` : '';
+          return `• ${item.name}${item.variant ? ` - ${item.variant}` : ''} × ${item.quantity} | ${item.totalPrice} ${currency}${addons ? `\n  ${english ? 'Extras' : 'الإضافات'}: ${addons}` : ''}${notes}`;
         });
         const fulfillment = deliveryType === 'pickup'
-          ? 'طريقة الاستلام: استلام من الفرع'
-          : `طريقة الاستلام: توصيل\nالإمارة والمنطقة: ${zone!.emirate} - ${zone!.name}\nالعنوان: ${address}\nالموقع على الخريطة: ${this.latitude()}, ${this.longitude()}\nرسوم التوصيل: ${zone!.fee} درهم`;
+          ? (english ? 'Fulfillment: Branch pickup' : 'طريقة الاستلام: استلام من الفرع')
+          : `${english ? 'Fulfillment: Delivery' : 'طريقة الاستلام: توصيل'}\n${english ? 'Emirate and area' : 'الإمارة والمنطقة'}: ${english ? this.emirateNameEn(zone!.emirate) : zone!.emirate} - ${this.zoneLabel(zone!)}\n${english ? 'Address' : 'العنوان'}: ${address}\n${english ? 'Map location' : 'الموقع على الخريطة'}: ${this.latitude()}, ${this.longitude()}\n${english ? 'Delivery fee' : 'رسوم التوصيل'}: ${zone!.fee} ${currency}`;
         const message = [
-          'طلب جديد من سوق وسفرة', `رقم الطلب: ${order.orderNumber || order.orderId}`,
-          `اسم العميل: ${name}`, `رقم الهاتف: ${phone}`, fulfillment,
-          `طريقة الدفع: نقداً عند الاستلام`, this.customerNotes.trim() ? `ملاحظات: ${this.customerNotes.trim()}` : '',
-          '', 'المنتجات:', ...lines, '', `الإجمالي شامل التوصيل: ${order.total} درهم`
+          english ? 'New order from Souq & Sofra' : 'طلب جديد من سوق وسفرة', `${english ? 'Order number' : 'رقم الطلب'}: ${order.orderNumber || order.orderId}`,
+          `${english ? 'Customer name' : 'اسم العميل'}: ${name}`, `${english ? 'Phone' : 'رقم الهاتف'}: ${phone}`, fulfillment,
+          `${english ? 'Payment method' : 'طريقة الدفع'}: ${english ? 'Cash' : 'نقداً عند الاستلام'}`, this.customerNotes.trim() ? `${english ? 'Notes' : 'ملاحظات'}: ${this.customerNotes.trim()}` : '',
+          '', english ? 'Items:' : 'المنتجات:', ...lines, '', `${english ? 'Total including delivery' : 'الإجمالي شامل التوصيل'}: ${order.total} ${currency}`
         ].filter(Boolean).join('\n');
         whatsappWindow.location.href = `https://wa.me/201001415548?text=${encodeURIComponent(message)}`;
         this.cart.clear();
@@ -299,7 +303,7 @@ export class CartPageComponent implements OnInit {
       error: (error) => {
         whatsappWindow.close();
         this.isSubmitting.set(false);
-        this.errorMessage.set(error?.error?.message || 'تعذر حفظ الطلب على الخادم. بقيت السلة كما هي، حاول مرة أخرى.');
+        this.errorMessage.set(this.language.isEnglish() ? 'The order could not be saved. Your cart is unchanged. Please try again.' : (error?.error?.message || 'تعذر حفظ الطلب على الخادم. بقيت السلة كما هي، حاول مرة أخرى.'));
       }
     });
   }

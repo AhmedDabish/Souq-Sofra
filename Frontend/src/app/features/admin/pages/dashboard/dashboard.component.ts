@@ -1,3 +1,4 @@
+import { LanguageService } from '../../../../core/services/language.service';
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -11,8 +12,8 @@ import { forkJoin } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
-      
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
+
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
@@ -20,20 +21,20 @@ import { forkJoin } from 'rxjs';
       <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 class="text-2xl font-black font-baloo text-gray-800">لوحة المؤشرات والتحليلات</h1>
-            <p class="text-xs text-gray-400">متابعة فورية لنشاط مطعم ومخبز سوق وسفرة</p>
+            <h1 class="text-2xl font-black font-baloo text-gray-800">{{ language.t('لوحة المؤشرات والتحليلات', 'Dashboard & analytics') }}</h1>
+            <p class="text-xs text-gray-400">{{ language.t('متابعة فورية لنشاط مطعم ومخبز سوق وسفرة', 'Live activity for Souq & Sofra restaurant and bakery') }}</p>
           </div>
           <div class="flex items-center gap-3">
-            <button 
-              (click)="loadData()" 
+            <button
+              (click)="loadData()"
               [disabled]="isLoading()"
               class="px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 flex items-center gap-2 shadow-xs transition-colors">
               <span [class.animate-spin]="isLoading()">🔄</span>
-              <span>تحديث البيانات</span>
+              <span>{{ language.t('تحديث البيانات', 'Refresh data') }}</span>
             </button>
             <span class="text-xs font-bold bg-green-100 text-green-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
               <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              <span>متصل مباشر بالخادم</span>
+              <span>{{ language.t('متصل مباشر بالخادم', 'Connected to server') }}</span>
             </span>
           </div>
         </header>
@@ -44,66 +45,66 @@ import { forkJoin } from 'rxjs';
               <span>⚠️</span>
               <span>{{ errorMessage() }}</span>
             </div>
-            <button (click)="loadData()" class="underline font-bold hover:text-amber-900">إعادة المحاولة</button>
+            <button (click)="loadData()" class="underline font-bold hover:text-amber-900">{{ language.t('إعادة المحاولة', 'Try again') }}</button>
           </div>
         }
 
         <!-- Metrics Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          
+
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400 font-bold">إجمالي المبيعات</span>
+              <span class="text-xs text-gray-400 font-bold">{{ language.t('إجمالي المبيعات', 'Total sales') }}</span>
               <span class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">💰</span>
             </div>
             <div class="text-2xl font-black text-gray-800">
-              {{ totalRevenue().toLocaleString('ar-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-              <span class="text-xs text-primary font-bold">درهم</span>
+              {{ totalRevenue().toLocaleString(this.language.isEnglish() ? 'en-AE' : 'ar-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+              <span class="text-xs text-primary font-bold">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
             </div>
-            <span class="text-[11px] text-gray-400 mt-1 block">من كافة الطلبات المسجلة</span>
+            <span class="text-[11px] text-gray-400 mt-1 block">{{ language.t('من كافة الطلبات المسجلة', 'Across all recorded orders') }}</span>
           </div>
 
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400 font-bold">إجمالي الطلبات</span>
+              <span class="text-xs text-gray-400 font-bold">{{ language.t('إجمالي الطلبات', 'Total orders') }}</span>
               <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">📦</span>
             </div>
             <div class="text-2xl font-black text-gray-800">
               {{ orders().length }}
-              <span class="text-xs text-gray-400 font-medium">طلب</span>
+              <span class="text-xs text-gray-400 font-medium">{{ language.t('طلب', 'orders') }}</span>
             </div>
             <div class="flex items-center gap-2 mt-1">
               <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
-                {{ pendingOrdersCount() }} قيد المراجعة
+                {{ pendingOrdersCount() }} {{ language.t('قيد المراجعة', 'pending') }}
               </span>
             </div>
           </div>
 
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400 font-bold">أصناف المنيو</span>
+              <span class="text-xs text-gray-400 font-bold">{{ language.t('أصناف المنيو', 'Menu items') }}</span>
               <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold">🍔</span>
             </div>
             <div class="text-2xl font-black text-gray-800">
               {{ products().length }}
-              <span class="text-xs text-gray-400 font-medium">صنف</span>
+              <span class="text-xs text-gray-400 font-medium">{{ language.t('صنف', 'items') }}</span>
             </div>
             <span class="text-[11px] text-emerald-600 font-medium mt-1 block">
-              {{ activeProductsCount() }} صنف متاح للطلب الآن
+              {{ activeProductsCount() }} {{ language.t('صنف متاح للطلب الآن', 'items currently available') }}
             </span>
           </div>
 
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs text-gray-400 font-bold">الفروع النشطة</span>
+              <span class="text-xs text-gray-400 font-bold">{{ language.t('الفروع النشطة', 'Active branches') }}</span>
               <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm font-bold">📍</span>
             </div>
             <div class="text-2xl font-black text-gray-800">
               {{ branches().length || 1 }}
-              <span class="text-xs text-gray-400 font-medium">فرع</span>
+              <span class="text-xs text-gray-400 font-medium">{{ language.t('فرع', 'branches') }}</span>
             </div>
             <span class="text-[11px] text-gray-400 mt-1 block truncate">
-              {{ branches().length ? branches()[0].nameAr : 'أبوظبي - الكورنيش' }}
+              {{ branches().length ? (language.isEnglish() ? (branches()[0].nameEn || branches()[0].nameAr) : branches()[0].nameAr) : language.t('أبوظبي - الكورنيش', 'Abu Dhabi - Corniche') }}
             </span>
           </div>
 
@@ -111,31 +112,31 @@ import { forkJoin } from 'rxjs';
 
         <!-- Orders Breakdown & Quick Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          
+
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs lg:col-span-1 space-y-4">
-            <h3 class="font-bold text-gray-800 text-sm font-baloo">توزيع حالات الطلبات</h3>
+            <h3 class="font-bold text-gray-800 text-sm font-baloo">{{ language.t('توزيع حالات الطلبات', 'Order status overview') }}</h3>
             <div class="space-y-3">
               <div class="flex items-center justify-between text-xs p-3 rounded-2xl bg-gray-50">
                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> جديد (قيد المراجعة)
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> {{ language.t('جديد (قيد المراجعة)', 'New (pending review)') }}
                 </span>
                 <span class="font-black text-gray-800">{{ getCountByStatus('Pending') }}</span>
               </div>
               <div class="flex items-center justify-between text-xs p-3 rounded-2xl bg-gray-50">
                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> قيد التجهيز بالمطبخ
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> {{ language.t('قيد التجهيز بالمطبخ', 'Preparing in kitchen') }}
                 </span>
                 <span class="font-black text-gray-800">{{ getCountByStatus('Preparing') }}</span>
               </div>
               <div class="flex items-center justify-between text-xs p-3 rounded-2xl bg-gray-50">
                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> جاري التوصيل
+                  <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> {{ language.t('جاري التوصيل', 'Out for delivery') }}
                 </span>
                 <span class="font-black text-gray-800">{{ getCountByStatus('OutForDelivery') }}</span>
               </div>
               <div class="flex items-center justify-between text-xs p-3 rounded-2xl bg-gray-50">
                 <span class="font-bold text-gray-700 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> تم التسليم بنجاح
+                  <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> {{ language.t('تم التسليم بنجاح', 'Delivered successfully') }}
                 </span>
                 <span class="font-black text-gray-800">{{ getCountByStatus('Completed') }}</span>
               </div>
@@ -144,7 +145,7 @@ import { forkJoin } from 'rxjs';
             <div class="pt-2">
               <a routerLink="/admin/orders" class="w-full py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center justify-center gap-2 transition-colors">
                 <span>📦</span>
-                <span>الانتقال لإدارة كافة الطلبات</span>
+                <span>{{ language.t('الانتقال لإدارة كافة الطلبات', 'Go to all orders') }}</span>
               </a>
             </div>
           </div>
@@ -153,22 +154,22 @@ import { forkJoin } from 'rxjs';
           <div class="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden lg:col-span-2">
             <div class="p-6 border-b border-gray-100 flex items-center justify-between">
               <div>
-                <h3 class="font-bold text-gray-800 text-base font-baloo">أحدث طلبات الزبائن</h3>
-                <p class="text-[11px] text-gray-400">آخر 5 طلبات مسجلة على النظام</p>
+                <h3 class="font-bold text-gray-800 text-base font-baloo">{{ language.t('أحدث طلبات الزبائن', 'Latest customer orders') }}</h3>
+                <p class="text-[11px] text-gray-400">{{ language.t('آخر 5 طلبات مسجلة على النظام', 'Last 5 orders recorded') }}</p>
               </div>
-              <a routerLink="/admin/orders" class="text-xs text-primary font-bold hover:underline">عرض الكل ←</a>
+              <a routerLink="/admin/orders" class="text-xs text-primary font-bold hover:underline">{{ language.t('عرض الكل ←', 'View all →') }}</a>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-right text-xs">
                 <thead class="bg-gray-50 text-gray-500">
                   <tr>
-                    <th class="p-4">رقم الطلب</th>
-                    <th class="p-4">العميل</th>
-                    <th class="p-4">قناة الطلب</th>
-                    <th class="p-4">العنوان</th>
-                    <th class="p-4">القيمة</th>
-                    <th class="p-4">الحالة</th>
+                    <th class="p-4">{{ language.t('رقم الطلب', 'Order number') }}</th>
+                    <th class="p-4">{{ language.t('العميل', 'Customer') }}</th>
+                    <th class="p-4">{{ language.t('قناة الطلب', 'Order channel') }}</th>
+                    <th class="p-4">{{ language.t('العنوان', 'Address') }}</th>
+                    <th class="p-4">{{ language.t('القيمة', 'Amount') }}</th>
+                    <th class="p-4">{{ language.t('الحالة', 'Status') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -179,9 +180,9 @@ import { forkJoin } from 'rxjs';
                         <div class="font-bold text-gray-800">{{ order.customerName }}</div>
                         <div class="text-[10px] text-gray-400 dir-ltr text-right">{{ order.customerPhone }}</div>
                       </td>
-                      <td class="p-4"><span [class]="order.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ order.orderChannel === 'WhatsApp' ? 'واتساب' : 'الموقع' }}</span></td>
+                      <td class="p-4"><span [class]="order.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ language.t(order.orderChannel === 'WhatsApp' ? 'واتساب' : 'الموقع', order.orderChannel === 'WhatsApp' ? 'WhatsApp' : 'Website') }}</span></td>
                       <td class="p-4 text-gray-500 max-w-xs truncate">{{ order.deliveryAddress }}</td>
-                      <td class="p-4 font-black text-primary">{{ order.totalAmount }} درهم</td>
+                      <td class="p-4 font-black text-primary">{{ order.totalAmount }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</td>
                       <td class="p-4">
                         <span [class]="getStatusClass(order.orderStatus)" class="text-[10px] px-2.5 py-1 rounded-full font-bold">
                           {{ getStatusLabel(order.orderStatus) }}
@@ -191,7 +192,7 @@ import { forkJoin } from 'rxjs';
                   } @empty {
                     <tr>
                       <td colspan="6" class="p-8 text-center text-gray-400 text-sm">
-                        لا توجد طلبات مسجلة حالياً
+                        {{ language.t('لا توجد طلبات مسجلة حالياً', 'No orders recorded yet') }}
                       </td>
                     </tr>
                   }
@@ -207,6 +208,7 @@ import { forkJoin } from 'rxjs';
   `
 })
 export class DashboardComponent implements OnInit {
+  language = inject(LanguageService);
   private api = inject(ApiService);
 
   orders = signal<AdminOrder[]>([]);
@@ -244,7 +246,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set('تعذر جلب البيانات من الخادم، يرجى التأكد من تشغيل الـ API وتسجيل الدخول.');
+        this.errorMessage.set(this.language.t('تعذر جلب البيانات من الخادم، يرجى التأكد من تشغيل الـ API وتسجيل الدخول.', 'Could not load dashboard data. Check the server connection and sign in again.'));
       }
     });
   }
@@ -268,10 +270,10 @@ export class DashboardComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'Pending': return 'قيد المراجعة';
-      case 'Preparing': return 'قيد التجهيز';
-      case 'OutForDelivery': return 'جاري التوصيل';
-      case 'Completed': return 'تم التسليم';
+      case 'Pending': return this.language.t('قيد المراجعة', 'Pending review');
+      case 'Preparing': return this.language.t('قيد التجهيز', 'Preparing');
+      case 'OutForDelivery': return this.language.t('جاري التوصيل', 'Out for delivery');
+      case 'Completed': return this.language.t('تم التسليم', 'Delivered');
       default: return status;
     }
   }
