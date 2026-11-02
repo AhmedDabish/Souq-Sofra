@@ -96,7 +96,7 @@ builder.Services.AddAuthentication(options =>
             if (currentRole == null || !string.Equals(currentRole, roleClaim, StringComparison.Ordinal))
                 context.Fail("The account is inactive or its role has changed. Please sign in again.");
         }
-    }
+    };
 });
 
 builder.Services.AddAuthorization();
