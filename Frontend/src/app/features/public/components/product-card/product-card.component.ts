@@ -35,8 +35,8 @@ import { LanguageService } from '../../../../core/services/language.service';
           </div>
           <div class="pointer-events-auto flex items-center justify-between gap-2">
             <div class="flex min-w-0 flex-col gap-0.5">
-              <div class="flex items-center gap-1 whitespace-nowrap"><span class="text-sm font-bold text-primary md:text-base">{{ currentPrice() }}</span><span class="text-[10px] font-medium text-muted">جنيه</span></div>
-              @if (hasDiscount()) { <span class="text-[10px] font-medium text-gray-400 line-through">{{ originalPrice() }} جنيه</span> }
+              <div class="flex items-center gap-1 whitespace-nowrap"><span class="text-sm font-bold text-primary md:text-base">{{ currentPrice() }}</span><span class="text-[10px] font-medium text-muted">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+              @if (hasDiscount()) { <span class="text-[10px] font-medium text-gray-400 line-through">{{ originalPrice() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span> }
             </div>
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-white shadow-md shadow-primary/20 transition-transform group-hover:scale-105" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
@@ -231,7 +231,7 @@ import { LanguageService } from '../../../../core/services/language.service';
                         (click)="selectedVariant.set(v)"
                         [class]="selectedVariant()?.variantId === v.variantId ? 'bg-primary text-white border-primary shadow-xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'"
                         class="text-xs font-bold px-3 py-1.5 rounded-xl border transition-all">
-                        {{ v.nameAr }} ({{ v.price }} درهم)
+                        {{ language.isEnglish() ? (v.nameEn || v.nameAr) : v.nameAr }} ({{ v.price }} {{ language.isEnglish() ? 'AED' : 'درهم' }})
                       </button>
                     }
                   </div>
@@ -243,7 +243,7 @@ import { LanguageService } from '../../../../core/services/language.service';
                   <span class="text-xs text-gray-400 block">السعر الإجمالي</span>
                   <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-primaryDark">{{ currentPrice() }}</span>
-                    <span class="text-xs font-bold text-primary">درهم</span>
+                    <span class="text-xs font-bold text-primary">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                   </div>
                 </div>
                 <button 

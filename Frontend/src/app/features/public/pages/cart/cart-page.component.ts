@@ -90,10 +90,10 @@ import { LanguageService } from '../../../../core/services/language.service';
               <h2 class="font-baloo text-xl font-extrabold text-primaryDark">ملخص الطلب</h2>
               <div class="mt-5 space-y-4 text-sm">
                 <div class="flex justify-between text-gray-500"><span>عدد المنتجات</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
-                <div class="flex justify-between text-gray-500"><span>المجموع الفرعي</span><span>{{ cart.subTotal() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span></div>
-                <div class="flex justify-between text-gray-500"><span>رسوم التوصيل</span><span>{{ cart.deliveryFee() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span></div>
+                <div class="flex justify-between text-gray-500"><span>المجموع الفرعي</span><span>{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                <div class="flex justify-between text-gray-500"><span>رسوم التوصيل</span><span>{{ cart.deliveryFee() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                 <div class="border-t border-dashed border-gray-200 pt-4">
-                  <div class="flex justify-between text-base font-black text-primaryDark"><span>الإجمالي</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span></div>
+                  <div class="flex justify-between text-base font-black text-primaryDark"><span>الإجمالي</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                 </div>
               </div>
               <button type="button" (click)="showBuyNow.set(true)" class="mt-4 flex w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-green-700 active:scale-[.98]">
@@ -180,9 +180,9 @@ export class CartPageComponent {
     }).subscribe({
       next: order => {
         const lines = cartSnapshot.map(item => {
-          const addons = item.addons.map(addon => `+ ${addon.name} (${addon.price} جنيه)`).join('، ');
+          const addons = item.addons.map(addon => `+ ${addon.name} (${addon.price} درهم)`).join('، ');
           const notes = item.instructions ? `\n  ملاحظة: ${item.instructions}` : '';
-          return `• ${item.name}${item.variant ? ` - ${item.variant}` : ''} × ${item.quantity} | ${item.totalPrice} جنيه${addons ? `\n  الإضافات: ${addons}` : ''}${notes}`;
+          return `• ${item.name}${item.variant ? ` - ${item.variant}` : ''} × ${item.quantity} | ${item.totalPrice} درهم${addons ? `\n  الإضافات: ${addons}` : ''}${notes}`;
         });
         const message = [
           'طلب جديد من سوق وسفرة',
@@ -190,7 +190,7 @@ export class CartPageComponent {
           `اسم العميل: ${name}`,
           `رقم الهاتف: ${phone}`,
           '', 'المنتجات:', ...lines, '',
-          `الإجمالي شامل التوصيل: ${order.total} جنيه`
+          `الإجمالي شامل التوصيل: ${order.total} درهم`
         ].join('\n');
         const target = `https://wa.me/201001415548?text=${encodeURIComponent(message)}`;
         // Only clear after the saved order and complete prefilled message are ready.

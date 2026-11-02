@@ -23,7 +23,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 
         <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:gap-10">
           <section class="min-w-0">
-            <div class="group relative aspect-square overflow-hidden rounded-2xl border border-gray-100 bg-[#fff7ec] shadow-sm md:rounded-3xl">
+            <div class="group relative mx-auto aspect-[4/3] w-full max-w-[420px] overflow-hidden rounded-2xl border border-gray-100 bg-[#fff7ec] shadow-sm md:rounded-3xl">
               <img [src]="imageUrl(item.imageUrl)" [alt]="item.nameAr" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]">
               @if (discountPercent()) { <span class="absolute right-4 top-4 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-md">خصم {{ discountPercent() }}%</span> }
               @if (!item.isAvailable) { <span class="absolute bottom-4 right-4 rounded-full bg-gray-900/75 px-3 py-1.5 text-xs font-bold text-white">غير متاح حالياً</span> }
@@ -41,8 +41,8 @@ import { ProductCardComponent } from '../../components/product-card/product-card
             <p class="mt-3 text-sm leading-7 text-gray-600 md:text-base">{{ language.isEnglish() ? (item.descriptionEn || item.descriptionAr || 'Freshly prepared with selected ingredients.') : (item.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.') }}</p>
 
             <div class="my-5 flex flex-wrap items-baseline gap-2 border-b border-gray-100 pb-5">
-              <strong class="text-2xl font-extrabold text-primary md:text-3xl">{{ currentPrice() }} <span class="text-sm font-bold">جنيه</span></strong>
-              @if (discountPercent()) { <del class="text-sm text-gray-400">{{ item.basePrice }} جنيه</del><span class="text-xs font-semibold text-green-700">وفّر {{ item.basePrice - currentPrice() }} جنيه</span> }
+              <strong class="text-2xl font-extrabold text-primary md:text-3xl">{{ currentPrice() }} <span class="text-sm font-bold">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span></strong>
+              @if (discountPercent()) { <del class="text-sm text-gray-400">{{ item.basePrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</del><span class="text-xs font-semibold text-green-700">وفّر {{ item.basePrice - currentPrice() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span> }
             </div>
 
             @if (item.variants && item.variants.length > 0) {
@@ -52,7 +52,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                   @for (variant of item.variants; track variant.variantId ?? variant.nameAr) {
                     <button type="button" (click)="selectedVariant.set(variant)" [attr.aria-pressed]="selectedVariant() === variant" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 p-3 text-right transition-colors hover:border-primary/60">
                       <span class="flex min-w-0 items-center gap-2"><span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" [class.border-primary]="selectedVariant() === variant" [class.bg-primary]="selectedVariant() === variant"><span class="h-1.5 w-1.5 rounded-full bg-white" [class.hidden]="selectedVariant() !== variant"></span></span><span class="truncate text-sm font-semibold text-gray-800">{{ language.isEnglish() ? (variant.nameEn || variant.nameAr) : variant.nameAr }}</span></span>
-                      <span class="whitespace-nowrap text-sm font-bold text-primary">{{ variant.price }} جنيه</span>
+                      <span class="whitespace-nowrap text-sm font-bold text-primary">{{ variant.price }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                     </button>
                   }
                 </div>
@@ -66,7 +66,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                   @for (addon of item.addons; track addon.addonId) {
                     <label class="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm">
                       <span class="flex items-center gap-2"><input type="checkbox" [checked]="isAddonSelected(addon)" (change)="toggleAddon(addon)" class="h-4 w-4 accent-orange-600"><span class="text-sm font-semibold text-gray-800">{{ language.isEnglish() ? addon.nameEn : addon.nameAr }}</span></span>
-                      <span class="text-sm font-bold text-primary">+{{ addon.price }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span>
+                      <span class="text-sm font-bold text-primary">+{{ addon.price }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
                     </label>
                   }
                 </div>
@@ -85,7 +85,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                 <button type="button" (click)="increaseQuantity()" aria-label="زيادة الكمية" class="flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold text-gray-700 transition hover:bg-white">+</button>
               </div>
               <button type="button" [disabled]="!item.isAvailable" (click)="addToCart(item)" class="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primaryDark active:scale-[.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none md:text-base">
-                <span>أضف إلى السلة</span><span class="rounded-full bg-white/15 px-2 py-0.5 text-xs">{{ totalPrice() }} جنيه</span>
+                <span>أضف إلى السلة</span><span class="rounded-full bg-white/15 px-2 py-0.5 text-xs">{{ totalPrice() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span>
               </button>
             </div>
           </section>
