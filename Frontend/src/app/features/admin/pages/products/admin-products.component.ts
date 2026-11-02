@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
-import { Product, Category, ProductCreate, ProductAddon, ProductVariant } from '../../../../core/models/models';
+import { Product, Category, ProductCreate, ProductAddon, ProductVariant, AddonTemplate } from '../../../../core/models/models';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -310,7 +310,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label class="block font-bold text-gray-700 mb-1">التصنيف *</label>
-                  <select [(ngModel)]="formProduct.categoryId" name="categoryId" required
+                  <select [ngModel]="formProduct.categoryId" (ngModelChange)="onProductCategoryChange($event)" name="categoryId" required
                           class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary bg-white">
                     @for (cat of categories(); track cat.categoryId) {
                       <option [value]="cat.categoryId">{{ cat.nameAr }}</option>
@@ -390,7 +390,19 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               </div>
 
               <section class="rounded-2xl border border-orange-100 bg-orange-50/50 p-4 space-y-3">
-                <div class="flex items-center justify-between"><div><h3 class="font-bold text-gray-800">إضافات المنتج</h3><p class="text-[10px] text-gray-500">تُحفظ في قاعدة البيانات ويُتحقق من أسعارها عند الطلب</p></div><button type="button" (click)="addAddon()" class="rounded-xl bg-primary px-3 py-2 text-[11px] font-bold text-white">+ إضافة خيار</button></div>
+                <div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-bold text-gray-800">الإضافات من المكتبة</h3><p class="text-[10px] text-gray-500">اختَر الإضافات المشتركة التي تناسب هذا الصنف، أو أضف خيارًا خاصًا به بالأسفل.</p></div><a routerLink="/admin/addons" class="rounded-xl border border-orange-200 bg-white px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">إدارة المنتجات الإضافية</a></div>
+                @if (loadingCatalogAddons()) { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">جارٍ تحميل إضافات القسم...</p> }
+                @else if (applicableAddonTemplates().length) {
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    @for (template of applicableAddonTemplates(); track template.addonTemplateId) {
+                      <label class="flex cursor-pointer items-center gap-3 rounded-xl border bg-white p-3 transition hover:border-orange-300" [class.border-orange-400]="isCatalogAddonSelected(template.addonTemplateId)" [class.ring-2]="isCatalogAddonSelected(template.addonTemplateId)" [class.ring-orange-100]="isCatalogAddonSelected(template.addonTemplateId)">
+                        <input type="checkbox" [checked]="isCatalogAddonSelected(template.addonTemplateId)" (change)="toggleCatalogAddon(template.addonTemplateId, $event)" class="h-4 w-4 accent-orange-600">
+                        <span class="min-w-0 flex-1"><span class="block truncate text-xs font-bold text-gray-800">{{template.nameAr}}</span><span class="block truncate text-[10px] text-gray-400" dir="ltr">{{template.nameEn}}</span></span><span class="text-xs font-black text-orange-700">{{template.price}} درهم</span>
+                      </label>
+                    }
+                  </div>
+                } @else { <p class="rounded-xl bg-white p-3 text-xs text-gray-500">لا توجد إضافات مشتركة لهذا الصنف. يمكنك إنشاؤها من صفحة المنتجات الإضافية.</p> }
+                <div class="flex items-center justify-between border-t border-orange-100 pt-3"><div><h3 class="font-bold text-gray-800">إضافة خاصة بهذا الصنف</h3><p class="text-[10px] text-gray-500">خيار إضافي غير موجود في المكتبة المشتركة.</p></div><button type="button" (click)="addAddon()" class="rounded-xl bg-primary px-3 py-2 text-[11px] font-bold text-white">+ إضافة خيار خاص</button></div>
                 @for (addon of formProduct.addons || []; track $index; let i = $index) {
                   <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto] gap-2 items-center rounded-xl bg-white p-3">
                     <input [(ngModel)]="addon.nameAr" [name]="'addonAr' + i" placeholder="اسم الإضافة بالعربية" class="rounded-lg border border-gray-200 px-3 py-2">
@@ -444,6 +456,8 @@ export class AdminProductsComponent implements OnInit {
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  applicableAddonTemplates = signal<AddonTemplate[]>([]);
+  loadingCatalogAddons = signal(false);
 
   selectedCategory = signal<number | null>(null);
   onlyDiscounted = signal<boolean>(false);
@@ -676,6 +690,35 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  onProductCategoryChange(categoryId: number) {
+    this.formProduct.categoryId = Number(categoryId);
+    this.loadApplicableCatalogAddons(this.isEditing() ? this.editingProductId() || undefined : undefined);
+  }
+
+  loadApplicableCatalogAddons(productId?: number) {
+    const categoryId = Number(this.formProduct.categoryId);
+    if (!categoryId) { this.applicableAddonTemplates.set([]); return; }
+    this.loadingCatalogAddons.set(true);
+    this.api.getApplicableAddonTemplates(categoryId, productId).subscribe({
+      next: templates => {
+        this.applicableAddonTemplates.set(templates);
+        const selected = new Set(this.formProduct.catalogAddonIds || []);
+        if (!this.isEditing()) templates.forEach(template => selected.add(template.addonTemplateId));
+        this.formProduct.catalogAddonIds = [...selected].filter(id => templates.some(template => template.addonTemplateId === id));
+        this.loadingCatalogAddons.set(false);
+      },
+      error: () => { this.applicableAddonTemplates.set([]); this.loadingCatalogAddons.set(false); }
+    });
+  }
+
+  isCatalogAddonSelected(id: number) { return (this.formProduct.catalogAddonIds || []).includes(id); }
+  toggleCatalogAddon(id: number, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    const selected = new Set(this.formProduct.catalogAddonIds || []);
+    checked ? selected.add(id) : selected.delete(id);
+    this.formProduct.catalogAddonIds = [...selected];
+  }
+
   addAddon() {
     this.formProduct.addons = [...(this.formProduct.addons || []), { nameAr: '', nameEn: '', price: 0 }];
   }
@@ -700,9 +743,11 @@ export class AdminProductsComponent implements OnInit {
       isFeatured: false,
       isManuallyBestSelling: false,
       variants: [],
-      addons: []
+      addons: [],
+      catalogAddonIds: []
     };
     this.showModal.set(true);
+    this.loadApplicableCatalogAddons();
   }
 
   openEditModal(prod: Product) {
@@ -721,9 +766,11 @@ export class AdminProductsComponent implements OnInit {
       isFeatured: prod.isFeatured,
       isManuallyBestSelling: prod.isManuallyBestSelling ?? false,
       variants: prod.variants ? [...prod.variants] : [],
-      addons: (prod.addons || []).map(addon => ({ ...addon }))
+      addons: (prod.addons || []).filter(addon => !addon.catalogTemplateId).map(addon => ({ ...addon })),
+      catalogAddonIds: (prod.addons || []).filter(addon => addon.catalogTemplateId).map(addon => addon.catalogTemplateId!)
     };
     this.showModal.set(true);
+    this.loadApplicableCatalogAddons(prod.productId);
   }
 
   closeModal() {

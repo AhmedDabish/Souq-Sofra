@@ -28,6 +28,7 @@ export const routes: Routes = [
   { path: 'admin/orders', component: AdminOrdersComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'] } },
   { path: 'admin/products', component: AdminProductsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
   { path: 'admin/categories', component: AdminCategoriesComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
+  { path: 'admin/addons', loadComponent: () => import('./features/admin/pages/addons/admin-addons.component').then(m => m.AdminAddonsComponent), canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
   { path: 'admin/settings', component: AdminSettingsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
   { path: 'admin/staff', loadComponent: () => import('./features/admin/pages/staff/admin-staff.component').then(m => m.AdminStaffComponent), canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
 

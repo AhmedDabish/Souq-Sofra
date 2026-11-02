@@ -10,7 +10,9 @@ import {
   AdminOrder,
   Branch,
   SiteSettings,
-  StaffUser
+  StaffUser,
+  AddonTemplate,
+  AddonTemplateCreate
 } from '../models/models';
 
 export interface OrderCreateResponse {
@@ -78,6 +80,28 @@ export class ApiService {
 
   getAllAdminProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/products/admin/all`);
+  }
+
+  getAddonTemplates(): Observable<AddonTemplate[]> {
+    return this.http.get<AddonTemplate[]>(`${this.apiUrl}/addons`);
+  }
+
+  createAddonTemplate(addon: AddonTemplateCreate): Observable<AddonTemplate> {
+    return this.http.post<AddonTemplate>(`${this.apiUrl}/addons`, addon);
+  }
+
+  updateAddonTemplate(id: number, addon: AddonTemplateCreate): Observable<AddonTemplate> {
+    return this.http.put<AddonTemplate>(`${this.apiUrl}/addons/${id}`, addon);
+  }
+
+  deleteAddonTemplate(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/addons/${id}`);
+  }
+
+  getApplicableAddonTemplates(categoryId: number, productId?: number): Observable<AddonTemplate[]> {
+    let params = new HttpParams().set('categoryId', categoryId);
+    if (productId !== undefined) params = params.set('productId', productId);
+    return this.http.get<AddonTemplate[]>(`${this.apiUrl}/addons/available`, { params });
   }
 
   getProductById(id: number): Observable<Product> {

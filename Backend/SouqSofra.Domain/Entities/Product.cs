@@ -29,8 +29,22 @@ namespace SouqSofra.Domain.Entities
         public string NameEn { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; } = true;
+        public int? CatalogTemplateId { get; set; }
 
         public Product? Product { get; set; }
+        public AddonTemplate? CatalogTemplate { get; set; }
+    }
+
+    public class AddonTemplate
+    {
+        public int AddonTemplateId { get; set; }
+        public string NameAr { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public bool IsAvailable { get; set; } = true;
+        public string ScopeType { get; set; } = "All";
+        public int? CategoryId { get; set; }
+        public int? ProductId { get; set; }
     }
 
     public class ProductVariant

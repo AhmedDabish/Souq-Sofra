@@ -24,6 +24,28 @@ export interface ProductAddon {
   nameAr: string;
   nameEn: string;
   price: number;
+  catalogTemplateId?: number;
+}
+
+export interface AddonTemplate {
+  addonTemplateId: number;
+  nameAr: string;
+  nameEn: string;
+  price: number;
+  isAvailable: boolean;
+  scopeType: 'All' | 'Category' | 'Product';
+  categoryId?: number;
+  productId?: number;
+}
+
+export interface AddonTemplateCreate {
+  nameAr: string;
+  nameEn: string;
+  price: number;
+  isAvailable: boolean;
+  scopeType: 'All' | 'Category' | 'Product';
+  categoryId?: number;
+  productId?: number;
 }
 
 export interface ProductVariant {
@@ -66,6 +88,7 @@ export interface ProductCreate {
   isManuallyBestSelling?: boolean;
   variants?: ProductVariant[];
   addons?: ProductAddon[];
+  catalogAddonIds?: number[];
 }
 
 export interface CartItem {

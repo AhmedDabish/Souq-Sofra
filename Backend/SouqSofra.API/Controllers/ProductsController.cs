@@ -49,7 +49,7 @@ namespace SouqSofra.API.Controllers
                     p.IsAvailable,
                     p.IsFeatured,
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                     p.IsManuallyBestSelling,
                     _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
                 ))
@@ -90,7 +90,7 @@ namespace SouqSofra.API.Controllers
                     row.Product.IsAvailable,
                     row.Product.IsFeatured,
                     row.Product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
-                    row.Product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList(),
+                    row.Product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
                     row.Product.IsManuallyBestSelling,
                     row.CompletedQuantity
                 ))
@@ -120,7 +120,7 @@ namespace SouqSofra.API.Controllers
                     p.IsAvailable,
                     p.IsFeatured,
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                     p.IsManuallyBestSelling,
                     _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
                 ))
@@ -139,7 +139,7 @@ namespace SouqSofra.API.Controllers
                 p.ProductId, p.CategoryId, p.NameAr, p.NameEn, p.DescriptionAr, p.DescriptionEn,
                 p.BasePrice, p.DiscountPrice, p.ImageUrl, p.IsAvailable, p.IsFeatured,
                 p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                 p.IsManuallyBestSelling,
                 await _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").SumAsync(item => (int?)item.Quantity) ?? 0
             );
@@ -156,6 +156,9 @@ namespace SouqSofra.API.Controllers
 
             var addonValidation = ValidateAddons(dto.Addons);
             if (addonValidation != null) return addonValidation;
+            dto = dto with { CatalogAddonIds = dto.CatalogAddonIds ?? await GetDefaultCatalogAddonIds(dto.CategoryId) };
+            var catalogValidation = await ValidateCatalogAddonSelection(dto.CategoryId, dto.CatalogAddonIds);
+            if (catalogValidation != null) return catalogValidation;
 
             var product = new Product
             {
@@ -191,8 +194,12 @@ namespace SouqSofra.API.Controllers
                 foreach (var addon in dto.Addons)
                     product.Addons.Add(new ProductAddon { NameAr = addon.NameAr.Trim(), NameEn = addon.NameEn.Trim(), Price = addon.Price, IsAvailable = true });
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+            await ReplaceCatalogAddons(product, dto.CatalogAddonIds);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = product.ProductId }, product);
         }
@@ -209,6 +216,9 @@ namespace SouqSofra.API.Controllers
 
             var product = await _context.Products.Include(p => p.Variants).Include(p => p.Addons).FirstOrDefaultAsync(p => p.ProductId == id);
             if (product == null) return NotFound(new { message = "المنتج غير موجود." });
+            var catalogValidation = await ValidateCatalogAddonSelection(dto.CategoryId, dto.CatalogAddonIds, id);
+            if (catalogValidation != null) return catalogValidation;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
             product.CategoryId = dto.CategoryId;
             product.NameAr = dto.NameAr;
@@ -241,13 +251,16 @@ namespace SouqSofra.API.Controllers
 
             if (dto.Addons != null)
             {
-                _context.ProductAddons.RemoveRange(product.Addons);
-                product.Addons.Clear();
+                var customAddons = product.Addons.Where(addon => addon.CatalogTemplateId == null).ToList();
+                _context.ProductAddons.RemoveRange(customAddons);
+                foreach (var customAddon in customAddons) product.Addons.Remove(customAddon);
                 foreach (var addon in dto.Addons)
                     product.Addons.Add(new ProductAddon { NameAr = addon.NameAr.Trim(), NameEn = addon.NameEn.Trim(), Price = addon.Price, IsAvailable = true });
             }
 
+            await ReplaceCatalogAddons(product, dto.CatalogAddonIds);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
             return Ok(product);
         }
 
@@ -329,6 +342,55 @@ namespace SouqSofra.API.Controllers
 
             return NoContent();
         }
+        private Task<List<int>> GetDefaultCatalogAddonIds(int categoryId) =>
+            _context.AddonTemplates
+                .Where(template => template.IsAvailable && (template.ScopeType == "All" || (template.ScopeType == "Category" && template.CategoryId == categoryId)))
+                .Select(template => template.AddonTemplateId)
+                .ToListAsync();
+
+        private async Task<IActionResult?> ValidateCatalogAddonSelection(int categoryId, List<int>? templateIds, int? productId = null)
+        {
+            if (templateIds == null) return null;
+            if (templateIds.Count > 100 || templateIds.Count != templateIds.Distinct().Count())
+                return BadRequest(new { message = "قائمة الإضافات غير صالحة أو تحتوي على تكرار." });
+            if (templateIds.Count == 0) return null;
+            var templates = await _context.AddonTemplates
+                .Where(template => template.IsAvailable && templateIds.Contains(template.AddonTemplateId))
+                .ToListAsync();
+            if (templates.Count != templateIds.Count)
+                return BadRequest(new { message = "إحدى الإضافات المختارة غير متاحة." });
+            if (templates.Any(template => template.ScopeType == "Category" && template.CategoryId != categoryId))
+                return BadRequest(new { message = "إحدى الإضافات لا تخص قسم هذا الصنف." });
+            if (templates.Any(template => template.ScopeType == "Product" && template.ProductId != productId))
+                return BadRequest(new { message = "إحدى الإضافات مخصصة لصنف آخر." });
+            if (templates.Any(template => template.ScopeType is not ("All" or "Category" or "Product")))
+                return BadRequest(new { message = "نطاق إحدى الإضافات غير صالح." });
+            return null;
+        }
+
+        private async Task ReplaceCatalogAddons(Product product, List<int>? templateIds)
+        {
+            if (templateIds == null) return;
+            var linkedAddons = await _context.ProductAddons
+                .Where(addon => addon.ProductId == product.ProductId && addon.CatalogTemplateId != null)
+                .ToListAsync();
+            _context.ProductAddons.RemoveRange(linkedAddons);
+            if (templateIds.Count == 0) return;
+            var templates = await _context.AddonTemplates
+                .Where(template => template.IsAvailable && templateIds.Contains(template.AddonTemplateId))
+                .ToListAsync();
+            foreach (var template in templates)
+                _context.ProductAddons.Add(new ProductAddon
+                {
+                    ProductId = product.ProductId,
+                    NameAr = template.NameAr,
+                    NameEn = template.NameEn,
+                    Price = template.Price,
+                    IsAvailable = true,
+                    CatalogTemplateId = template.AddonTemplateId
+                });
+        }
+
         private IActionResult? ValidateAddons(List<ProductAddonCreateDto>? addons)
         {
             if (addons == null) return null;

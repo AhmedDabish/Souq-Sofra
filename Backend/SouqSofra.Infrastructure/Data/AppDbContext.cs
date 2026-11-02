@@ -11,6 +11,7 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<Product> Products => Set<Product>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
         public DbSet<ProductAddon> ProductAddons => Set<ProductAddon>();
+        public DbSet<AddonTemplate> AddonTemplates => Set<AddonTemplate>();
         public DbSet<OrderItemAddon> OrderItemAddons => Set<OrderItemAddon>();
         public DbSet<Branch> Branches => Set<Branch>();
         public DbSet<Order> Orders => Set<Order>();
@@ -86,6 +87,22 @@ namespace SouqSofra.Infrastructure.Data
                       .HasForeignKey(a => a.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(a => a.ProductId);
+                entity.HasIndex(a => a.CatalogTemplateId);
+                entity.HasOne(a => a.CatalogTemplate)
+                      .WithMany()
+                      .HasForeignKey(a => a.CatalogTemplateId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<AddonTemplate>(entity =>
+            {
+                entity.ToTable("AddonTemplates");
+                entity.HasKey(a => a.AddonTemplateId);
+                entity.Property(a => a.NameAr).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.NameEn).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.Price).HasPrecision(18, 2);
+                entity.Property(a => a.ScopeType).IsRequired().HasMaxLength(20);
+                entity.HasIndex(a => new { a.ScopeType, a.CategoryId, a.ProductId, a.IsAvailable });
             });
 
             // Branch configuration

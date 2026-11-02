@@ -387,6 +387,22 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.ToTable("ProductVariants", (string)null);
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.AddonTemplate", b =>
+                {
+                    b.Property<int>("AddonTemplateId").ValueGeneratedOnAdd().HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddonTemplateId"));
+                    b.Property<int?>("CategoryId").HasColumnType("int");
+                    b.Property<bool>("IsAvailable").HasColumnType("bit");
+                    b.Property<string>("NameAr").IsRequired().HasMaxLength(100).HasColumnType("nvarchar(100)");
+                    b.Property<string>("NameEn").IsRequired().HasMaxLength(100).HasColumnType("nvarchar(100)");
+                    b.Property<decimal>("Price").HasPrecision(18, 2).HasColumnType("decimal(18,2)");
+                    b.Property<int?>("ProductId").HasColumnType("int");
+                    b.Property<string>("ScopeType").IsRequired().HasMaxLength(20).HasColumnType("nvarchar(20)");
+                    b.HasKey("AddonTemplateId");
+                    b.HasIndex("ScopeType", "CategoryId", "ProductId", "IsAvailable");
+                    b.ToTable("AddonTemplates", (string)null);
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.ProductAddon", b =>
                 {
                     b.Property<int>("AddonId")
@@ -394,6 +410,9 @@ namespace SouqSofra.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddonId"));
+
+                    b.Property<int?>("CatalogTemplateId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
@@ -416,6 +435,8 @@ namespace SouqSofra.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("AddonId");
+
+                    b.HasIndex("CatalogTemplateId");
 
                     b.HasIndex("ProductId");
 
@@ -546,6 +567,13 @@ namespace SouqSofra.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.HasOne("SouqSofra.Domain.Entities.AddonTemplate", "CatalogTemplate")
+                        .WithMany()
+                        .HasForeignKey("CatalogTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CatalogTemplate");
                 });
 
             modelBuilder.Entity("SouqSofra.Domain.Entities.Product", b =>
