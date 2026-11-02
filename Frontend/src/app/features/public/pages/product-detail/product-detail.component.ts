@@ -65,7 +65,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                   <h2 class="mb-3 text-sm font-bold text-gray-800">{{ language.t('اختيارك من الحجم', 'Choose a size') }}</h2>
                   <div class="space-y-2">
                     @for (variant of item.variants; track variant.variantId ?? variant.nameAr) {
-                      <button type="button" (click)="selectedVariant.set(variant)" [attr.aria-pressed]="selectedVariant() === variant" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-3.5 text-right transition-all duration-200 hover:border-primary/60 sm:p-4">
+                      <button type="button" (click)="selectedVariant.set(variant)" [attr.aria-pressed]="selectedVariant() === variant" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-3.5 text-start transition-all duration-200 hover:border-primary/60 sm:p-4">
                         <span class="flex min-w-0 items-center gap-3">
                           <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border" [class.border-primary]="selectedVariant() === variant" [class.bg-primary]="selectedVariant() === variant"><span class="h-2 w-2 rounded-full bg-white" [class.hidden]="selectedVariant() !== variant"></span></span>
                           <span class="truncate text-sm font-semibold text-gray-800">{{ language.isEnglish() ? (variant.nameEn || variant.nameAr) : variant.nameAr }}</span>

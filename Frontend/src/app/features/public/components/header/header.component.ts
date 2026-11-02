@@ -13,12 +13,12 @@ import { LanguageService } from '../../../../core/services/language.service';
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <!-- Desktop & Tablet Header - Balanced Height & Cohesive Grouping -->
-    <header [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="relative md:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-xs py-1.5 md:py-2">
+    <header [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="relative lg:sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-headerBg backdrop-blur-md shadow-xs py-1.5 lg:py-2">
       <div class="container-wide mx-auto px-2 md:px-4">
-        <div class="flex items-center justify-between flex-nowrap min-h-[72px] md:min-h-[82px]">
+        <div class="flex items-center justify-between flex-nowrap min-h-[72px] lg:min-h-[82px]">
 
           <!-- Right/Start Group: Large Logo, Enriched Location Selector, and Compactly Placed Navigation Links -->
-          <div class="flex items-center gap-3.5 md:gap-5 lg:gap-6 flex-nowrap">
+          <div class="hidden lg:flex items-center gap-3.5 md:gap-5 lg:gap-6 flex-nowrap">
             <!-- Large Logo -->
             <a class="shrink-0 hidden md:block relative z-50" routerLink="/">
               <div class="flex items-center justify-center drop-shadow-md">
@@ -50,7 +50,7 @@ import { LanguageService } from '../../../../core/services/language.service';
             </button>
 
             <!-- Navigation Links adjacent to Logo & Location to eliminate wide empty gap -->
-            <nav class="hidden font-bold navbar-links md:flex items-center gap-4 lg:gap-6 flex-nowrap overflow-hidden">
+            <nav class="hidden font-bold navbar-links lg:flex items-center gap-4 lg:gap-6 flex-nowrap overflow-hidden">
               <a
                 routerLink="/menu"
                 routerLinkActive="text-headerTextActive after:scale-x-100"
@@ -67,7 +67,7 @@ import { LanguageService } from '../../../../core/services/language.service';
           </div>
 
           <!-- Left/End: User Actions (Search, Language, Cart, Profile) -->
-          <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
+          <div class="hidden lg:flex items-center gap-2 md:gap-3 shrink-0">
             <!-- Search Expandable Input -->
             <div class="hidden md:block">
               <form (ngSubmit)="onSearch()" class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 h-[42px]" [class.w-[280px]]="searchOpen" [class.w-[44px]]="!searchOpen" [class.px-2]="searchOpen">
@@ -125,30 +125,30 @@ import { LanguageService } from '../../../../core/services/language.service';
             </div>
           </div>
 
-          <!-- Mobile Header (Visible on screens < md) -->
-          <div class="md:hidden flex items-center justify-between w-full py-1.5">
-            <a routerLink="/" class="shrink-0 flex items-center gap-2.5">
-              <img [src]="logoUrl()" [alt]="language.t('سوق وسفرة', 'Souq & Sofra')" class="w-14 h-14 rounded-full object-cover border-2 border-secondary shadow-sm">
-              <span class="text-base font-extrabold font-baloo text-primaryDark">{{ language.t('سوق وسفرة', 'Souq & Sofra') }}</span>
+          <!-- Compact header for phones and tablets -->
+          <div class="lg:hidden flex items-center justify-between w-full py-1.5">
+            <a routerLink="/" class="min-w-0 shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+              <img [src]="logoUrl()" [alt]="language.t('سوق وسفرة', 'Souq & Sofra')" class="h-11 w-11 rounded-full object-cover border-2 border-secondary shadow-sm sm:h-14 sm:w-14">
+              <span class="max-[359px]:hidden text-sm sm:text-base font-extrabold font-baloo text-primaryDark">{{ language.t('سوق وسفرة', 'Souq & Sofra') }}</span>
             </a>
 
-            <div class="flex items-center gap-2">
-              <button type="button" (click)="language.toggle()" [attr.aria-label]="language.isEnglish() ? 'Switch to Arabic' : 'Switch to English'" class="h-[42px] rounded-full border border-gray-200 bg-white px-3 text-xs font-bold text-primaryDark">{{ language.isEnglish() ? 'عربي' : 'EN' }}</button>
-              <button type="button" (click)="toggleSearch($event)" [attr.aria-label]="language.t('فتح البحث عن المنتجات', 'Open product search')" class="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700">
+            <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+              <button type="button" (click)="language.toggle()" [attr.aria-label]="language.isEnglish() ? 'Switch to Arabic' : 'Switch to English'" class="h-9 rounded-full border border-gray-200 bg-white px-2.5 text-xs font-bold text-primaryDark sm:h-[42px] sm:px-3">{{ language.isEnglish() ? 'عربي' : 'EN' }}</button>
+              <button type="button" (click)="toggleSearch($event)" [attr.aria-label]="language.t('فتح البحث عن المنتجات', 'Open product search')" class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 sm:h-[42px] sm:w-[42px]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </button>
               <button
                 type="button"
                 (click)="openLocationModal()"
-                class="flex items-center gap-1.5 px-3.5 py-1.5 border border-secondary/80 rounded-full text-xs font-bold text-gray-700 bg-white shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                <span class="max-w-[130px] truncate">{{ locationLabel(locationService.selectedLocation()) }}</span>
+                class="flex h-9 w-9 shrink-0 items-center justify-center gap-1.5 rounded-full border border-secondary/80 bg-white px-2 text-xs font-bold text-gray-700 shadow-xs sm:h-auto sm:w-auto sm:py-1.5 sm:px-3.5">
+                <svg class="h-4 w-4 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                <span class="max-w-[130px] truncate max-[359px]:hidden">{{ locationLabel(locationService.selectedLocation()) }}</span>
               </button>
 
               <a
                 routerLink="/cart"
                 [attr.aria-label]="language.t('سلة المشتريات', 'Shopping cart')"
-                class="relative gray-bg border border-gray-200 rounded-[24px] w-[42px] h-[42px] flex items-center justify-center">
+                class="relative gray-bg border border-gray-200 rounded-full h-9 w-9 sm:h-[42px] sm:w-[42px] flex items-center justify-center">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="176" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>
                   <circle cx="400" cy="416" r="16" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></circle>

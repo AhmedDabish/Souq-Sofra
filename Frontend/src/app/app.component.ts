@@ -18,7 +18,7 @@ import { ApiService } from './core/services/api.service';
       <app-header></app-header>
     }
 
-    <main class="min-h-screen pb-16 md:pb-0">
+    <main class="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
       <router-outlet></router-outlet>
     </main>
 

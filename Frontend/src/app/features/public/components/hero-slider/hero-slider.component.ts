@@ -9,16 +9,16 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <section [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="container-wide mx-auto px-2 md:px-4 pt-4 sm:pt-6">
-      <div class="relative w-full aspect-[2/1] sm:aspect-[1500/390] rounded-2xl lg:rounded-[32px] overflow-hidden bg-[#681c0f] shadow-sm">
+      <div class="relative w-full aspect-[4/3] sm:aspect-[2/1] lg:aspect-[1500/390] rounded-2xl lg:rounded-[32px] overflow-hidden bg-[#681c0f] shadow-sm">
         @for (slide of slides; track slide.image; let i = $index) {
           <div class="absolute inset-0 transition-opacity duration-700" [class.opacity-100]="activeIndex() === i" [class.opacity-0]="activeIndex() !== i" [class.pointer-events-none]="activeIndex() !== i">
             <img [src]="slide.image" [alt]="language.isEnglish() ? slide.titleEn : slide.alt" class="absolute inset-0 w-full h-full object-cover">
             <div [class.bg-gradient-to-l]="!language.isEnglish()" [class.bg-gradient-to-r]="language.isEnglish()" class="absolute inset-0 from-[#20130d]/75 via-[#20130d]/20 to-transparent"></div>
-            <div [class.right-0]="!language.isEnglish()" [class.left-0]="language.isEnglish()" [class.text-right]="!language.isEnglish()" [class.text-left]="language.isEnglish()" class="absolute inset-y-0 z-10 w-full md:w-[58%] flex flex-col justify-center p-5 sm:p-10 lg:p-16 text-white">
+            <div [class.right-0]="!language.isEnglish()" [class.left-0]="language.isEnglish()" [class.text-right]="!language.isEnglish()" [class.text-left]="language.isEnglish()" class="absolute inset-y-0 z-10 w-full md:w-[72%] lg:w-[58%] flex flex-col justify-center p-4 sm:p-7 lg:p-12 xl:p-16 text-white">
               <span class="inline-flex self-start md:self-end rounded-full bg-[#f47621] px-3 py-1 text-[10px] sm:text-xs font-bold shadow">{{ language.t('طازج يومياً من سوق وسفرة', 'Fresh every day from Souq & Sofra') }}</span>
-              <h1 class="mt-3 text-xl sm:text-3xl lg:text-5xl font-black font-baloo leading-tight max-w-2xl">{{ language.isEnglish() ? slide.titleEn : slide.title }}</h1>
-              <p class="mt-2 sm:mt-3 text-[11px] sm:text-sm lg:text-base text-white/90 max-w-xl leading-relaxed">{{ language.isEnglish() ? slide.subtitleEn : slide.subtitle }}</p>
-              <div class="mt-4 sm:mt-6 flex gap-2 sm:gap-3">
+              <h1 class="mt-2 text-lg leading-tight font-black font-baloo sm:mt-3 sm:text-3xl lg:text-5xl max-w-2xl">{{ language.isEnglish() ? slide.titleEn : slide.title }}</h1>
+              <p class="mt-2 sm:mt-3 text-[10px] leading-snug sm:text-sm lg:text-base text-white/90 max-w-xl sm:leading-relaxed">{{ language.isEnglish() ? slide.subtitleEn : slide.subtitle }}</p>
+              <div class="mt-3 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
                 <a href="/menu" class="rounded-full bg-[#f47621] hover:bg-[#e66b1c] text-white text-[11px] sm:text-sm font-bold px-4 sm:px-6 py-2.5 sm:py-3 shadow transition-colors">{{ language.t('اكتشف المنيو', 'Explore the menu') }}</a>
                 <a href="tel:026333136" class="rounded-full bg-white/15 hover:bg-white/25 text-white text-[11px] sm:text-sm font-bold px-4 sm:px-6 py-2.5 sm:py-3 backdrop-blur">{{ language.t('اتصل بنا', 'Contact us') }}</a>
               </div>

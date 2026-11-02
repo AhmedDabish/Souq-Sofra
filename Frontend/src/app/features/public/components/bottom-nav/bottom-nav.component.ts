@@ -10,7 +10,7 @@ import { CartService } from '../../../../core/services/cart.service';
   imports: [CommonModule, RouterModule],
   template: `
     <!-- Mobile Bottom Navigation Bar (More-In Parity) -->
-    <nav [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl px-2 py-1.5 flex items-center justify-around">
+    <nav [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl px-2 py-1.5 flex items-center justify-around mobile-safe-bottom">
 
       <button type="button" (click)="language.toggle()" [attr.aria-label]="language.t('التحويل إلى الإنجليزية', 'Switch to Arabic')" class="flex flex-col items-center justify-center p-1.5 text-gray-500 hover:text-primary transition-colors"><span class="flex h-5 items-center justify-center text-xs font-black">{{ language.isEnglish() ? 'ع' : 'EN' }}</span><span class="text-[10px] mt-0.5">{{ language.isEnglish() ? 'Arabic' : 'English' }}</span></button>
       <!-- Home -->
