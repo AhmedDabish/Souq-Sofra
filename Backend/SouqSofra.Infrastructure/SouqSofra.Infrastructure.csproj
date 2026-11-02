@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Data\menu-catalog-v2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SouqSofra.Domain\SouqSofra.Domain.csproj" />
     <ProjectReference Include="..\SouqSofra.Application\SouqSofra.Application.csproj" />
   </ItemGroup>

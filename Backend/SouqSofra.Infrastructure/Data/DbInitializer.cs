@@ -209,6 +209,10 @@ namespace SouqSofra.Infrastructure.Data
                 await context.Products.AddRangeAsync(products);
                 await context.SaveChangesAsync();
             }
+
+            // Replace the storefront catalog once with the bilingual menu supplied by the owner.
+            // The initializer archives old products to keep their historical orders intact.
+            await MenuCatalogV2Initializer.ApplyAsync(context);
         }
     }
 }

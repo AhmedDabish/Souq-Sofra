@@ -1,0 +1,2757 @@
+{
+  "version": "menu-v2",
+  "categories": [
+    {
+      "slug": "falafel",
+      "nameAr": "سندوتشات فلافل",
+      "nameEn": "Falafel Sandwiches",
+      "displayOrder": 1,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "foul",
+      "nameAr": "سندوتشات فول",
+      "nameEn": "Foul Sandwiches",
+      "displayOrder": 2,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "eggs",
+      "nameAr": "سندوتشات بيض",
+      "nameEn": "Egg Sandwiches",
+      "displayOrder": 3,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "cheese",
+      "nameAr": "سندوتشات جبنه",
+      "nameEn": "Cheese Sandwiches",
+      "displayOrder": 4,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "mortadella",
+      "nameAr": "مرتاديلا",
+      "nameEn": "Mortadella Sandwiches",
+      "displayOrder": 5,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "halawa",
+      "nameAr": "حلاوة و قشطه",
+      "nameEn": "Halva & Qeshta",
+      "displayOrder": 6,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "liver",
+      "nameAr": "كبد",
+      "nameEn": "Liver Sandwiches",
+      "displayOrder": 7,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "sausage",
+      "nameAr": "سجق",
+      "nameEn": "Sausage Sandwiches",
+      "displayOrder": 8,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "hawawshi",
+      "nameAr": "حواوشي",
+      "nameEn": "Hawawshi",
+      "displayOrder": 9,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "shawarma",
+      "nameAr": "شاورما",
+      "nameEn": "Shawarma",
+      "displayOrder": 10,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "burger",
+      "nameAr": "برجر",
+      "nameEn": "Burgers",
+      "displayOrder": 11,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "chicken",
+      "nameAr": "تشيكن",
+      "nameEn": "Chicken",
+      "displayOrder": 12,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "wraps",
+      "nameAr": "الراب",
+      "nameEn": "Wraps",
+      "displayOrder": 13,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "pastries",
+      "nameAr": "المعجنات",
+      "nameEn": "Pastries",
+      "displayOrder": 14,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "pide",
+      "nameAr": "البيدا",
+      "nameEn": "Pide",
+      "displayOrder": 15,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "manakeesh",
+      "nameAr": "المناقيش",
+      "nameEn": "Manakeesh",
+      "displayOrder": 16,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "appetizers",
+      "nameAr": "المقبلات وسلطات",
+      "nameEn": "Appetizers & Salads",
+      "displayOrder": 17,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "pizza",
+      "nameAr": "البيتزا",
+      "nameEn": "Pizza",
+      "displayOrder": 18,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "feteer",
+      "nameAr": "الفطير المشلتت",
+      "nameEn": "Feteer Meshaltet",
+      "displayOrder": 19,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "sweet-feteer",
+      "nameAr": "الفطير الحلو",
+      "nameEn": "Sweet Feteer",
+      "displayOrder": 20,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "boxes",
+      "nameAr": "البوكسات",
+      "nameEn": "Catering Boxes",
+      "displayOrder": 21,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "whole-grain",
+      "nameAr": "منتجات الحبه الكامله",
+      "nameEn": "Whole Grain Products",
+      "displayOrder": 22,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "bread",
+      "nameAr": "الخبز",
+      "nameEn": "Bread",
+      "displayOrder": 23,
+      "iconUrl": null,
+      "imageUrl": null
+    },
+    {
+      "slug": "bakery",
+      "nameAr": "مخبوزات ونواشف",
+      "nameEn": "Bakery & Dry Goods",
+      "displayOrder": 24,
+      "iconUrl": null,
+      "imageUrl": null
+    }
+  ],
+  "products": [
+    {
+      "categorySlug": "falafel",
+      "nameAr": "فلافل",
+      "nameEn": "Falafel",
+      "price": 7,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "foul",
+      "nameAr": "فول عادي",
+      "nameEn": "Plain Foul",
+      "price": 7,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "foul",
+      "nameAr": "فول إسكندراني",
+      "nameEn": "Alexandrian Foul",
+      "price": 8,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "foul",
+      "nameAr": "فول بالسجق",
+      "nameEn": "Foul with Sausage",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "foul",
+      "nameAr": "فول بالبيض",
+      "nameEn": "Foul with Egg",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "eggs",
+      "nameAr": "بيض بالجبنة الرومي",
+      "nameEn": "Egg with Roumy Cheese",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "eggs",
+      "nameAr": "بيض بالبسطرمة",
+      "nameEn": "Egg with Basterma",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "cheese",
+      "nameAr": "جبنة كريمي مع شيبس",
+      "nameEn": "Cream Cheese with Chips",
+      "price": 7,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "cheese",
+      "nameAr": "لبنة وزعتر",
+      "nameEn": "Labneh with Zaatar",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "cheese",
+      "nameAr": "لبنة بالزيتون",
+      "nameEn": "Labneh with Olives",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "cheese",
+      "nameAr": "جبنة فيتا",
+      "nameEn": "Feta Cheese",
+      "price": 7,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "cheese",
+      "nameAr": "جبنة حلوم",
+      "nameEn": "Halloumi Cheese",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "mortadella",
+      "nameAr": "مرتاديلا دجاج بالجبنة",
+      "nameEn": "Chicken Mortadella with Cheese",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "mortadella",
+      "nameAr": "مرتاديلا لحم بالجبنة",
+      "nameEn": "Beef Mortadella with Cheese",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "halawa",
+      "nameAr": "حلاوة مع قشطة",
+      "nameEn": "Halva with Qeshta",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "halawa",
+      "nameAr": "حلاوة وقشطة ونوتيلا",
+      "nameEn": "Halva, Qeshta & Nutella",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "halawa",
+      "nameAr": "حلاوة وقشطة ومربى",
+      "nameEn": "Halva, Qeshta & Jam",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "liver",
+      "nameAr": "كبدة إسكندراني",
+      "nameEn": "Alexandrian Liver",
+      "price": 15,
+      "variants": [
+        {
+          "nameAr": "خبز بلدي",
+          "nameEn": "Baladi Bread",
+          "price": 15,
+          "isDefault": true
+        },
+        {
+          "nameAr": "خبز فينو",
+          "nameEn": "Veno Bread",
+          "price": 15,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "liver",
+      "nameAr": "كبدة بالردة",
+      "nameEn": "Liver with Renda",
+      "price": 15,
+      "variants": [
+        {
+          "nameAr": "خبز بلدي",
+          "nameEn": "Baladi Bread",
+          "price": 15,
+          "isDefault": true
+        },
+        {
+          "nameAr": "خبز فينو",
+          "nameEn": "Veno Bread",
+          "price": 15,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sausage",
+      "nameAr": "سجق",
+      "nameEn": "Sausage Sandwich",
+      "price": 15,
+      "variants": [
+        {
+          "nameAr": "خبز بلدي",
+          "nameEn": "Baladi Bread",
+          "price": 15,
+          "isDefault": true
+        },
+        {
+          "nameAr": "خبز فينو",
+          "nameEn": "Veno Bread",
+          "price": 12,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "hawawshi",
+      "nameAr": "حواوشي",
+      "nameEn": "Hawawshi",
+      "price": 22,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "hawawshi",
+      "nameAr": "حواوشي بسطرمة",
+      "nameEn": "Hawawshi with Basterma",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "hawawshi",
+      "nameAr": "حواوشي سجق",
+      "nameEn": "Hawawshi with Sausage",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "hawawshi",
+      "nameAr": "حواوشي إسكندراني",
+      "nameEn": "Alexandrian Hawawshi",
+      "price": 22,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "hawawshi",
+      "nameAr": "حواوشي إسكندراني (لحم أو سجق أو بسطرمة)",
+      "nameEn": "Alexandrian Hawawshi (Meat, Sausage or Basterma)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "shawarma",
+      "nameAr": "شاورما دجاج",
+      "nameEn": "Chicken Shawarma",
+      "price": 12,
+      "variants": [
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 12,
+          "isDefault": true
+        },
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 9,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "burger",
+      "nameAr": "بيف برجر تشيز (بطاطس وبيبسي)",
+      "nameEn": "Beef Cheeseburger (Fries & Pepsi)",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "burger",
+      "nameAr": "برجر بيف دابل",
+      "nameEn": "Double Beef Burger",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "chicken",
+      "nameAr": "تشيكن زنجر",
+      "nameEn": "Chicken Zinger",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "chicken",
+      "nameAr": "كريسبي تشيكن",
+      "nameEn": "Crispy Chicken",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "chicken",
+      "nameAr": "6 قطع تشيكن ناجتس مع بطاطس وعصير",
+      "nameEn": "6-Piece Chicken Nuggets with Fries & Juice",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "wraps",
+      "nameAr": "سوق وسفرة تشيكن راب",
+      "nameEn": "Souq & Sofra Chicken Wrap",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "wraps",
+      "nameAr": "بافلو تشيكن راب",
+      "nameEn": "Buffalo Chicken Wrap",
+      "price": 21,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "wraps",
+      "nameAr": "كفتة راب",
+      "nameEn": "Kofta Wrap",
+      "price": 21,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "wraps",
+      "nameAr": "هوت دوج راب",
+      "nameEn": "Hot Dog Wrap",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "wraps",
+      "nameAr": "حلومي راب",
+      "nameEn": "Halloumi Wrap",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "سبانخ",
+      "nameEn": "Spinach",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "لبنة بالزيتون",
+      "nameEn": "Labneh with Olives",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "هوت دوج",
+      "nameEn": "Hot Dog",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "جبنة كيري",
+      "nameEn": "Kiri Cheese",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "ميني بيتزا",
+      "nameEn": "Mini Pizza",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "لبنة وزعتر",
+      "nameEn": "Labneh with Zaatar",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "لحمة",
+      "nameEn": "Meat",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "جبنة",
+      "nameEn": "Cheese",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "دجاج",
+      "nameEn": "Chicken",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "بطاطا حارة",
+      "nameEn": "Spicy Potato",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pastries",
+      "nameAr": "ميني مناقيش",
+      "nameEn": "Mini Manakeesh",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "بافلو تشيكن",
+      "nameEn": "Buffalo Chicken",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "هوت دوج كرافت",
+      "nameEn": "Hot Dog with Kraft",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "هوت دوج موزاريلا",
+      "nameEn": "Hot Dog with Mozzarella",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "بيبروني",
+      "nameEn": "Pepperoni",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "جبن مع خضار",
+      "nameEn": "Cheese with Vegetables",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "مارجريتا",
+      "nameEn": "Margherita",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "بطاطس عمان",
+      "nameEn": "Oman Chips Potato",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "نوتيلا فراولة",
+      "nameEn": "Nutella Strawberry",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "نوتيلا موز",
+      "nameEn": "Nutella Banana",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "جبنة عكاوي",
+      "nameEn": "Akkawi Cheese",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "سجق بالجبنة",
+      "nameEn": "Sausage with Cheese",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "جبنة وزعتر",
+      "nameEn": "Cheese & Zaatar",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "مشكل جبن",
+      "nameEn": "Mixed Cheese",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "لبنة زعتر",
+      "nameEn": "Labneh & Zaatar",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "زعتر",
+      "nameEn": "Zaatar",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "تركي مع جبن",
+      "nameEn": "Turkey with Cheese",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "لبنة جرجير",
+      "nameEn": "Labneh & Rocket",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "جبنة حلوم",
+      "nameEn": "Halloumi Cheese",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "لحم بالعجين",
+      "nameEn": "Meat in Dough",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "لحمة مع جبن",
+      "nameEn": "Meat with Cheese",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "محمرة",
+      "nameEn": "Muhammara",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "محمرة مع جبن",
+      "nameEn": "Muhammara with Cheese",
+      "price": 17,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "محمرة لحم وجبن",
+      "nameEn": "Muhammara, Meat & Cheese",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "كرافت",
+      "nameEn": "Kraft Cheese",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "كرافت بالعسل",
+      "nameEn": "Kraft with Honey",
+      "price": 17,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "شكشوكة",
+      "nameEn": "Shakshuka",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "بيض مع كرافت",
+      "nameEn": "Egg with Kraft",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "بيض مع موزاريلا",
+      "nameEn": "Egg with Mozzarella",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "سبانخ مع جبن",
+      "nameEn": "Spinach with Cheese",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "سبانخ",
+      "nameEn": "Spinach",
+      "price": 17,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "سبانخ مع لبنة",
+      "nameEn": "Spinach with Labneh",
+      "price": 18,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pide",
+      "nameAr": "فلافل لبنة",
+      "nameEn": "Falafel with Labneh",
+      "price": 20,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبنة عكاوي",
+      "nameEn": "Akkawi Cheese",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبنة وزعتر",
+      "nameEn": "Cheese & Zaatar",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "مشكل جبن",
+      "nameEn": "Mixed Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "لبنة وزعتر",
+      "nameEn": "Labneh & Zaatar",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "زعتر",
+      "nameEn": "Zaatar",
+      "price": 6,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "لبنة",
+      "nameEn": "Labneh",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "تركي وجبنة",
+      "nameEn": "Turkey & Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "هوت دوج وجبنة",
+      "nameEn": "Hot Dog & Cheese",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبنة حلوم",
+      "nameEn": "Halloumi Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبن دجاج",
+      "nameEn": "Chicken & Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبن سجق",
+      "nameEn": "Sausage & Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "لحم بالعجين",
+      "nameEn": "Meat in Dough",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبن لحم",
+      "nameEn": "Meat & Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "محمرة",
+      "nameEn": "Muhammara",
+      "price": 8,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "محمرة جبنة",
+      "nameEn": "Muhammara with Cheese",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "محمرة لحم وجبنة",
+      "nameEn": "Muhammara, Meat & Cheese",
+      "price": 12,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "كرافت",
+      "nameEn": "Kraft Cheese",
+      "price": 8,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "كرافت بالعسل",
+      "nameEn": "Kraft with Honey",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "بيض مع كرافت",
+      "nameEn": "Egg with Kraft",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "بيض مع موزاريلا",
+      "nameEn": "Egg with Mozzarella",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "سبانخ مع جبنة",
+      "nameEn": "Spinach with Cheese",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "سبانخ مع لبنة",
+      "nameEn": "Spinach with Labneh",
+      "price": 11,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "سبانخ",
+      "nameEn": "Spinach",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "فول",
+      "nameEn": "Foul",
+      "price": 9,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "manakeesh",
+      "nameAr": "جبن مرتديلا",
+      "nameEn": "Mortadella & Cheese",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "ورق عنب يلنجي (10 قطع)",
+      "nameEn": "Yalangji Vine Leaves (10 Pieces)",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "ورق عنب يلنجي (20 قطعة)",
+      "nameEn": "Yalangji Vine Leaves (20 Pieces)",
+      "price": 27,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "سمبوسة جبن",
+      "nameEn": "Cheese Sambosa",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "سمبوسة لحم",
+      "nameEn": "Meat Sambosa",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "سمبوسة خضار",
+      "nameEn": "Vegetable Sambosa",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "كبة",
+      "nameEn": "Kebba",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "فتوش",
+      "nameEn": "Fattoush",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "تبولة",
+      "nameEn": "Tabbouleh",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "appetizers",
+      "nameAr": "حمص",
+      "nameEn": "Hummus",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "مارجريتا",
+      "nameEn": "Margherita",
+      "price": 20,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 20,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 30,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "خضار",
+      "nameEn": "Vegetarian",
+      "price": 20,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 20,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 30,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "مشكل جبن",
+      "nameEn": "Mixed Cheese",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 27,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 32,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "سجق",
+      "nameEn": "Sausage",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 28,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "بسطرمة",
+      "nameEn": "Basterma",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 28,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "لحم",
+      "nameEn": "Meat",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 28,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "دجاج",
+      "nameEn": "Chicken",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 27,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 32,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "مشكل لحوم",
+      "nameEn": "Mixed Meats",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "بيبروني",
+      "nameEn": "Pepperoni",
+      "price": 22,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 22,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "مرتديلا",
+      "nameEn": "Mortadella",
+      "price": 20,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 20,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 30,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "pizza",
+      "nameAr": "فور سيزون",
+      "nameEn": "Four Seasons",
+      "price": 23,
+      "variants": [
+        {
+          "nameAr": "صغير",
+          "nameEn": "Small",
+          "price": 23,
+          "isDefault": true
+        },
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 35,
+          "isDefault": false
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 40,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "سجق",
+      "nameEn": "Sausage",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 42,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "بسطرمة",
+      "nameEn": "Basterma",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 42,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "لحمة",
+      "nameEn": "Meat",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 42,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "مشكل لحوم",
+      "nameEn": "Mixed Meats",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 45,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "دجاج",
+      "nameEn": "Chicken",
+      "price": 35,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 35,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 40,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "بيبروني",
+      "nameEn": "Pepperoni",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 42,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "جبنة رومي مع خضار",
+      "nameEn": "Roumy Cheese & Vegetables",
+      "price": 30,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "مشكل جبن",
+      "nameEn": "Mixed Cheese",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 45,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "كيري مع سجق",
+      "nameEn": "Kiri Cheese & Sausage",
+      "price": 37,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 37,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 45,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "شاورما دجاج",
+      "nameEn": "Chicken Shawarma",
+      "price": 35,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 35,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 42,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "مشلتت رول",
+      "nameEn": "Meshaltet Roll",
+      "price": 25,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": true
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "feteer",
+      "nameAr": "مشلتت سمن بلدي بالعسل والجبنة القديمة",
+      "nameEn": "Baladi Ghee Meshaltet with Honey & Aged Cheese",
+      "price": 35,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 35,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 63,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "حلاوة قشطة",
+      "nameEn": "Halva & Qeshta",
+      "price": 25,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "كرافت وعسل",
+      "nameEn": "Kraft & Honey",
+      "price": 25,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "بسبوسة وكنافة وكاسترد",
+      "nameEn": "Basbousa, Kunafa & Custard",
+      "price": 30,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "كنافة دبي",
+      "nameEn": "Dubai Kunafa",
+      "price": 30,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "لبن وسكر",
+      "nameEn": "Milk & Sugar",
+      "price": 20,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 20,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 30,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "نوتيلا",
+      "nameEn": "Nutella",
+      "price": 25,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 25,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "كاسترد",
+      "nameEn": "Custard",
+      "price": 20,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 20,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 30,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "sweet-feteer",
+      "nameAr": "قشطة وعسل ومكسرات",
+      "nameEn": "Qeshta, Honey & Nuts",
+      "price": 30,
+      "variants": [
+        {
+          "nameAr": "وسط",
+          "nameEn": "Medium",
+          "price": 30,
+          "isDefault": true
+        },
+        {
+          "nameAr": "كبير",
+          "nameEn": "Large",
+          "price": 35,
+          "isDefault": false
+        }
+      ],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني بايتس 10 قطع",
+      "nameEn": "Mini Bites Box (10 Pieces)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني بايتس 25 قطعة",
+      "nameEn": "Mini Bites Box (25 Pieces)",
+      "price": 62,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني بايتس 40 قطعة",
+      "nameEn": "Mini Bites Box (40 Pieces)",
+      "price": 96,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني بايتس 50 قطعة",
+      "nameEn": "Mini Bites Box (50 Pieces)",
+      "price": 120,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني مناقيش 10 قطع",
+      "nameEn": "Mini Manakeesh Box (10 Pieces)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني مناقيش 25 قطعة",
+      "nameEn": "Mini Manakeesh Box (25 Pieces)",
+      "price": 62,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني مناقيش 40 قطعة",
+      "nameEn": "Mini Manakeesh Box (40 Pieces)",
+      "price": 96,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس ميني مناقيش 50 قطعة",
+      "nameEn": "Mini Manakeesh Box (50 Pieces)",
+      "price": 120,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس سمبوسة 10 قطع",
+      "nameEn": "Sambosa Box (10 Pieces)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس سمبوسة 25 قطعة",
+      "nameEn": "Sambosa Box (25 Pieces)",
+      "price": 62,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "يلنجي 10 قطع",
+      "nameEn": "Yalangji (10 Pieces)",
+      "price": 15,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "يلنجي 20 قطعة",
+      "nameEn": "Yalangji (20 Pieces)",
+      "price": 27,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس كبة 10 قطع",
+      "nameEn": "Kebba Box (10 Pieces)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس كبة 20 قطعة",
+      "nameEn": "Kebba Box (20 Pieces)",
+      "price": 27,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "boxes",
+      "nameAr": "بوكس مقبلات مشكل 10 قطع",
+      "nameEn": "Mixed Starters Box (10 Pieces)",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "كحك",
+      "nameEn": "Kahk",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "بسكويت",
+      "nameEn": "Biscuits",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "بيتي فور",
+      "nameEn": "Petit Four",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "بقسماط",
+      "nameEn": "Rusks",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "مقرمشات جبنة أو سمسم وحبة البركة",
+      "nameEn": "Cheese or Sesame & Nigella Crunchies",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "كحك سادة 250 جرام",
+      "nameEn": "Plain Kahk 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "منين سادة 250 جرام",
+      "nameEn": "Plain Meen 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "منين زعتر 250 جرام",
+      "nameEn": "Zaatar Meen 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "كعب غزال ملبن 250 جرام",
+      "nameEn": "Kaab El Ghazal with Malban 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "كعب غزال عجوة 250 جرام",
+      "nameEn": "Kaab El Ghazal with Ajwa 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "whole-grain",
+      "nameAr": "تروسة أو معروك تمر",
+      "nameEn": "Date Torsa or Marouk",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز مصري أبيض",
+      "nameEn": "Egyptian White Bread",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز مصري أبيض صغير",
+      "nameEn": "Small Egyptian White Bread",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز حبة كاملة",
+      "nameEn": "Whole Grain Bread",
+      "price": 6,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز حبة كاملة صغير",
+      "nameEn": "Small Whole Grain Bread",
+      "price": 5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز عربي أبيض أو حبة كاملة",
+      "nameEn": "Arabic Bread (White or Whole Grain)",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز شعير",
+      "nameEn": "Barley Bread",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز لبناني أبيض أو أسمر",
+      "nameEn": "Lebanese Bread (White or Brown)",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز لبناني صغير أبيض أو أسمر",
+      "nameEn": "Small Lebanese Bread (White or Brown)",
+      "price": 1.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز مصري شامي",
+      "nameEn": "Egyptian Shami Bread",
+      "price": 5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز مصري شامي للسندوتشات",
+      "nameEn": "Egyptian Shami Sandwich Bread",
+      "price": 5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز صمون أبيض أو حبة كاملة",
+      "nameEn": "Samoon Bread (White or Whole Grain)",
+      "price": 1,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز فرنساوي كبير",
+      "nameEn": "Large French Bread",
+      "price": 5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز فرنساوي صغير",
+      "nameEn": "Small French Bread",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز صمون سمسم",
+      "nameEn": "Sesame Bun",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز صمون حليب",
+      "nameEn": "Milk Bun",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز برجر",
+      "nameEn": "Burger Bun",
+      "price": 3,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز توست أبيض",
+      "nameEn": "White Toast",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز توست أسمر",
+      "nameEn": "Brown Toast",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز سن",
+      "nameEn": "Whole Wheat Bread",
+      "price": 6,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز فتة محمص",
+      "nameEn": "Toasted Fattah Bread",
+      "price": 1.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "رقاق مصري (ناشف أو طري)",
+      "nameEn": "Egyptian Reqaq (Dry or Soft)",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز تبولة محمص",
+      "nameEn": "Toasted Tabbouleh Bread",
+      "price": 5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bread",
+      "nameAr": "خبز ملدن",
+      "nameEn": "Maldan Bread",
+      "price": 1.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بقسماط سادة 250 جرام",
+      "nameEn": "Plain Rusks 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بقسماط سمسم 250 جرام",
+      "nameEn": "Sesame Rusks 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بقسماط سمسم وحبة البركة 250 جرام",
+      "nameEn": "Sesame & Nigella Rusks 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "باتون سالية سمسم وحبة البركة 250 جرام",
+      "nameEn": "Sesame & Nigella Baton Sale 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "باتون سالية كمون 250 جرام",
+      "nameEn": "Cumin Baton Sale 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "باتون سالية جبن 250 جرام",
+      "nameEn": "Cheese Baton Sale 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "باتون سالية زعتر 250 جرام",
+      "nameEn": "Zaatar Baton Sale 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "مقرمشات جبنة 250 جرام",
+      "nameEn": "Cheese Crunchies 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "مقرمشات كمون 250 جرام",
+      "nameEn": "Cumin Crunchies 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "مقرمشات سمسم وحبة البركة 250 جرام",
+      "nameEn": "Sesame & Nigella Crunchies 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "مقرمشات زعتر 250 جرام",
+      "nameEn": "Zaatar Crunchies 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "فايش أصفر 250 جرام",
+      "nameEn": "Yellow Faiesh 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "فايش أسمر 250 جرام",
+      "nameEn": "Brown Faiesh 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بسكويت نشادر بالزبدة 250 جرام",
+      "nameEn": "Ammonia Butter Biscuits 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بيتي فور 250 جرام",
+      "nameEn": "Petit Four 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كوكيز 250 جرام",
+      "nameEn": "Cookies 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كحك سادة 250 جرام",
+      "nameEn": "Plain Kahk 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كحك ملبن 250 جرام",
+      "nameEn": "Malban Kahk 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كحك عجوة 250 جرام",
+      "nameEn": "Ajwa Kahk 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "غريبة 250 جرام",
+      "nameEn": "Ghorayeba 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "منين سادة 250 جرام",
+      "nameEn": "Plain Meen 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "منين زعتر 250 جرام",
+      "nameEn": "Zaatar Meen 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كعب غزال ملبن 250 جرام",
+      "nameEn": "Kaab El Ghazal with Malban 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كعب غزال عجوة 250 جرام",
+      "nameEn": "Kaab El Ghazal with Ajwa 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كعك فلسطيني 250 جرام",
+      "nameEn": "Palestinian Kahk 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "برزاق 250 جرام",
+      "nameEn": "Barazek 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "برزاق تمر 250 جرام",
+      "nameEn": "Date Barazek 250g",
+      "price": 12.5,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بوريك أو ميني باتيه 250 جرام",
+      "nameEn": "Borek or Mini Patty 250g",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كرواسون (جبن أو زعتر أو شوكولاتة أو سادة)",
+      "nameEn": "Croissant (Cheese, Zaatar, Chocolate or Plain)",
+      "price": 4,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "سويت كعك 250 جرام",
+      "nameEn": "Sweet Kahk 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "بسكويت نشادر سوداني 250 جرام",
+      "nameEn": "Sudanese Ammonia Biscuits 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "كعك ينسون 250 جرام",
+      "nameEn": "Anise Kahk 250g",
+      "price": null,
+      "variants": [],
+      "available": false,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "فطير زبدة صغير",
+      "nameEn": "Small Butter Feteer",
+      "price": 10,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    },
+    {
+      "categorySlug": "bakery",
+      "nameAr": "فطير زبدة كبير",
+      "nameEn": "Large Butter Feteer",
+      "price": 25,
+      "variants": [],
+      "available": true,
+      "imageUrl": "assets/MAIN.jpg"
+    }
+  ]
+}
