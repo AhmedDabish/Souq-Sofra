@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import {
   Category,
   CategoryCreate,
@@ -12,7 +12,8 @@ import {
   SiteSettings,
   StaffUser,
   AddonTemplate,
-  AddonTemplateCreate
+  AddonTemplateCreate,
+  DeliveryZone
 } from '../models/models';
 
 export interface OrderCreateResponse {
@@ -68,6 +69,12 @@ export class ApiService {
 
   getBranches(): Observable<Branch[]> {
     return this.http.get<Branch[]>(`${this.apiUrl}/branches`);
+  }
+
+  getDeliveryZones(): Observable<DeliveryZone[]> {
+    return this.getSettings().pipe(map(settings => {
+      try { return JSON.parse(settings['DeliveryZones'] || '[]') as DeliveryZone[]; } catch { return []; }
+    }));
   }
 
   getSettings(): Observable<SiteSettings> {

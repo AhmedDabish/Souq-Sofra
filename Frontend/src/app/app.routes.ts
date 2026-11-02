@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './features/public/pages/home/home.component';
 import { MenuComponent } from './features/public/pages/menu/menu.component';
 import { ProductDetailComponent } from './features/public/pages/product-detail/product-detail.component';
-import { CheckoutComponent } from './features/public/pages/checkout/checkout.component';
 import { CartPageComponent } from './features/public/pages/cart/cart-page.component';
 import { ContactComponent } from './features/public/pages/contact/contact.component';
 import { DashboardComponent } from './features/admin/pages/dashboard/dashboard.component';
@@ -19,7 +18,7 @@ export const routes: Routes = [
   { path: 'menu', component: MenuComponent },
   { path: 'product/:id', component: ProductDetailComponent },
   { path: 'cart', component: CartPageComponent },
-  { path: 'checkout', component: CheckoutComponent },
+  { path: 'checkout', redirectTo: 'cart', pathMatch: 'full' },
   { path: 'contact', component: ContactComponent },
 
   // Admin Dashboard Routes (Isolated & Protected via authGuard)

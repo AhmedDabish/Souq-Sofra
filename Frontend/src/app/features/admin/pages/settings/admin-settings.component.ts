@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
-import { Branch, SiteSettings } from '../../../../core/models/models';
+import { Branch, SiteSettings, DeliveryZone } from '../../../../core/models/models';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
 
@@ -107,6 +107,32 @@ import { forkJoin } from 'rxjs';
                     class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
                 </div>
               </div>
+
+              <section class="rounded-2xl border border-orange-100 bg-orange-50/40 p-4 space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div><h3 class="font-bold text-sm text-gray-800">مناطق ورسوم التوصيل</h3><p class="mt-1 text-[11px] text-gray-500">ابدأ بالإمارات السبع، وأضف مناطق فرعية وحدد رسوم كل منطقة أو أوقف التوصيل إليها.</p></div>
+                  <button type="button" (click)="addDeliveryZone()" class="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white">+ إضافة منطقة</button>
+                </div>
+                <div class="space-y-3">
+                  @for (zone of deliveryZones(); track zone.id; let i = $index) {
+                    <div class="grid grid-cols-1 gap-2 rounded-xl border border-gray-100 bg-white p-3 sm:grid-cols-12 sm:items-end">
+                      <label class="text-[11px] font-bold text-gray-600 sm:col-span-4">الإمارة
+                        <select [ngModel]="zone.emirate" (ngModelChange)="updateDeliveryZone(i, 'emirate', $event)" [name]="'emirate' + i" class="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                          @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ emirate }}</option> }
+                        </select>
+                      </label>
+                      <label class="text-[11px] font-bold text-gray-600 sm:col-span-4">المنطقة / الحي
+                        <input [ngModel]="zone.name" (ngModelChange)="updateDeliveryZone(i, 'name', $event)" [name]="'zoneName' + i" class="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-xs" placeholder="مثال: الكورنيش">
+                      </label>
+                      <label class="text-[11px] font-bold text-gray-600 sm:col-span-2">الرسوم (درهم)
+                        <input type="number" min="0" step="0.5" [ngModel]="zone.fee" (ngModelChange)="updateDeliveryZone(i, 'fee', $event)" [name]="'zoneFee' + i" class="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-xs">
+                      </label>
+                      <label class="flex items-center gap-2 text-[11px] font-bold text-gray-600 sm:col-span-1"><input type="checkbox" [ngModel]="zone.enabled" (ngModelChange)="updateDeliveryZone(i, 'enabled', $event)" [name]="'zoneEnabled' + i" class="accent-orange-500"> متاح</label>
+                      <button type="button" (click)="removeDeliveryZone(i)" class="rounded-lg px-2 py-2 text-xs font-bold text-red-600 hover:bg-red-50 sm:col-span-1" [attr.aria-label]="'حذف ' + zone.name">حذف</button>
+                    </div>
+                  }
+                </div>
+              </section>
 
               <div>
                 <label class="block font-bold text-gray-700 mb-1">ساعات عمل المطعم والتوصيل</label>
@@ -296,6 +322,10 @@ export class AdminSettingsComponent implements OnInit {
   };
 
   branches = signal<Branch[]>([]);
+  readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
+  deliveryZones = signal<DeliveryZone[]>(this.emirates.map((emirate, index) => ({
+    id: `uae-${index + 1}`, emirate, name: emirate, fee: 10, enabled: true
+  })));
 
   isSaving = signal<boolean>(false);
   uploadingBanner = signal<number | null>(null);
@@ -409,6 +439,10 @@ export class AdminSettingsComponent implements OnInit {
           this.settings = { ...this.settings, ...res.settings };
         }
         this.branches.set(res.branches || []);
+        try {
+          const savedZones = JSON.parse(res.settings?.['DeliveryZones'] || '[]') as DeliveryZone[];
+          if (savedZones.length) this.deliveryZones.set(savedZones);
+        } catch { /* Keep the seven emirate defaults until corrected in settings. */ }
       },
       error: () => {
         // Keep defaults on connection error
@@ -419,6 +453,7 @@ export class AdminSettingsComponent implements OnInit {
   saveSettings() {
     this.isSaving.set(true);
 
+    this.settings['DeliveryZones'] = JSON.stringify(this.deliveryZones());
     const keys = Object.keys(this.settings) as (keyof SiteSettings)[];
     const updates = keys
       .filter((k) => this.settings[k] !== undefined)
@@ -439,6 +474,22 @@ export class AdminSettingsComponent implements OnInit {
         this.showFeedback('فشل حفظ بعض الإعدادات على الخادم.', 'error');
       }
     });
+  }
+
+  updateDeliveryZone(index: number, key: 'emirate' | 'name' | 'fee' | 'enabled', value: string | number | boolean) {
+    this.deliveryZones.update(zones => zones.map((zone, i) => i !== index ? zone : {
+      ...zone,
+      [key]: key === 'fee' ? Math.max(0, Number(value) || 0) : value
+    }));
+  }
+
+  addDeliveryZone() {
+    const id = `zone-${Date.now()}`;
+    this.deliveryZones.update(zones => [...zones, { id, emirate: 'أبوظبي', name: '', fee: 10, enabled: true }]);
+  }
+
+  removeDeliveryZone(index: number) {
+    this.deliveryZones.update(zones => zones.filter((_, i) => i !== index));
   }
 
   saveBranch() {

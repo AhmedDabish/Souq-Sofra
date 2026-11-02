@@ -109,12 +109,24 @@ export interface OrderItemCreate {
   addonIds?: number[];
 }
 
+export interface DeliveryZone {
+  id: string;
+  emirate: string;
+  name: string;
+  fee: number;
+  enabled: boolean;
+}
+
 export interface OrderCreate {
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
   deliveryAddress: string;
   branchId: number;
+  deliveryType: 'delivery' | 'pickup';
+  deliveryZoneId?: string;
+  deliveryLatitude?: number;
+  deliveryLongitude?: number;
   paymentMethod: string;
   notes?: string;
   items: OrderItemCreate[];
@@ -171,6 +183,7 @@ export interface SiteSettings {
   PhoneNumber?: string;
   WhatsApp?: string;
   DeliveryFee?: string;
+  DeliveryZones?: string;
   MinOrderAmount?: string;
   WorkingHours?: string;
   VATPercentage?: string;

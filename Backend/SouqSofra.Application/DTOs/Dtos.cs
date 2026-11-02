@@ -130,7 +130,11 @@ namespace SouqSofra.Application.DTOs
         string PaymentMethod, 
         string? Notes, 
         List<OrderItemCreateDto> Items,
-        string OrderChannel = "Website"
+        string OrderChannel = "Website",
+        string DeliveryType = "delivery",
+        string? DeliveryZoneId = null,
+        double? DeliveryLatitude = null,
+        double? DeliveryLongitude = null
     );
 
     public record UpdateOrderStatusDto(string Status);

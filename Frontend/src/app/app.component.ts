@@ -51,7 +51,7 @@ import { ApiService } from './core/services/api.service';
                 <li><a routerLink="/menu" class="transition hover:text-white">منيو سوق وسفرة</a></li>
                 <li><a routerLink="/contact" class="transition hover:text-white">فروعنا وأوقات العمل</a></li>
                 <li><a routerLink="/cart" class="transition hover:text-white">سلة المشتريات</a></li>
-                <li><a routerLink="/checkout" class="transition hover:text-white">إتمام الطلب</a></li>
+                <li><a routerLink="/cart" class="transition hover:text-white">إرسال الطلب</a></li>
               </ul>
             </div>
 
@@ -66,12 +66,9 @@ import { ApiService } from './core/services/api.service';
 
             <div class="lg:col-span-3">
               <h4 class="mb-4 text-sm font-bold text-[#fbb042]">طرق الدفع</h4>
-              <p class="mb-4 text-sm leading-6 text-white/70">اختر طريقة الدفع المناسبة لك عند إتمام الطلب.</p>
+              <p class="mb-4 text-sm leading-6 text-white/70">الدفع نقداً عند الاستلام أو استلام الطلب من الفرع.</p>
               <div class="flex flex-wrap gap-2 text-xs text-white/80">
                 <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">نقداً عند الاستلام</span>
-                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Visa</span>
-                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Mastercard</span>
-                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">Apple Pay</span>
               </div>
             </div>
           </div>

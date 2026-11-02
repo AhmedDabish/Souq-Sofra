@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Domain.Entities;
 using SouqSofra.Infrastructure.Data;
@@ -79,6 +80,7 @@ namespace SouqSofra.API.Controllers
 
         // Public order submission from Angular storefront
         [HttpPost]
+        [HttpPost("whatsapp")]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto dto)
         {
             if (dto.Items == null || !dto.Items.Any())
@@ -86,16 +88,43 @@ namespace SouqSofra.API.Controllers
                 return BadRequest(new { message = "لا يمكن إتمام الطلب بدون إضافة أصناف." });
             }
 
+            var isPickup = string.Equals(dto.DeliveryType, "pickup", StringComparison.OrdinalIgnoreCase);
+            decimal deliveryFee = 0m;
+            string deliveryAddress;
+            if (isPickup)
+            {
+                deliveryAddress = "استلام من الفرع";
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(dto.DeliveryZoneId))
+                    return BadRequest(new { message = "اختر منطقة توصيل متاحة أولاً." });
+
+                var zonesSetting = await _context.SiteSettings.FirstOrDefaultAsync(setting => setting.SettingKey == "DeliveryZones");
+                var zones = ParseDeliveryZones(zonesSetting?.SettingValue);
+                var zone = zones.FirstOrDefault(candidate => candidate.Id == dto.DeliveryZoneId && candidate.Enabled);
+                if (zone == null)
+                    return BadRequest(new { message = "منطقة التوصيل المختارة غير متاحة. اختر منطقة أخرى." });
+                if (!dto.DeliveryLatitude.HasValue || !dto.DeliveryLongitude.HasValue ||
+                    dto.DeliveryLatitude.Value < 22.5 || dto.DeliveryLatitude.Value > 26.5 ||
+                    dto.DeliveryLongitude.Value < 51.4 || dto.DeliveryLongitude.Value > 56.5)
+                    return BadRequest(new { message = "حدد موقع التوصيل على الخريطة داخل دولة الإمارات." });
+                deliveryFee = zone.Fee;
+                var coordinates = dto.DeliveryLatitude.HasValue && dto.DeliveryLongitude.HasValue
+                    ? $" (الموقع: {dto.DeliveryLatitude.Value:F6}, {dto.DeliveryLongitude.Value:F6})" : string.Empty;
+                deliveryAddress = $"توصيل - {zone.Emirate}، {zone.Name} - {dto.DeliveryAddress?.Trim()}{coordinates}";
+            }
+
             var order = new Order
             {
                 CustomerName = dto.CustomerName,
                 CustomerPhone = dto.CustomerPhone,
                 CustomerEmail = dto.CustomerEmail,
-                DeliveryAddress = string.IsNullOrWhiteSpace(dto.DeliveryAddress) ? "استلام من الفرع" : dto.DeliveryAddress,
+                DeliveryAddress = deliveryAddress,
                 BranchId = dto.BranchId > 0 ? dto.BranchId : 1,
-                PaymentMethod = string.IsNullOrWhiteSpace(dto.PaymentMethod) ? "CashOnDelivery" : dto.PaymentMethod,
+                PaymentMethod = "CashOnDelivery",
                 Notes = dto.Notes,
-                DeliveryFee = 10.00m,
+                DeliveryFee = deliveryFee,
                 OrderStatus = "Pending",
                 OrderChannel = HttpContext.Request.Path.Value?.EndsWith("/whatsapp", StringComparison.OrdinalIgnoreCase) == true ? "WhatsApp" : "Website",
                 CreatedAt = DateTime.UtcNow
@@ -184,6 +213,25 @@ namespace SouqSofra.API.Controllers
                 message = "تم استلام طلبك بنجاح وسيتواصل معك فريق سوق وسفرة."
             });
         }
+
+        private static List<DeliveryZoneSetting> ParseDeliveryZones(string? json)
+        {
+            if (!string.IsNullOrWhiteSpace(json))
+            {
+                try
+                {
+                    var configured = JsonSerializer.Deserialize<List<DeliveryZoneSetting>>(json,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (configured != null) return configured;
+                }
+                catch (JsonException) { }
+            }
+
+            var emirates = new[] { "أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة" };
+            return emirates.Select((name, index) => new DeliveryZoneSetting($"uae-{index + 1}", name, name, 10m, true)).ToList();
+        }
+
+        private sealed record DeliveryZoneSetting(string Id, string Emirate, string Name, decimal Fee, bool Enabled);
 
         [Authorize(Roles = "Admin,User,SuperAdmin")]
         [HttpPatch("{id}/status")]

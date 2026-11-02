@@ -1,3 +1,4 @@
+@import 'leaflet/dist/leaflet.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -287,3 +288,41 @@ body {
 .admin-shell:has(app-admin-sidebar aside[style*="5rem"]) main { margin-right: 5rem !important; }
 .admin-shell:has(app-admin-sidebar aside[style*="18rem"]) main { margin-right: 18rem !important; }
 @media (max-width: 1023px) { .admin-shell main { margin-right: 0 !important; } }
+
+.delivery-map-pin {
+  width: 25px;
+  height: 25px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: #f47621;
+  box-shadow: 0 2px 8px #0005;
+  transform: rotate(-45deg);
+}
+.delivery-map-pin::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.delivery-map-pin {
+  width: 25px;
+  height: 25px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: #f47621;
+  box-shadow: 0 2px 8px #0005;
+  transform: rotate(-45deg);
+}
+.delivery-map-pin::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 6px;
+  border-radius: 50%;
+  background: #fff;
+}

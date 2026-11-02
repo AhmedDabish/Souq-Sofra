@@ -13,7 +13,9 @@ export class CartService {
     this.itemsSignal().reduce((sum, item) => sum + item.totalPrice, 0)
   );
 
-  public deliveryFee = signal<number>(10); // 10 AED
+  public deliveryFee = signal<number>(10); // Updated from the selected delivery zone
+
+  setDeliveryFee(fee: number) { this.deliveryFee.set(Math.max(0, Number(fee) || 0)); }
 
   public totalAmount = computed(() => this.subTotal() + this.deliveryFee());
 
