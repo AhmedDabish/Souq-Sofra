@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
+import { CartItem } from '../../../../core/models/models';
+import { LanguageService } from '../../../../core/services/language.service';
 
 @Component({
   selector: 'app-cart-drawer',
@@ -39,17 +41,18 @@ import { CartService } from '../../../../core/services/cart.service';
                   <p class="text-xs">أضف بعض الفطائر والمعجنات الشهية من المنيو!</p>
                 </div>
               } @else {
-                @for (item of cart.items(); track item.product.productId + (item.selectedVariant?.variantId || 0)) {
+                @for (item of cart.items(); track $index) {
                   <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
                     <div class="flex items-center gap-3">
                       <img [src]="item.product.imageUrl || 'assets/MAIN.jpg'" class="w-16 h-16 rounded-xl object-cover">
                       <div>
-                        <h4 class="font-bold text-sm text-gray-800">{{ item.product.nameAr }}</h4>
+                        <h4 class="font-bold text-sm text-gray-800">{{ language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr }}</h4>
                         @if (item.selectedVariant) {
-                          <span class="text-[11px] text-gray-400 font-medium">({{ item.selectedVariant.nameAr }})</span>
+                          <span class="text-[11px] text-gray-400 font-medium">({{ language.isEnglish() ? (item.selectedVariant.nameEn || item.selectedVariant.nameAr) : item.selectedVariant.nameAr }})</span>
                         }
+                        @if (item.selectedAddons.length) { <div class="text-[10px] text-gray-500 mt-1">{{ addonsLabel(item) }}</div> }
                         @if (item.specialInstructions) { <div class="text-[10px] text-gray-500 mt-1">ملاحظة: {{ item.specialInstructions }}</div> }
-                        <div class="text-xs font-bold text-primary mt-0.5">{{ item.unitPrice }} درهم</div>
+                        <div class="text-xs font-bold text-primary mt-0.5">{{ unitPrice(item) }} جنيه للقطعة</div>
                       </div>
                     </div>
 
@@ -69,15 +72,15 @@ import { CartService } from '../../../../core/services/cart.service';
               <div class="p-6 border-t border-gray-100 bg-[#faf7f2] space-y-3">
                 <div class="flex justify-between text-xs text-gray-500">
                   <span>المجموع الفرعي</span>
-                  <span>{{ cart.subTotal() }} درهم</span>
+                  <span>{{ cart.subTotal() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span>
                 </div>
                 <div class="flex justify-between text-xs text-gray-500">
                   <span>رسوم التوصيل</span>
-                  <span>{{ cart.deliveryFee() }} درهم</span>
+                  <span>{{ cart.deliveryFee() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span>
                 </div>
                 <div class="flex justify-between text-base font-black text-primaryDark pt-2 border-t border-gray-200">
                   <span>الإجمالي الكلي</span>
-                  <span>{{ cart.totalAmount() }} درهم</span>
+                  <span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span>
                 </div>
 
                 <a
@@ -103,4 +106,7 @@ import { CartService } from '../../../../core/services/cart.service';
 })
 export class CartDrawerComponent {
   cart = inject(CartService);
+  language = inject(LanguageService);
+  addonsLabel(item: CartItem) { return item.selectedAddons.map(addon => this.language.isEnglish() ? (addon.nameEn || addon.nameAr) : addon.nameAr).join(this.language.isEnglish() ? ', ' : '، '); }
+  unitPrice(item: CartItem) { return item.unitPrice + item.selectedAddons.reduce((sum, addon) => sum + addon.price, 0); }
 }

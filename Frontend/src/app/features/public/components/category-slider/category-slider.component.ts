@@ -81,8 +81,8 @@ import { Category } from '../../../../core/models/models';
                     </div>
                   </div>
 
-                  <h3 class="pb-2 2xl:text-base text-xs sm:text-sm text-primaryDark transition-colors text-center category-card-text font-bold mt-2 truncate max-w-full px-1" [title]="cat.nameAr">
-                    {{ cat.nameAr }}
+                  <h3 class="pb-2 2xl:text-base text-xs sm:text-sm text-primaryDark transition-colors text-center category-card-text font-bold mt-2 truncate max-w-full px-1" [title]="isEnglish ? (cat.nameEn || cat.nameAr) : cat.nameAr">
+                    {{ isEnglish ? (cat.nameEn || cat.nameAr) : cat.nameAr }}
                   </h3>
                 </div>
               </div>
@@ -124,6 +124,7 @@ export class CategorySliderComponent implements AfterViewInit, OnChanges {
   @Input() selectedId: number = 0;
   @Input() showViewAll: boolean = true;
   @Input() title: string = 'أقسام منيو سوق وسفرة';
+  @Input() isEnglish = false;
   @Output() categorySelected = new EventEmitter<number>();
 
   @ViewChild('sliderRef') sliderRef?: ElementRef<HTMLDivElement>;

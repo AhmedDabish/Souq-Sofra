@@ -319,7 +319,8 @@ export class CheckoutComponent implements OnInit {
         productId: i.product.productId,
         variantId: i.selectedVariant?.variantId,
         quantity: i.quantity,
-        unitPrice: i.unitPrice
+        unitPrice: i.unitPrice,
+        addonIds: i.selectedAddons.map(addon => addon.addonId!).filter(Boolean)
       }))
     };
 

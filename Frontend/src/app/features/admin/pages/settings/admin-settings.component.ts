@@ -130,6 +130,12 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
+          <!-- Site logo management -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
+            <div class="border-b border-gray-100 pb-4"><h2 class="text-base font-bold font-baloo text-gray-800">شعار الموقع</h2><p class="text-[11px] text-gray-400">رفع شعار المتجر وحفظه ضمن إعدادات الموقع على الخادم</p></div>
+            <div class="flex items-center gap-4"><img [src]="logoPreview()" alt="معاينة شعار الموقع" class="h-24 w-24 rounded-full border bg-orange-50 object-cover"><div><label class="inline-flex cursor-pointer rounded-xl bg-orange-50 px-4 py-3 text-xs font-bold text-orange-800 hover:bg-orange-100">{{ uploadingLogo() ? 'جارٍ الرفع…' : 'اختيار شعار ورفعه' }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadLogo($event)" class="sr-only"></label><p class="mt-2 text-[10px] text-gray-400">سيتم حفظ مسار الصورة في إعدادات المتجر.</p></div></div>
+          </div>
+
           <!-- Homepage banner management -->
           <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
             <div class="border-b border-gray-100 pb-4">
@@ -149,6 +155,16 @@ import { forkJoin } from 'rxjs';
                     @if (uploadingBanner() === index) { <span class="mr-2 text-[10px] text-gray-500">جارٍ الرفع...</span> }
                   </div>
                 </div>
+              }
+            </div>
+          </div>
+
+          <!-- Additional homepage promo banners -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
+            <div class="border-b border-gray-100 pb-4"><h2 class="text-base font-bold font-baloo text-gray-800">بنرات العروض الإضافية</h2><p class="text-[11px] text-gray-400">إدارة الصور الإضافية الظاهرة في الصفحة الرئيسية.</p></div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              @for (index of [1, 2]; track index) {
+                <div class="rounded-2xl border border-gray-100 p-3"><img [src]="promoBannerPreview(index)" [alt]="'بنر عرض ' + index" class="mb-3 h-32 w-full rounded-xl bg-orange-50 object-cover"><p class="mb-2 text-xs font-bold">بنر العرض {{ index }}</p><label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700">اختيار صورة ورفعها<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadPromoBanner($event, index)" class="sr-only"></label></div>
               }
             </div>
           </div>
@@ -283,6 +299,7 @@ export class AdminSettingsComponent implements OnInit {
 
   isSaving = signal<boolean>(false);
   uploadingBanner = signal<number | null>(null);
+  uploadingLogo = signal(false);
   isSavingBranch = signal<boolean>(false);
   showBranchModal = signal<boolean>(false);
 
@@ -304,6 +321,45 @@ export class AdminSettingsComponent implements OnInit {
     if (!url) return `assets/banners/banner-${index}.jpg`;
     if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
     return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  logoPreview(): string {
+    const url = this.settings['StoreLogo'];
+    if (!url) return 'assets/MAIN.jpg';
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  uploadLogo(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { this.showFeedback('حجم الصورة أكبر من 10 ميجابايت.', 'error'); input.value = ''; return; }
+    this.uploadingLogo.set(true);
+    this.api.uploadImage(file, 'logo').subscribe({
+      next: result => this.api.updateSetting('StoreLogo', result.url).subscribe({
+        next: () => { this.settings['StoreLogo'] = result.url; this.uploadingLogo.set(false); this.showFeedback('تم رفع شعار الموقع وحفظه.', 'success'); },
+        error: () => { this.uploadingLogo.set(false); this.showFeedback('تم الرفع لكن تعذر حفظ إعداد الشعار.', 'error'); }
+      }),
+      error: () => { this.uploadingLogo.set(false); this.showFeedback('تعذر رفع الشعار إلى الخادم.', 'error'); }
+    });
+    input.value = '';
+  }
+
+  promoBannerPreview(index: number): string {
+    const url = this.settings[`PromoBanner${index}`];
+    if (!url) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  uploadPromoBanner(event: Event, index: number) {
+    const input = event.target as HTMLInputElement; const file = input.files?.[0]; if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { this.showFeedback('حجم الصورة أكبر من 10 ميجابايت.', 'error'); input.value = ''; return; }
+    this.api.uploadImage(file, 'banners').subscribe({ next: result => this.api.updateSetting(`PromoBanner${index}`, result.url).subscribe({
+      next: () => { this.settings[`PromoBanner${index}`] = result.url; this.showFeedback('تم حفظ بنر العرض.', 'success'); },
+      error: () => this.showFeedback('تم رفع الصورة لكن تعذر حفظ إعداد البنر.', 'error')
+    }), error: () => this.showFeedback('تعذر رفع بنر العرض.', 'error') }); input.value = '';
   }
 
   uploadBanner(event: Event, index: number) {

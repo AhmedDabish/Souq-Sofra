@@ -19,6 +19,13 @@ export interface CategoryCreate {
   isActive: boolean;
 }
 
+export interface ProductAddon {
+  addonId?: number;
+  nameAr: string;
+  nameEn: string;
+  price: number;
+}
+
 export interface ProductVariant {
   variantId?: number;
   nameAr: string;
@@ -40,6 +47,7 @@ export interface Product {
   isAvailable: boolean;
   isFeatured: boolean;
   variants: ProductVariant[];
+  addons: ProductAddon[];
 }
 
 export interface ProductCreate {
@@ -54,11 +62,13 @@ export interface ProductCreate {
   isAvailable: boolean;
   isFeatured: boolean;
   variants?: ProductVariant[];
+  addons?: ProductAddon[];
 }
 
 export interface CartItem {
   product: Product;
   selectedVariant?: ProductVariant;
+  selectedAddons: ProductAddon[];
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -70,6 +80,7 @@ export interface OrderItemCreate {
   variantId?: number;
   quantity: number;
   unitPrice: number;
+  addonIds?: number[];
 }
 
 export interface OrderCreate {

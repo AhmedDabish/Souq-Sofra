@@ -36,6 +36,10 @@ import { AuthService } from '../../../../core/services/auth.service';
             <span>إدارة الأصناف والمنيو</span>
           </a>
 
+          <a routerLink="/admin/categories" routerLinkActive="bg-primary text-white font-bold shadow-md" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-300 hover:bg-white/5 transition-all">
+            <span class="text-base">🗂️</span><span>إدارة أقسام المنيو</span>
+          </a>
+
           <a routerLink="/admin/orders" 
              routerLinkActive="bg-primary text-white font-bold shadow-md" 
              class="flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-300 hover:bg-white/5 transition-all">

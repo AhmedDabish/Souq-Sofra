@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { CartService } from '../../../../core/services/cart.service';
-import { Product, ProductVariant } from '../../../../core/models/models';
+import { LanguageService } from '../../../../core/services/language.service';
+import { Product, ProductAddon, ProductVariant } from '../../../../core/models/models';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 
 @Component({
@@ -17,7 +18,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
         <nav aria-label="مسار التنقل" class="mb-5 flex flex-wrap items-center gap-2 text-xs text-gray-500 md:mb-7 md:text-sm">
           <a routerLink="/" class="transition-colors hover:text-primary">الرئيسية</a><span class="text-gray-300">/</span>
           <a routerLink="/menu" class="transition-colors hover:text-primary">منيو سوق وسفرة</a><span class="text-gray-300">/</span>
-          <span class="max-w-[60vw] truncate font-semibold text-primaryDark">{{ item.nameAr }}</span>
+          <span class="max-w-[60vw] truncate font-semibold text-primaryDark">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</span>
         </nav>
 
         <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:gap-10">
@@ -36,8 +37,8 @@ import { ProductCardComponent } from '../../components/product-card/product-card
               @if (discountPercent()) { <span class="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-primaryDark">عرض خاص</span> }
             </div>
 
-            <h1 class="text-2xl font-black leading-snug text-primaryDark md:text-3xl">{{ item.nameAr }}</h1>
-            <p class="mt-3 text-sm leading-7 text-gray-600 md:text-base">{{ item.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.' }}</p>
+            <h1 class="text-2xl font-black leading-snug text-primaryDark md:text-3xl">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</h1>
+            <p class="mt-3 text-sm leading-7 text-gray-600 md:text-base">{{ language.isEnglish() ? (item.descriptionEn || item.descriptionAr || 'Freshly prepared with selected ingredients.') : (item.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.') }}</p>
 
             <div class="my-5 flex flex-wrap items-baseline gap-2 border-b border-gray-100 pb-5">
               <strong class="text-2xl font-extrabold text-primary md:text-3xl">{{ currentPrice() }} <span class="text-sm font-bold">جنيه</span></strong>
@@ -50,9 +51,23 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                 <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   @for (variant of item.variants; track variant.variantId ?? variant.nameAr) {
                     <button type="button" (click)="selectedVariant.set(variant)" [attr.aria-pressed]="selectedVariant() === variant" [class.border-primary]="selectedVariant() === variant" [class.bg-orange-50]="selectedVariant() === variant" class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 p-3 text-right transition-colors hover:border-primary/60">
-                      <span class="flex min-w-0 items-center gap-2"><span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" [class.border-primary]="selectedVariant() === variant" [class.bg-primary]="selectedVariant() === variant"><span class="h-1.5 w-1.5 rounded-full bg-white" [class.hidden]="selectedVariant() !== variant"></span></span><span class="truncate text-sm font-semibold text-gray-800">{{ variant.nameAr }}</span></span>
+                      <span class="flex min-w-0 items-center gap-2"><span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" [class.border-primary]="selectedVariant() === variant" [class.bg-primary]="selectedVariant() === variant"><span class="h-1.5 w-1.5 rounded-full bg-white" [class.hidden]="selectedVariant() !== variant"></span></span><span class="truncate text-sm font-semibold text-gray-800">{{ language.isEnglish() ? (variant.nameEn || variant.nameAr) : variant.nameAr }}</span></span>
                       <span class="whitespace-nowrap text-sm font-bold text-primary">{{ variant.price }} جنيه</span>
                     </button>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (item.addons.length) {
+              <div class="my-5 rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
+                <div class="mb-3 flex items-center justify-between"><h2 class="font-bold text-gray-900">إضافات اختيارية</h2><span class="text-[11px] text-gray-500">يمكن اختيار أكثر من إضافة</span></div>
+                <div class="space-y-2">
+                  @for (addon of item.addons; track addon.addonId) {
+                    <label class="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm">
+                      <span class="flex items-center gap-2"><input type="checkbox" [checked]="isAddonSelected(addon)" (change)="toggleAddon(addon)" class="h-4 w-4 accent-orange-600"><span class="text-sm font-semibold text-gray-800">{{ language.isEnglish() ? addon.nameEn : addon.nameAr }}</span></span>
+                      <span class="text-sm font-bold text-primary">+{{ addon.price }} {{ language.isEnglish() ? 'EGP' : 'جنيه' }}</span>
+                    </label>
                   }
                 </div>
               </div>
@@ -97,6 +112,8 @@ export class ProductDetailComponent implements OnInit {
   product = signal<Product | null>(null);
   allProducts = signal<Product[]>([]);
   selectedVariant = signal<ProductVariant | undefined>(undefined);
+  selectedAddons = signal<ProductAddon[]>([]);
+  language = inject(LanguageService);
   quantity = signal(1);
   specialInstructions = '';
   loading = signal(true);
@@ -112,7 +129,7 @@ export class ProductDetailComponent implements OnInit {
     }
     return product.discountPrice ?? product.basePrice;
   });
-  totalPrice = computed(() => this.currentPrice() * this.quantity());
+  totalPrice = computed(() => (this.currentPrice() + this.selectedAddons().reduce((sum, addon) => sum + addon.price, 0)) * this.quantity());
   discountPercent = computed(() => { const p = this.product(); return p?.discountPrice && p.discountPrice < p.basePrice ? Math.round(100 * (p.basePrice - p.discountPrice) / p.basePrice) : 0; });
   recommendations = computed(() => this.allProducts().filter(p => p.productId !== this.product()?.productId).slice(0, 4));
 
@@ -131,5 +148,9 @@ export class ProductDetailComponent implements OnInit {
   imageUrl(url?: string) { if (!url) return 'assets/MAIN.jpg'; return /^https?:\/\//i.test(url) || url.startsWith('assets/') ? url : `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`; }
   decreaseQuantity() { this.quantity.update(value => Math.max(1, value - 1)); }
   increaseQuantity() { this.quantity.update(value => value + 1); }
-  addToCart(product: Product) { this.cart.addItem(product, this.selectedVariant(), this.quantity(), this.specialInstructions); }
+  isAddonSelected(addon: ProductAddon) { return this.selectedAddons().some(item => item.addonId === addon.addonId); }
+  toggleAddon(addon: ProductAddon) {
+    this.selectedAddons.update(items => this.isAddonSelected(addon) ? items.filter(item => item.addonId !== addon.addonId) : [...items, addon]);
+  }
+  addToCart(product: Product) { this.cart.addItem(product, this.selectedVariant(), this.quantity(), this.specialInstructions, this.selectedAddons()); }
 }

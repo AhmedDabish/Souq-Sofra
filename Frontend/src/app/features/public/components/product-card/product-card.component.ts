@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Product, ProductVariant } from '../../../../core/models/models';
 import { CartService } from '../../../../core/services/cart.service';
+import { LanguageService } from '../../../../core/services/language.service';
 
 @Component({
   selector: 'app-product-card',
@@ -10,7 +11,7 @@ import { CartService } from '../../../../core/services/cart.service';
   imports: [CommonModule, RouterModule],
   template: `
     @if (layout === 'menu') {
-      <article dir="rtl" class="group relative flex min-h-[148px] w-full overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md md:min-h-[168px]">
+      <article [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="group relative flex min-h-[148px] w-full overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md md:min-h-[168px]">
         <a class="absolute inset-0 z-0" [attr.aria-label]="product.nameAr" [routerLink]="['/product', product.productId]"></a>
         <div class="pointer-events-none absolute inset-0 bg-gradient-to-l from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
         <div class="img-card-wrap group/image relative min-h-full w-28 shrink-0 overflow-hidden md:w-36">
@@ -22,8 +23,8 @@ import { CartService } from '../../../../core/services/cart.service';
         </div>
         <div class="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 text-start md:gap-3 md:p-4">
           <div class="min-w-0">
-            <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ product.nameAr }}</h3>
-            <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ product.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.' }}</p>
+            <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</h3>
+            <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ language.isEnglish() ? (product.descriptionEn || product.descriptionAr || 'Freshly prepared with selected ingredients.') : (product.descriptionAr || 'محضر طازج يومياً بمكونات مختارة ومذاق شهي.') }}</p>
             @if (product.variants && product.variants.length > 1) {
               <div class="pointer-events-auto mt-1.5 flex flex-wrap gap-1" (click)="$event.stopPropagation()">
                 @for (v of product.variants; track v.variantId ?? v.nameAr) {
@@ -44,7 +45,7 @@ import { CartService } from '../../../../core/services/cart.service';
         </div>
       </article>
     } @else {
-    <div dir="rtl" class="rounded-xl bg-card text-card-foreground border-0 shadow-none group product-card h-full flex flex-col">
+    <div [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="rounded-xl bg-card text-card-foreground border-0 shadow-none group product-card h-full flex flex-col">
       <a 
         class="inset-0 z-0 flex flex-col h-full rounded-[inherit] cursor-pointer" 
         [attr.aria-label]="product.nameAr" 
@@ -132,7 +133,7 @@ import { CartService } from '../../../../core/services/cart.service';
           <div class="max-md:p-3 p-4">
             <div class="flex items-center justify-start gap-2 max-md:mb-1.5 mb-2">
               <h3 class="theme-text !font-extrabold pro-title">
-                {{ product.nameAr }}
+                {{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}
               </h3>
             </div>
             <div class="max-md:text-xs text-sm text-muted font-normal max-md:mb-2 mb-2 leading-relaxed text-start line-clamp-2 max-md:min-h-[2.5rem] min-h-[3rem]">
@@ -268,6 +269,7 @@ export class ProductCardComponent implements OnInit {
 
   cart = inject(CartService);
   private router = inject(Router);
+  language = inject(LanguageService);
 
   isWishlisted = signal<boolean>(false);
   showQuickViewModal = signal<boolean>(false);
@@ -336,6 +338,11 @@ export class ProductCardComponent implements OnInit {
   }
 
   addFromQuickView() {
+    if (this.product.addons?.length) {
+      this.showQuickViewModal.set(false);
+      this.router.navigate(['/product', this.product.productId]);
+      return;
+    }
     this.cart.addItem(this.product, this.selectedVariant(), 1);
     this.showQuickViewModal.set(false);
   }

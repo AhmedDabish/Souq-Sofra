@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from './features/public/components/header/header.component';
 import { CartDrawerComponent } from './features/public/components/cart-drawer/cart-drawer.component';
 import { BottomNavComponent } from './features/public/components/bottom-nav/bottom-nav.component';
+import { ApiService } from './core/services/api.service';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +32,7 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
             <div class="space-y-4 sm:col-span-2 lg:col-span-4">
               <div class="flex items-center gap-3">
                 <div class="rounded-full bg-white p-1 shadow-lg shadow-[#f58229]/20 ring-2 ring-[#f58229]/70">
-                  <img src="assets/MAIN.jpg" alt="شعار سوق وسفرة" class="h-14 w-14 rounded-full object-cover">
+                  <img [src]="logoUrl()" alt="شعار سوق وسفرة" class="h-14 w-14 rounded-full object-cover">
                 </div>
                 <div>
                   <span class="block text-xl font-bold font-baloo text-[#fbb042]">سوق وسفرة</span>
@@ -86,7 +87,15 @@ import { BottomNavComponent } from './features/public/components/bottom-nav/bott
     }
   `
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  private api = inject(ApiService);
+  logoUrl = signal('assets/MAIN.jpg');
+  ngOnInit() {
+    this.api.getSettings().subscribe({ next: settings => {
+      const value = settings['StoreLogo'];
+      if (value) this.logoUrl.set(/^https?:\/\//i.test(value) || value.startsWith('assets/') ? value : `http://localhost:2811${value.startsWith('/') ? value : `/${value}`}`);
+    }, error: () => {} });
+  }
   private router = inject(Router);
 
   isAdminRoute(): boolean {

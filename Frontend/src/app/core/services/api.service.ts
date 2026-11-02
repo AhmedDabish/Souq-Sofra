@@ -41,6 +41,11 @@ export class ApiService {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`);
   }
 
+
+  getAdminCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories/admin/all`);
+  }
+
   getProducts(categoryId?: number, featured?: boolean, search?: string): Observable<Product[]> {
     let params = new HttpParams();
     if (categoryId !== undefined) params = params.set('categoryId', categoryId);

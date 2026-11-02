@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
-import { Product, Category, ProductCreate, ProductVariant } from '../../../../core/models/models';
+import { Product, Category, ProductCreate, ProductAddon, ProductVariant } from '../../../../core/models/models';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -380,6 +380,18 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                 </div>
               </div>
 
+              <section class="rounded-2xl border border-orange-100 bg-orange-50/50 p-4 space-y-3">
+                <div class="flex items-center justify-between"><div><h3 class="font-bold text-gray-800">إضافات المنتج</h3><p class="text-[10px] text-gray-500">تُحفظ في قاعدة البيانات ويُتحقق من أسعارها عند الطلب</p></div><button type="button" (click)="addAddon()" class="rounded-xl bg-primary px-3 py-2 text-[11px] font-bold text-white">+ إضافة خيار</button></div>
+                @for (addon of formProduct.addons || []; track $index; let i = $index) {
+                  <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_120px_auto] gap-2 items-center rounded-xl bg-white p-3">
+                    <input [(ngModel)]="addon.nameAr" [name]="'addonAr' + i" placeholder="اسم الإضافة بالعربية" class="rounded-lg border border-gray-200 px-3 py-2">
+                    <input [(ngModel)]="addon.nameEn" [name]="'addonEn' + i" placeholder="Addon name in English" class="rounded-lg border border-gray-200 px-3 py-2 dir-ltr text-right">
+                    <input type="number" [(ngModel)]="addon.price" [name]="'addonPrice' + i" min="0" step="0.5" placeholder="السعر" class="rounded-lg border border-gray-200 px-3 py-2">
+                    <button type="button" (click)="removeAddon(i)" class="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50">حذف</button>
+                  </div>
+                }
+              </section>
+
               <div class="flex items-center gap-6 pt-2">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" [(ngModel)]="formProduct.isAvailable" name="isAvailable" class="rounded text-primary focus:ring-primary w-4 h-4">
@@ -638,6 +650,14 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  addAddon() {
+    this.formProduct.addons = [...(this.formProduct.addons || []), { nameAr: '', nameEn: '', price: 0 }];
+  }
+
+  removeAddon(index: number) {
+    this.formProduct.addons = (this.formProduct.addons || []).filter((_, i) => i !== index);
+  }
+
   openAddModal() {
     this.isEditing.set(false);
     this.editingProductId.set(null);
@@ -652,7 +672,8 @@ export class AdminProductsComponent implements OnInit {
       imageUrl: '',
       isAvailable: true,
       isFeatured: false,
-      variants: []
+      variants: [],
+      addons: []
     };
     this.showModal.set(true);
   }
@@ -671,7 +692,8 @@ export class AdminProductsComponent implements OnInit {
       imageUrl: prod.imageUrl || '',
       isAvailable: prod.isAvailable,
       isFeatured: prod.isFeatured,
-      variants: prod.variants ? [...prod.variants] : []
+      variants: prod.variants ? [...prod.variants] : [],
+      addons: (prod.addons || []).map(addon => ({ ...addon }))
     };
     this.showModal.set(true);
   }
@@ -716,6 +738,10 @@ export class AdminProductsComponent implements OnInit {
     }
     if (!this.formProduct.nameAr || !this.formProduct.nameEn || this.formProduct.basePrice <= 0) {
       alert('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.');
+      return;
+    }
+    if ((this.formProduct.addons || []).some(a => !a.nameAr.trim() || !a.nameEn.trim() || a.price < 0)) {
+      alert('أكمل اسم كل إضافة بالعربية والإنجليزية وسعرًا صالحًا.');
       return;
     }
     if (this.formProduct.discountPrice && (this.formProduct.discountPrice <= 0 || this.formProduct.discountPrice >= this.formProduct.basePrice)) {

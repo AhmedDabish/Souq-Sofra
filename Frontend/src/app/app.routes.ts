@@ -9,6 +9,7 @@ import { DashboardComponent } from './features/admin/pages/dashboard/dashboard.c
 import { AdminLoginComponent } from './features/admin/pages/login/admin-login.component';
 import { AdminOrdersComponent } from './features/admin/pages/orders/admin-orders.component';
 import { AdminProductsComponent } from './features/admin/pages/products/admin-products.component';
+import { AdminCategoriesComponent } from './features/admin/pages/categories/admin-categories.component';
 import { AdminSettingsComponent } from './features/admin/pages/settings/admin-settings.component';
 import { authGuard } from './core/guards/auth.guard';
 
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'admin', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'admin/orders', component: AdminOrdersComponent, canActivate: [authGuard] },
   { path: 'admin/products', component: AdminProductsComponent, canActivate: [authGuard] },
+  { path: 'admin/categories', component: AdminCategoriesComponent, canActivate: [authGuard] },
   { path: 'admin/settings', component: AdminSettingsComponent, canActivate: [authGuard] },
 
   // Fallback

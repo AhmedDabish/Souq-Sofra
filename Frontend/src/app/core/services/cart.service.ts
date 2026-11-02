@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { CartItem, Product, ProductVariant } from '../models/models';
+import { CartItem, Product, ProductAddon, ProductVariant } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class CartService {
     this.itemsSignal().reduce((sum, item) => sum + item.quantity, 0)
   );
 
-  addItem(product: Product, variant?: ProductVariant, quantity: number = 1, specialInstructions?: string) {
+  addItem(product: Product, variant?: ProductVariant, quantity: number = 1, specialInstructions?: string, addons: ProductAddon[] = []) {
     const current = [...this.itemsSignal()];
     const hasDiscount = !!product.discountPrice && product.discountPrice > 0 && product.discountPrice < product.basePrice;
     const price = variant
@@ -31,22 +31,25 @@ export class CartService {
           : variant.price)
       : (hasDiscount ? product.discountPrice! : product.basePrice);
     
-    const existingIndex = current.findIndex(i => 
+    const addonKey = addons.map(a => a.addonId).sort().join(',');
+    const existingIndex = current.findIndex(i =>
       i.product.productId === product.productId &&
       i.selectedVariant?.variantId === variant?.variantId &&
-      i.specialInstructions === (specialInstructions || undefined)
+      i.specialInstructions === (specialInstructions || undefined) &&
+      i.selectedAddons.map(a => a.addonId).sort().join(',') === addonKey
     );
 
     if (existingIndex > -1) {
       current[existingIndex].quantity += quantity;
-      current[existingIndex].totalPrice = current[existingIndex].quantity * price;
+      current[existingIndex].totalPrice = current[existingIndex].quantity * (current[existingIndex].unitPrice + current[existingIndex].selectedAddons.reduce((sum, addon) => sum + addon.price, 0));
     } else {
       current.push({
         product,
         selectedVariant: variant,
+        selectedAddons: [...addons],
         quantity,
         unitPrice: price,
-        totalPrice: price * quantity,
+        totalPrice: (price + addons.reduce((sum, addon) => sum + addon.price, 0)) * quantity,
         specialInstructions: specialInstructions?.trim() || undefined
       });
     }
@@ -65,7 +68,7 @@ export class CartService {
       current.splice(index, 1);
     } else {
       current[index].quantity = newQty;
-      current[index].totalPrice = newQty * current[index].unitPrice;
+      current[index].totalPrice = newQty * (current[index].unitPrice + current[index].selectedAddons.reduce((sum, addon) => sum + addon.price, 0));
     }
     this.itemsSignal.set(current);
   }

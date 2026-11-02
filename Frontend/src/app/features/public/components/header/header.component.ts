@@ -1,9 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../../core/services/cart.service';
 import { LocationService } from '../../../../core/services/location.service';
+import { ApiService } from '../../../../core/services/api.service';
+import { LanguageService } from '../../../../core/services/language.service';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +28,7 @@ import { LocationService } from '../../../../core/services/location.service';
                     width="84" 
                     height="84" 
                     class="w-16 h-16 md:w-20 md:h-20 lg:w-22 lg:h-22 object-cover rounded-full border-2 border-secondary/60 shadow-sm transition-transform duration-200 hover:scale-105" 
-                    src="assets/MAIN.jpg">
+                    [src]="logoUrl()">
                 </div>
               </div>
             </a>
@@ -68,26 +70,25 @@ import { LocationService } from '../../../../core/services/location.service';
           <div class="hidden md:flex items-center gap-2 md:gap-3 shrink-0">
             <!-- Search Expandable Input -->
             <div class="hidden md:block">
-              <div class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 cursor-pointer h-[42px] w-[44px] focus-within:w-[220px] focus-within:px-2 justify-center group">
-                <input 
-                  aria-label="ابحث عن منتج..." 
-                  type="text" 
-                  placeholder="ابحث عن منتج..." 
-                  [(ngModel)]="searchQuery"
-                  (keyup.enter)="onSearch()"
-                  class="bg-transparent outline-none border-0 transition-all duration-300 ease-in-out text-sm w-0 px-0 opacity-0 focus:w-full focus:opacity-100 text-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-700 size-[20px] pointer-events-none" aria-hidden="true">
-                  <path d="m21 21-4.34-4.34"></path>
-                  <circle cx="11" cy="11" r="8"></circle>
-                </svg>
-              </div>
+              <form (ngSubmit)="onSearch()" class="relative transition-all duration-300 gray-bg hover:bg-gray-100 flex items-center rounded-[24px] border border-gray-200 h-[42px]" [class.w-[280px]]="searchOpen" [class.w-[44px]]="!searchOpen" [class.px-2]="searchOpen">
+                @if (searchOpen) {
+                  <input #productSearch autofocus aria-label="ابحث عن منتج..." type="search" placeholder="ابحث عن منتج..." [(ngModel)]="searchQuery" name="productSearch" class="min-w-0 flex-1 bg-transparent outline-none border-0 text-sm text-gray-800">
+                  @if (searchQuery) { <button type="button" (click)="searchQuery = ''; onSearch()" aria-label="مسح البحث" class="px-1 text-gray-400 hover:text-primary">×</button> }
+                }
+                <button [type]="searchOpen && searchQuery.trim() ? 'submit' : 'button'" (click)="!searchOpen || !searchQuery.trim() ? toggleSearch($event) : null" [attr.aria-label]="searchOpen && searchQuery.trim() ? 'تنفيذ البحث' : 'فتح البحث عن المنتجات'" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-700 hover:bg-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                </button>
+                @if (searchOpen && searchQuery.trim()) { <button type="submit" aria-label="تنفيذ البحث" class="absolute -bottom-10 left-0 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow">بحث عن المنتج</button> }
+              </form>
             </div>
 
             <!-- Language Button -->
             <button 
               type="button"
+              (click)="language.toggle()"
+              [attr.aria-label]="language.isEnglish() ? 'Switch to Arabic' : 'Switch to English'"
               class="lang-btn !font-bold cursor-pointer rtl:pt-1 gray-bg hidden md:flex items-center justify-center w-[44px] h-[42px] rounded-[24px] hover:bg-gray-100 transition-colors text-sm border border-gray-200">
-              EN
+              {{ language.isEnglish() ? 'عربي' : 'EN' }}
             </button>
 
             <!-- Cart Drawer Button -->
@@ -127,11 +128,15 @@ import { LocationService } from '../../../../core/services/location.service';
           <!-- Mobile Header (Visible on screens < md) -->
           <div class="md:hidden flex items-center justify-between w-full py-1.5">
             <a routerLink="/" class="shrink-0 flex items-center gap-2.5">
-              <img src="assets/MAIN.jpg" alt="سوق وسفرة" class="w-14 h-14 rounded-full object-cover border-2 border-secondary shadow-sm">
+              <img [src]="logoUrl()" alt="سوق وسفرة" class="w-14 h-14 rounded-full object-cover border-2 border-secondary shadow-sm">
               <span class="text-base font-extrabold font-baloo text-primaryDark">سوق وسفرة</span>
             </a>
 
             <div class="flex items-center gap-2">
+              <button type="button" (click)="language.toggle()" [attr.aria-label]="language.isEnglish() ? 'Switch to Arabic' : 'Switch to English'" class="h-[42px] rounded-full border border-gray-200 bg-white px-3 text-xs font-bold text-primaryDark">{{ language.isEnglish() ? 'عربي' : 'EN' }}</button>
+              <button type="button" (click)="toggleSearch($event)" aria-label="فتح البحث عن المنتجات" class="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </button>
               <button 
                 type="button"
                 (click)="openLocationModal()" 
@@ -158,6 +163,13 @@ import { LocationService } from '../../../../core/services/location.service';
               </a>
             </div>
           </div>
+          @if (searchOpen) {
+            <form (ngSubmit)="onSearch()" class="md:hidden flex items-center gap-2 pb-3">
+              <input [(ngModel)]="searchQuery" name="mobileProductSearch" type="search" autofocus placeholder="ابحث عن منتج..." aria-label="ابحث عن منتج" class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary">
+              @if (searchQuery.trim()) { <button type="submit" aria-label="تنفيذ البحث" class="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white">بحث</button> }
+              <button type="button" (click)="searchQuery = ''; onSearch()" aria-label="مسح البحث" class="rounded-xl bg-gray-100 px-3 py-2 text-lg text-gray-600">×</button>
+            </form>
+          }
 
         </div>
       </div>
@@ -551,9 +563,13 @@ import { LocationService } from '../../../../core/services/location.service';
 export class HeaderComponent implements OnInit {
   cart = inject(CartService);
   locationService = inject(LocationService);
+  private api = inject(ApiService);
+  logo = signal('assets/MAIN.jpg');
   private router = inject(Router);
+  language = inject(LanguageService);
 
   searchQuery = '';
+  searchOpen = false;
 
   // Modal State
   modalOrderType: 'delivery' | 'pickup' = 'delivery';
@@ -582,6 +598,14 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.syncFromService();
+    this.api.getSettings().subscribe({ next: settings => { this.logo.set(this.resolveImage(settings['StoreLogo'])); }, error: () => {} });
+  }
+
+  logoUrl() { return this.logo(); }
+  private resolveImage(url?: string) {
+    if (!url) return 'assets/MAIN.jpg';
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
   }
 
   private syncFromService() {
@@ -670,9 +694,21 @@ export class HeaderComponent implements OnInit {
     );
   }
 
-  onSearch() {
-    if (this.searchQuery && this.searchQuery.trim()) {
-      this.router.navigate(['/menu'], { queryParams: { search: this.searchQuery.trim() } });
+  toggleSearch(event?: Event) {
+    event?.stopPropagation();
+    if (!this.searchOpen) {
+      this.searchOpen = true;
+      setTimeout(() => document.querySelector<HTMLInputElement>('input[name="productSearch"]')?.focus(), 0);
+    } else if (this.searchQuery.trim()) {
+      this.onSearch();
+    } else {
+      this.searchOpen = false;
     }
+  }
+
+  onSearch() {
+    const query = this.searchQuery.trim();
+    this.router.navigate(['/menu'], { queryParams: { search: query || null } });
+    if (!query) this.searchOpen = false;
   }
 }

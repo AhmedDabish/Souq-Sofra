@@ -26,6 +26,17 @@ namespace SouqSofra.API.Controllers
             return Ok(categories);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/all")]
+        public async Task<IActionResult> GetAllForAdmin()
+        {
+            var categories = await _context.Categories
+                .OrderBy(c => c.DisplayOrder)
+                .Select(c => new CategoryDto(c.CategoryId, c.NameAr, c.NameEn, c.Slug, c.IconUrl, c.ImageUrl, c.DisplayOrder, c.IsActive))
+                .ToListAsync();
+            return Ok(categories);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -66,7 +77,7 @@ namespace SouqSofra.API.Controllers
 
             category.NameAr = dto.NameAr;
             category.NameEn = dto.NameEn;
-            category.Slug = dto.Slug.ToLower();
+            category.Slug = string.IsNullOrWhiteSpace(dto.Slug) ? Guid.NewGuid().ToString("N")[..8] : dto.Slug.Trim().ToLowerInvariant();
             category.IconUrl = dto.IconUrl;
             category.ImageUrl = dto.ImageUrl;
             category.DisplayOrder = dto.DisplayOrder;

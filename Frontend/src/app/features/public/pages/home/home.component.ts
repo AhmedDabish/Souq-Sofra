@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../../core/services/api.service';
+import { LanguageService } from '../../../../core/services/language.service';
 import { HeroSliderComponent } from '../../components/hero-slider/hero-slider.component';
 import { CategorySliderComponent } from '../../components/category-slider/category-slider.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -13,7 +14,7 @@ import { Category, Product } from '../../../../core/models/models';
   imports: [CommonModule, RouterLink, HeroSliderComponent, CategorySliderComponent, ProductCardComponent],
   template: `
     <app-hero-slider></app-hero-slider>
-    <app-category-slider [categories]="categories()" [selectedId]="selectedCategoryId()" (categorySelected)="onCategorySelect($event)"></app-category-slider>
+    <app-category-slider [isEnglish]="language.isEnglish()" [categories]="categories()" [selectedId]="selectedCategoryId()" (categorySelected)="onCategorySelect($event)"></app-category-slider>
 
     @if (featuredProducts().length > 0) {
       <section class="widget-container">
@@ -102,6 +103,7 @@ import { Category, Product } from '../../../../core/models/models';
 export class HomeComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
+  language = inject(LanguageService);
 
   categories = signal<Category[]>([]);
   selectedCategoryId = signal(0);
@@ -150,6 +152,13 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.api.getSettings().subscribe({ next: settings => {
+      this.promoBanners = [1, 2].map(index => {
+        const url = settings[`PromoBanner${index}`];
+        if (!url) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
+        return /^https?:\/\//i.test(url) || url.startsWith('assets/') ? url : `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+      });
+    }, error: () => {} });
     this.api.getCategories().subscribe(categories => this.categories.set(categories));
     this.api.getProducts().subscribe(products => this.products.set(products));
     this.api.getBestSellingProducts().subscribe({ next: products => this.bestSellingProducts.set(products), error: () => this.bestSellingProducts.set([]) });
