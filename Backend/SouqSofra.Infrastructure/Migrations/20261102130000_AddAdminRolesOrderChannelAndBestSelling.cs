@@ -6,8 +6,6 @@ using SouqSofra.Infrastructure.Data;
 
 namespace SouqSofra.Infrastructure.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20261102130000_AddAdminRolesOrderChannelAndBestSelling")]
     public partial class AddAdminRolesOrderChannelAndBestSelling : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
