@@ -45,7 +45,7 @@ import { LanguageService } from '../../../../core/services/language.service';
                   <img
                     [src]="imageUrl(item.product.imageUrl)"
                     [alt]="item.product.nameAr"
-                    class="h-24 w-full rounded-2xl bg-orange-50 object-cover sm:h-24 sm:w-28">
+                    class="aspect-[4/3] w-full shrink-0 rounded-2xl bg-orange-50 object-cover sm:w-36">
 
                   <div class="min-w-0 flex-1">
                     <h2 class="font-baloo text-lg font-extrabold text-primaryDark">{{ language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr }}</h2>
@@ -87,61 +87,89 @@ import { LanguageService } from '../../../../core/services/language.service';
               </div>
             </div>
 
-            <aside class="rounded-3xl border border-orange-100 bg-white p-5 shadow-sm lg:sticky lg:top-28 lg:col-span-4 sm:p-6">
-              <h2 class="font-baloo text-xl font-extrabold text-primaryDark">ملخص الطلب</h2>
-              <div class="mt-5 space-y-4 text-sm">
-                <div class="flex justify-between text-gray-500"><span>عدد المنتجات</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
-                <div class="flex justify-between text-gray-500"><span>المجموع الفرعي</span><span>{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
-                <div class="flex justify-between text-gray-500"><span>{{ deliveryType() === 'delivery' ? 'رسوم التوصيل' : 'رسوم الاستلام' }}</span><span>{{ deliveryType() === 'delivery' ? cart.deliveryFee() : 0 }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
-                <div class="border-t border-dashed border-gray-200 pt-4">
-                  <div class="flex justify-between text-base font-black text-primaryDark"><span>الإجمالي</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+            <aside class="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-white shadow-[0_20px_55px_-35px_rgba(104,55,18,.5)] lg:sticky lg:top-28 lg:col-span-4">
+              <div class="bg-gradient-to-l from-[#fff0dc] via-[#fff8ef] to-white px-5 py-5 sm:px-6">
+                <div class="flex items-center gap-3">
+                  <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm" aria-hidden="true">🧾</span>
+                  <div>
+                    <p class="text-[11px] font-bold tracking-wide text-primary">راجع طلبك</p>
+                    <h2 class="mt-0.5 font-baloo text-xl font-extrabold text-primaryDark">ملخص الطلب</h2>
+                  </div>
                 </div>
               </div>
-              <div class="mt-5 space-y-4 border-t border-orange-100 pt-5">
-                <h3 class="font-bold text-sm text-primaryDark">طريقة الاستلام</h3>
-                <div class="grid grid-cols-2 gap-2">
-                  <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" class="rounded-xl border-2 border-gray-200 p-3 text-xs font-bold text-gray-700">🚚 توصيل</button>
-                  <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" class="rounded-xl border-2 border-gray-200 p-3 text-xs font-bold text-gray-700">🏪 استلام من الفرع</button>
+              <div class="space-y-5 p-5 sm:p-6">
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between text-gray-500"><span>عدد المنتجات</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
+                  <div class="flex justify-between text-gray-500"><span>المجموع الفرعي</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="flex justify-between text-gray-500"><span>رسوم التوصيل</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' درهم') : '—' }}</span></div>
+                  <div class="flex items-center justify-between border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>الإجمالي</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                 </div>
-                <label class="block text-xs font-bold text-gray-700">اسم العميل *
-                  <input [(ngModel)]="customerName" name="orderCustomerName" required autocomplete="name" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" placeholder="الاسم الكامل">
-                </label>
-                <label class="block text-xs font-bold text-gray-700">رقم الهاتف *
-                  <input [(ngModel)]="customerPhone" name="orderCustomerPhone" required autocomplete="tel" type="tel" dir="ltr" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-left" placeholder="05xxxxxxxx">
-                </label>
-                @if (deliveryType() === 'delivery') {
-                  <label class="block text-xs font-bold text-gray-700">الإمارة *
-                    <select [(ngModel)]="selectedEmirate" name="deliveryEmirate" (ngModelChange)="onEmirateChange()" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm">
-                      <option value="">اختر الإمارة</option>
-                      @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ emirate }}</option> }
-                    </select>
-                  </label>
-                  <label class="block text-xs font-bold text-gray-700">المنطقة *
-                    <select [(ngModel)]="selectedZoneId" name="deliveryZone" (ngModelChange)="onZoneChange()" [disabled]="!selectedEmirate" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm disabled:bg-gray-100">
-                      <option value="">اختر المنطقة</option>
-                      @for (zone of emirateZones(); track zone.id) { <option [value]="zone.id" [disabled]="!zone.enabled">{{ zone.name }} — {{ zone.enabled ? zone.fee + ' درهم' : 'غير متاحة' }}</option> }
-                    </select>
-                    @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">لا يوجد توصيل متاح حالياً في هذه الإمارة.</span> }
-                  </label>
-                  @if (selectedZone()) {
-                    <label class="block text-xs font-bold text-gray-700">تفاصيل العنوان (شارع، مبنى، شقة) *
-                      <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" placeholder="اكتب تفاصيل الوصول"></textarea>
+
+                <div class="border-t border-orange-100 pt-5">
+                  <div class="mb-3 flex items-center justify-between gap-2">
+                    <h3 class="text-sm font-extrabold text-primaryDark">طريقة الاستلام</h3>
+                    @if (!deliveryType()) { <span class="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">مطلوب الاختيار</span> }
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
+                      <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🚚</span>
+                      <span class="block text-xs font-extrabold">توصيل للعنوان</span>
+                      <span class="mt-1 block text-[10px] text-gray-500">حسب المنطقة</span>
+                    </button>
+                    <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
+                      <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🏪</span>
+                      <span class="block text-xs font-extrabold">استلام من الفرع</span>
+                      <span class="mt-1 block text-[10px] text-gray-500">بدون رسوم توصيل</span>
+                    </button>
+                  </div>
+                </div>
+
+                @if (!deliveryType()) {
+                  <p class="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">اختار طريقة الاستلام أولاً علشان تظهر بيانات إكمال الطلب.</p>
+                } @else {
+                  <div class="space-y-4 border-t border-orange-100 pt-5">
+                    <label class="block text-xs font-bold text-gray-700">اسم العميل *
+                      <input [(ngModel)]="customerName" name="orderCustomerName" required autocomplete="name" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="الاسم الكامل">
                     </label>
-                    <div class="space-y-2"><p class="text-xs font-bold text-gray-700">حدد موقعك على الخريطة *</p>
-                      <app-delivery-map [latitude]="latitude()" [longitude]="longitude()" (locationChange)="setMapLocation($event)" />
-                      <p class="text-[11px] text-gray-500">اضغط على الخريطة أو اسحب الدبوس لمكان التوصيل. رسوم هذه المنطقة: {{ selectedZone()?.fee }} درهم.</p>
-                      @if (latitude() !== null) { <p class="text-[11px] text-green-700">تم تحديد الموقع: {{ latitude() | number:'1.5-5' }}, {{ longitude() | number:'1.5-5' }}</p> }
-                    </div>
-                  }
+                    <label class="block text-xs font-bold text-gray-700">رقم الهاتف *
+                      <input [(ngModel)]="customerPhone" name="orderCustomerPhone" required autocomplete="tel" type="tel" dir="ltr" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-left text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="05xxxxxxxx">
+                    </label>
+                    @if (deliveryType() === 'delivery') {
+                      <label class="block text-xs font-bold text-gray-700">الإمارة *
+                        <select [(ngModel)]="selectedEmirate" name="deliveryEmirate" (ngModelChange)="onEmirateChange()" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10">
+                          <option value="">اختر الإمارة</option>
+                          @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ emirate }}</option> }
+                        </select>
+                      </label>
+                      <label class="block text-xs font-bold text-gray-700">المنطقة *
+                        <select [(ngModel)]="selectedZoneId" name="deliveryZone" (ngModelChange)="onZoneChange()" [disabled]="!selectedEmirate" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:bg-gray-100">
+                          <option value="">اختر المنطقة</option>
+                          @for (zone of emirateZones(); track zone.id) { <option [value]="zone.id" [disabled]="!zone.enabled">{{ zone.name }} — {{ zone.enabled ? zone.fee + ' درهم' : 'غير متاحة' }}</option> }
+                        </select>
+                        @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">لا يوجد توصيل متاح حالياً في هذه الإمارة.</span> }
+                      </label>
+                      @if (selectedZone()) {
+                        <label class="block text-xs font-bold text-gray-700">تفاصيل العنوان (شارع، مبنى، شقة) *
+                          <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="اكتب تفاصيل الوصول"></textarea>
+                        </label>
+                        <div class="space-y-2">
+                          <p class="text-xs font-bold text-gray-700">حدد موقعك على الخريطة *</p>
+                          <app-delivery-map [latitude]="latitude()" [longitude]="longitude()" (locationChange)="setMapLocation($event)" />
+                          <p class="text-[11px] text-gray-500">اضغط على الخريطة أو اسحب الدبوس لمكان التوصيل. رسوم هذه المنطقة: {{ selectedZone()?.fee }} درهم.</p>
+                          @if (latitude() !== null) { <p class="text-[11px] text-green-700">تم تحديد الموقع: {{ latitude() | number:'1.5-5' }}, {{ longitude() | number:'1.5-5' }}</p> }
+                        </div>
+                      }
+                    }
+                    <label class="block text-xs font-bold text-gray-700">ملاحظات إضافية <span class="font-normal text-gray-400">(اختياري)</span>
+                      <textarea [(ngModel)]="customerNotes" name="orderNotes" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" placeholder="أي تفاصيل تحب تضيفها"></textarea>
+                    </label>
+                    <p class="rounded-2xl border border-green-100 bg-green-50 p-3 text-[11px] leading-5 text-green-800">الدفع نقداً عند الاستلام أو الاستلام من الفرع. بعد حفظ الطلب هيفتح واتساب برسالة الطلب الجاهزة.</p>
+                    @if (errorMessage()) { <p role="alert" class="rounded-xl bg-red-50 p-3 text-xs text-red-700">{{ errorMessage() }}</p> }
+                    <button type="button" (click)="buyNow()" [disabled]="isSubmitting()" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-green-700/15 transition hover:-translate-y-0.5 hover:bg-green-700 active:translate-y-0 disabled:cursor-wait disabled:opacity-50">
+                      <span aria-hidden="true">☘</span>{{ isSubmitting() ? 'جارٍ تجهيز الطلب…' : 'تأكيد الطلب عبر واتساب' }}
+                    </button>
+                  </div>
                 }
-                <label class="block text-xs font-bold text-gray-700">ملاحظات إضافية
-                  <textarea [(ngModel)]="customerNotes" name="orderNotes" rows="2" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm" placeholder="اختياري"></textarea>
-                </label>
-                <p class="rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-800">الدفع نقداً عند الاستلام أو الاستلام من الفرع. بعد حفظ الطلب سيفتح واتساب برسالة الطلب الجاهزة.</p>
-                @if (errorMessage()) { <p role="alert" class="rounded-xl bg-red-50 p-3 text-xs text-red-700">{{ errorMessage() }}</p> }
-                <button type="button" (click)="buyNow()" [disabled]="isSubmitting()" class="flex w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-green-700 active:scale-[.98] disabled:opacity-50">
-                  {{ isSubmitting() ? 'جارٍ تجهيز الطلب…' : 'اشتري الآن وأرسل عبر واتساب' }}
-                </button>
               </div>
             </aside>
           </div>
@@ -161,7 +189,7 @@ export class CartPageComponent implements OnInit {
   emirateZones = computed(() => this.zones().filter(zone => zone.emirate === this.selectedEmirate));
   availableZones = computed(() => this.emirateZones().filter(zone => zone.enabled));
   selectedZone = computed(() => this.availableZones().find(zone => zone.id === this.selectedZoneId) ?? null);
-  deliveryType = signal<'delivery' | 'pickup'>('delivery');
+  deliveryType = signal<'delivery' | 'pickup' | null>(null);
   isSubmitting = signal(false);
   errorMessage = signal('');
   latitude = signal<number | null>(null);
@@ -207,12 +235,14 @@ export class CartPageComponent implements OnInit {
   }
 
   buyNow() {
+    const deliveryType = this.deliveryType();
     const name = this.customerName.trim();
     const phone = this.customerPhone.trim();
     const zone = this.selectedZone();
+    if (!deliveryType) { this.errorMessage.set('اختار توصيل أو استلام من الفرع أولاً.'); return; }
     if (!name || !phone) { this.errorMessage.set('اكتب اسم العميل ورقم الهاتف أولاً.'); return; }
     if (!this.cart.items().length) { this.errorMessage.set('السلة فارغة.'); return; }
-    if (this.deliveryType() === 'delivery' && (!zone || !this.addressDetails.trim() || this.latitude() === null || this.longitude() === null)) {
+    if (deliveryType === 'delivery' && (!zone || !this.addressDetails.trim() || this.latitude() === null || this.longitude() === null)) {
       this.errorMessage.set('اختر منطقة توصيل متاحة، واكتب تفاصيل العنوان وحدد موقعك على الخريطة.'); return;
     }
 
@@ -232,13 +262,13 @@ export class CartPageComponent implements OnInit {
       unitPrice: item.unitPrice,
       addonIds: item.selectedAddons.map(addon => addon.addonId!).filter(Boolean)
     }));
-    const address = this.deliveryType() === 'pickup' ? 'استلام من الفرع' : this.addressDetails.trim();
+    const address = deliveryType === 'pickup' ? 'استلام من الفرع' : this.addressDetails.trim();
     this.api.createOrder({
       customerName: name,
       customerPhone: phone,
       deliveryAddress: address,
       branchId: 1,
-      deliveryType: this.deliveryType(),
+      deliveryType,
       deliveryZoneId: zone?.id,
       deliveryLatitude: this.latitude() ?? undefined,
       deliveryLongitude: this.longitude() ?? undefined,
@@ -253,7 +283,7 @@ export class CartPageComponent implements OnInit {
           const notes = item.instructions ? `\n  ملاحظة: ${item.instructions}` : '';
           return `• ${item.name}${item.variant ? ` - ${item.variant}` : ''} × ${item.quantity} | ${item.totalPrice} درهم${addons ? `\n  الإضافات: ${addons}` : ''}${notes}`;
         });
-        const fulfillment = this.deliveryType() === 'pickup'
+        const fulfillment = deliveryType === 'pickup'
           ? 'طريقة الاستلام: استلام من الفرع'
           : `طريقة الاستلام: توصيل\nالإمارة والمنطقة: ${zone!.emirate} - ${zone!.name}\nالعنوان: ${address}\nالموقع على الخريطة: ${this.latitude()}, ${this.longitude()}\nرسوم التوصيل: ${zone!.fee} درهم`;
         const message = [

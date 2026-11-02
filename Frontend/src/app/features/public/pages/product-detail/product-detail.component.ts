@@ -21,16 +21,16 @@ import { ProductCardComponent } from '../../components/product-card/product-card
           <span class="max-w-[60vw] truncate font-semibold text-primaryDark">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</span>
         </nav>
 
-        <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8 xl:gap-10">
+        <div class="grid items-start gap-5 lg:grid-cols-2 lg:gap-8 xl:gap-10">
           <section class="min-w-0">
-            <div class="group relative mx-auto aspect-[4/3] w-full max-w-[420px] overflow-hidden rounded-2xl border border-gray-100 bg-[#fff7ec] shadow-sm md:rounded-3xl">
-              <img [src]="imageUrl(item.imageUrl)" [alt]="item.nameAr" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]">
+            <div class="group relative mx-auto aspect-[4/3] w-full max-w-[540px] overflow-hidden rounded-[2rem] border border-orange-100 bg-gradient-to-br from-[#fff8ee] to-white p-2 shadow-[0_20px_60px_-32px_rgba(114,61,22,.35)]">
+              <img [src]="imageUrl(item.imageUrl)" [alt]="item.nameAr" class="h-full w-full rounded-[1.5rem] object-cover transition-transform duration-500 group-hover:scale-[1.03]">
               @if (discountPercent()) { <span class="absolute right-4 top-4 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-md">خصم {{ discountPercent() }}%</span> }
               @if (!item.isAvailable) { <span class="absolute bottom-4 right-4 rounded-full bg-gray-900/75 px-3 py-1.5 text-xs font-bold text-white">غير متاح حالياً</span> }
             </div>
           </section>
 
-          <section class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:rounded-3xl md:p-7 lg:p-8">
+          <section class="rounded-[2rem] border border-orange-100 bg-white p-4 shadow-[0_18px_50px_-36px_rgba(114,61,22,.45)] md:p-7 lg:p-8">
             <div class="mb-4 flex flex-wrap items-center gap-2">
               @if (item.isAvailable) { <span class="inline-flex items-center gap-1.5 rounded-full border border-green-100 bg-green-50 px-3 py-1 text-xs font-semibold text-green-700"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>متوفر الآن</span> }
               @else { <span class="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">غير متاح حالياً</span> }
