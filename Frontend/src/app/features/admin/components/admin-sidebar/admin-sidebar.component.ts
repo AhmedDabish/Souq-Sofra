@@ -6,50 +6,93 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   selector: 'app-admin-sidebar', standalone: true, imports: [CommonModule, RouterModule],
   template: `
-    @if (mobileOpen()) { <button class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden" aria-label="إغلاق القائمة" (click)="mobileOpen.set(false)"></button> }
-    <button type="button" class="fixed right-4 top-4 z-[60] flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-[#42150f] text-xl text-amber-100 shadow-xl transition hover:bg-[#6a2415] focus:outline-none focus:ring-4 focus:ring-amber-400/40 lg:hidden" (click)="toggleMobile()" [attr.aria-label]="mobileOpen() ? 'إغلاق القائمة' : 'فتح القائمة'" [attr.aria-expanded]="mobileOpen()">{{ mobileOpen() ? '×' : '☰' }}</button>
-    <button type="button" class="fixed top-4 z-[60] hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#681c0f]/10 bg-white text-xl text-[#681c0f] shadow-lg transition hover:bg-orange-50 focus:outline-none focus:ring-4 focus:ring-orange-200 lg:flex" (click)="toggleCollapsed()" [style.right]="collapsed() ? '0.65rem' : '12.25rem'" [attr.aria-label]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'" [attr.title]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'">{{ collapsed() ? '☰' : '‹' }}</button>
-    <aside [style.width]="collapsed() ? '5rem' : '16rem'" [class.sidebar-mobile-open]="mobileOpen()" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-gradient-to-b from-[#39130e] via-[#521a10] to-[#26100c] text-white shadow-2xl transition-[width,transform] duration-300 ease-out translate-x-full lg:translate-x-0">
-      <div class="relative flex h-24 shrink-0 items-center gap-3 border-b border-white/10 px-4">
-        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-amber-300 via-orange-400 to-transparent"></div>
-        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200/20 bg-white/10 text-2xl shadow-inner">🍽️</div>
-        @if (!collapsed()) { <div class="min-w-0"><h2 class="font-baloo text-base font-black tracking-wide text-amber-100">سوق وسفرة</h2><p class="mt-0.5 text-[11px] text-white/50">إدارة المتجر باحتراف</p></div> }
+    @if (mobileOpen()) {
+      <button class="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-sm lg:hidden" aria-label="إغلاق القائمة" (click)="mobileOpen.set(false)"></button>
+    }
+
+    <button type="button" class="fixed right-4 top-4 z-[70] flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-[#42150f] text-amber-100 shadow-xl transition hover:bg-[#6a2415] focus:outline-none focus:ring-4 focus:ring-amber-400/40 lg:hidden" (click)="toggleMobile()" [attr.aria-label]="mobileOpen() ? 'إغلاق القائمة' : 'فتح القائمة'" [attr.aria-expanded]="mobileOpen()">
+      @if (mobileOpen()) {
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg>
+      } @else {
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      }
+    </button>
+
+    <button type="button" class="admin-sidebar-toggle fixed top-5 z-[70] hidden h-10 w-10 items-center justify-center rounded-xl border border-[#681c0f]/10 bg-white text-[#681c0f] shadow-md transition hover:bg-orange-50 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-200 lg:flex" (click)="toggleCollapsed()" [style.right]="collapsed() ? '4.25rem' : '17.25rem'" [attr.aria-label]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'" [attr.title]="collapsed() ? 'فتح القائمة الجانبية' : 'طي القائمة الجانبية'">
+      <svg viewBox="0 0 24 24" class="h-5 w-5 transition-transform" [class.rotate-180]="!collapsed()" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg>
+    </button>
+
+    <aside [style.width]="collapsed() ? '5rem' : '18rem'" [class.sidebar-mobile-open]="mobileOpen()" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-[#32120e] text-white shadow-[0_20px_70px_rgba(36,12,8,.32)] transition-[width,transform] duration-300 ease-out translate-x-full lg:translate-x-0">
+      <div class="sidebar-brand relative flex h-[6.25rem] shrink-0 items-center gap-3 border-b border-white/[.08] px-4">
+        <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l from-amber-300 via-orange-400 to-transparent"></div>
+        <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-[0_5px_22px_rgba(247,176,77,.18)] ring-1 ring-amber-200/30">
+          <img src="assets/favicon.png" alt="شعار مطعم سوق وسفرة" class="h-full w-full object-contain" />
+        </div>
+        @if (!collapsed()) {
+          <div class="min-w-0"><h2 class="font-baloo text-lg font-black tracking-wide text-amber-100">سوق وسفرة</h2><p class="mt-0.5 text-[11px] tracking-wide text-orange-100/55">لوحة إدارة المطعم</p></div>
+        }
       </div>
-      @if (!collapsed()) { <div class="px-4 pb-2 pt-5 text-[10px] font-bold tracking-[.18em] text-amber-100/40">القائمة الرئيسية</div> }
-      <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-3 [scrollbar-color:#ffffff30_transparent] [scrollbar-width:thin]">
+
+      @if (!collapsed()) { <div class="px-5 pb-1 pt-5 text-[10px] font-extrabold tracking-[.16em] text-orange-100/45">القائمة الرئيسية</div> }
+      <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-3 [scrollbar-color:#ffffff28_transparent] [scrollbar-width:thin]">
         @for (item of visibleItems(); track item.path) {
-          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" (click)="mobileOpen.set(false)" [title]="collapsed() ? item.label : ''" class="group flex min-h-12 items-center gap-3 rounded-2xl px-3 text-sm font-semibold text-white/65 transition duration-200 hover:translate-x-[-2px] hover:bg-white/[.08] hover:text-white">
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[.06] text-lg text-amber-100/80 transition group-hover:bg-amber-300/10">{{item.icon}}</span>
-            @if (!collapsed()) { <span class="truncate">{{item.label}}</span><span class="mr-auto h-1.5 w-1.5 rounded-full bg-transparent group-[.admin-nav-active]:bg-white"></span> }
+          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" (click)="mobileOpen.set(false)" [title]="collapsed() ? item.label : ''" class="admin-nav-link group relative flex min-h-[3.15rem] items-center gap-3 rounded-xl px-3 text-[13px] font-semibold text-white/65 transition duration-200 hover:bg-white/[.07] hover:text-white">
+            <span class="admin-nav-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[.055] text-amber-100/75 transition duration-200 group-hover:bg-amber-300/10 group-hover:text-amber-100">
+              <svg viewBox="0 0 24 24" class="h-[19px] w-[19px]" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                @switch (item.icon) {
+                  @case ('dashboard') { <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/> }
+                  @case ('orders') { <path d="M8 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m8 13 2.2 2.2L16 9.5"/> }
+                  @case ('products') { <path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="M3 8v8l9 5 9-5V8M12 13v8M7.5 5.5l9 5"/> }
+                  @case ('categories') { <path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/> }
+                  @case ('addons') { <path d="M12 3v18M3 12h18"/><path d="M19 5v4M17 7h4M5 17v4M3 19h4"/> }
+                  @case ('settings') { <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z" transform="translate(0 1) scale(.92) translate(1 0)"/> }
+                  @case ('staff') { <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/> }
+                }
+              </svg>
+            </span>
+            @if (!collapsed()) { <span class="truncate">{{item.label}}</span><span class="mr-auto h-1.5 w-1.5 rounded-full bg-transparent transition group-[.admin-nav-active]:bg-amber-200"></span> }
           </a>
         }
       </nav>
-      <div class="shrink-0 border-t border-white/10 bg-black/10 p-3">
-        @if (!collapsed()) { <div class="mb-3 flex items-center gap-3 rounded-2xl border border-white/[.06] bg-white/[.04] p-3"><div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-orange-500 font-black text-[#48170f] shadow">{{ initials() }}</div><div class="min-w-0"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || 'مستخدم لوحة التحكم'}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div></div> }
-        <div class="flex items-center gap-2"><a routerLink="/" class="flex min-h-10 flex-1 items-center gap-2 rounded-xl px-3 text-xs text-white/65 transition hover:bg-white/[.08] hover:text-white" [title]="collapsed() ? 'المتجر العام' : ''"><span>🏠</span>@if (!collapsed()) { <span>المتجر</span> }</a><button type="button" (click)="logout()" class="flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-rose-200/80 transition hover:bg-rose-400/10 hover:text-rose-100" [title]="collapsed() ? 'تسجيل الخروج' : ''"><span>↪</span>@if (!collapsed()) { <span>خروج</span> }</button></div>
+
+      <div class="shrink-0 border-t border-white/[.08] bg-black/[.12] p-3">
+        @if (!collapsed()) {
+          <div class="mb-3 flex items-center gap-3 rounded-xl border border-white/[.07] bg-white/[.045] p-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-200 to-orange-400 font-black text-[#48170f] shadow">{{ initials() }}</div>
+            <div class="min-w-0"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || 'مستخدم لوحة التحكم'}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div>
+          </div>
+        }
+        <div class="flex items-center gap-2">
+          <a routerLink="/" class="flex min-h-10 flex-1 items-center gap-2 rounded-xl px-3 text-xs text-white/65 transition hover:bg-white/[.07] hover:text-white" [title]="collapsed() ? 'المتجر العام' : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg>@if (!collapsed()) { <span>المتجر</span> }</a>
+          <button type="button" (click)="logout()" class="flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-rose-200/75 transition hover:bg-rose-400/10 hover:text-rose-100" [title]="collapsed() ? 'تسجيل الخروج' : ''"><svg viewBox="0 0 24 24" class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>@if (!collapsed()) { <span>خروج</span> }</button>
+        </div>
       </div>
     </aside>
   `,
-  styles: [`:host{display:contents}.admin-sidebar.sidebar-mobile-open{transform:translateX(0)}.admin-nav-active{background:linear-gradient(110deg,#f47621,#db5b12);color:#fff;box-shadow:0 8px 24px #f4762130}.admin-nav-active span:first-child{background:#ffffff25;color:#fff}`]
+  styles: [`
+    :host{display:contents}
+    .admin-sidebar.sidebar-mobile-open{transform:translateX(0)}
+    .admin-nav-active{background:linear-gradient(105deg,rgba(230,104,33,.98),rgba(196,72,23,.98));color:#fff;box-shadow:0 7px 20px rgba(230,104,33,.20)}
+    .admin-nav-active .admin-nav-icon{background:rgba(255,255,255,.16);color:#fff}
+  `]
 })
 export class AdminSidebarComponent {
   auth = inject(AuthService); private router = inject(Router);
   collapsed = signal(localStorage.getItem('souq_admin_sidebar_collapsed') === 'true');
   mobileOpen = signal(false);
   private items = [
-    { path:'/admin', label:'لوحة المؤشرات', icon:'▦', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/orders', label:'إدارة الطلبات', icon:'▤', roles:['User','Admin','SuperAdmin'] },
-    { path:'/admin/products', label:'المنتجات والمنيو', icon:'🍽️', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/categories', label:'أقسام المنيو', icon:'◈', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/addons', label:'المنتجات الإضافية', icon:'✦', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/settings', label:'إعدادات المتجر', icon:'⚙', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', icon:'♙', roles:['Admin','SuperAdmin'] },
+    { path:'/admin', label:'لوحة المؤشرات', icon:'dashboard', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/orders', label:'إدارة الطلبات', icon:'orders', roles:['User','Admin','SuperAdmin'] },
+    { path:'/admin/products', label:'المنتجات والمنيو', icon:'products', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/categories', label:'أقسام المنيو', icon:'categories', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/addons', label:'المنتجات الإضافية', icon:'addons', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/settings', label:'إعدادات المتجر', icon:'settings', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', icon:'staff', roles:['Admin','SuperAdmin'] },
   ];
   visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.roles.includes(role)); }
   roleLabel() { return ({User:'موظف الطلبات',Admin:'مدير',SuperAdmin:'مدير عام'} as Record<string,string>)[this.auth.currentUser()?.role || ''] || 'حساب'; }
   initials() { return (this.auth.currentUser()?.fullName || 'م').trim().slice(0,1); }
   toggleCollapsed() { this.collapsed.update(value => !value); localStorage.setItem('souq_admin_sidebar_collapsed',String(this.collapsed())); }
-  openSidebar() { this.collapsed.set(false); localStorage.setItem('souq_admin_sidebar_collapsed','false'); }
   toggleMobile() { this.mobileOpen.update(value => !value); }
   logout() { if (confirm('هل أنت متأكد من تسجيل الخروج؟')) this.auth.logout(); }
 }
