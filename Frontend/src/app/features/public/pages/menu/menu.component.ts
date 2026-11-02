@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -48,8 +48,18 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
         </app-category-slider>
       </div>
 
+      <!-- Products from across the menu categories -->
+      <section class="space-y-4 pt-2">
+        <div class="flex items-end justify-between gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-extrabold font-baloo text-primaryDark">{{ language.t('المنتجات', 'Products') }}</h2>
+            <p class="mt-1 text-xs text-gray-500">{{ language.t('تشكيلة من أصناف أقسام المنيو المختلفة', 'A selection from different menu categories') }}</p>
+          </div>
+          <span class="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primaryDark">{{ filteredProducts().length }} {{ language.isEnglish() ? 'items' : 'صنف' }}</span>
+        </div>
+
       <!-- Active Filter Status Indicator -->
-      <div class="flex items-center justify-between text-xs text-gray-500 pt-2">
+      <div class="flex items-center justify-between text-xs text-gray-500">
         <div>
           <span>{{ language.isEnglish() ? 'Showing items in:' : 'عرض الأصناف لـ: ' }}</span>
           <strong class="text-primaryDark text-sm font-extrabold">
@@ -77,11 +87,19 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
         </div>
       } @else {
         <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
-          @for (prod of filteredProducts(); track prod.productId) {
+          @for (prod of displayedProducts(); track prod.productId) {
             <app-product-card [product]="prod" layout="menu"></app-product-card>
           }
         </div>
+        @if (canExpandProducts()) {
+          <div class="flex justify-center pt-2">
+            <button type="button" (click)="toggleAllProducts()" class="rounded-full bg-primary px-7 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primaryHover focus:outline-none focus:ring-2 focus:ring-primary/30">
+              {{ showAllProducts() ? language.t('عرض أقل', 'Show less') : language.t('عرض الكل', 'View all') }}
+            </button>
+          </div>
+        }
       }
+      </section>
 
     </div>
   `
@@ -96,6 +114,14 @@ export class MenuComponent implements OnInit {
   selectedCategoryId = signal<number | null>(null);
   language = inject(LanguageService);
   searchQuery = signal('');
+  showAllProducts = signal(false);
+  private viewportWidth = signal(typeof window === 'undefined' ? 1280 : window.innerWidth);
+  private previewProductLimit = computed(() => {
+    const width = this.viewportWidth();
+    const columns = width >= 1536 ? 3 : width >= 640 ? 2 : 1;
+    return columns * 4;
+  });
+  private hasActiveProductFilter = computed(() => this.selectedCategoryId() !== null || !!this.searchQuery().trim());
 
   activeCategoryName = computed(() => {
     const id = this.selectedCategoryId();
@@ -117,10 +143,49 @@ export class MenuComponent implements OnInit {
     return list;
   });
 
+  mixedCategoryProducts = computed(() => {
+    const products = this.filteredProducts();
+    if (this.selectedCategoryId() !== null || this.searchQuery().trim()) return products;
+
+    const byCategory = new Map<number, Product[]>();
+    for (const product of products) {
+      const categoryProducts = byCategory.get(product.categoryId) ?? [];
+      categoryProducts.push(product);
+      byCategory.set(product.categoryId, categoryProducts);
+    }
+
+    const mixed: Product[] = [];
+    const groups = [...byCategory.values()];
+    const longestCategory = Math.max(0, ...groups.map(group => group.length));
+    for (let productIndex = 0; productIndex < longestCategory; productIndex++) {
+      for (const group of groups) {
+        if (group[productIndex]) mixed.push(group[productIndex]);
+      }
+    }
+    return mixed;
+  });
+
+  displayedProducts = computed(() => {
+    const products = this.mixedCategoryProducts();
+    return !this.hasActiveProductFilter() && !this.showAllProducts()
+      ? products.slice(0, this.previewProductLimit())
+      : products;
+  });
+
+  canExpandProducts = computed(() =>
+    !this.hasActiveProductFilter() && this.mixedCategoryProducts().length > this.previewProductLimit()
+  );
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.viewportWidth.set(window.innerWidth);
+  }
+
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.searchQuery.set(params['search'] || '');
-      if (params['categoryId']) this.selectedCategoryId.set(Number(params['categoryId']));
+      this.selectedCategoryId.set(params['categoryId'] ? Number(params['categoryId']) : null);
+      this.showAllProducts.set(false);
     });
     this.api.getCategories().subscribe(c => this.categories.set(c));
     this.api.getProducts().subscribe(p => this.products.set(p));
@@ -137,5 +202,10 @@ export class MenuComponent implements OnInit {
 
   onCategorySelect(categoryId: number) {
     this.selectedCategoryId.set(categoryId === 0 ? null : categoryId);
+    this.showAllProducts.set(false);
+  }
+
+  toggleAllProducts() {
+    this.showAllProducts.update(value => !value);
   }
 }
