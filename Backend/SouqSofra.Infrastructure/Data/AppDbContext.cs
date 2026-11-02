@@ -10,6 +10,8 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+        public DbSet<ProductAddon> ProductAddons => Set<ProductAddon>();
+        public DbSet<OrderItemAddon> OrderItemAddons => Set<OrderItemAddon>();
         public DbSet<Branch> Branches => Set<Branch>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
@@ -68,6 +70,21 @@ namespace SouqSofra.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(v => v.ProductId);
+            });
+
+            // Product add-ons are priced and validated by the server.
+            modelBuilder.Entity<ProductAddon>(entity =>
+            {
+                entity.ToTable("ProductAddons");
+                entity.HasKey(a => a.AddonId);
+                entity.Property(a => a.NameAr).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.NameEn).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.Price).HasPrecision(18, 2);
+                entity.HasOne(a => a.Product)
+                      .WithMany(p => p.Addons)
+                      .HasForeignKey(a => a.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(a => a.ProductId);
             });
 
             // Branch configuration
@@ -135,6 +152,20 @@ namespace SouqSofra.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(oi => oi.VariantId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<OrderItemAddon>(entity =>
+            {
+                entity.ToTable("OrderItemAddons");
+                entity.HasKey(a => a.OrderItemAddonId);
+                entity.Property(a => a.NameAr).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.NameEn).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.Price).HasPrecision(18, 2);
+                entity.HasOne(a => a.OrderItem)
+                      .WithMany(item => item.Addons)
+                      .HasForeignKey(a => a.OrderItemId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(a => a.OrderItemId);
             });
 
             // User configuration

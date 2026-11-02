@@ -38,6 +38,10 @@ namespace SouqSofra.Application.DTOs
         bool IsDefault
     );
 
+    public record ProductAddonDto(int AddonId, string NameAr, string NameEn, decimal Price);
+
+    public record ProductAddonCreateDto(string NameAr, string NameEn, decimal Price);
+
     public record ProductDto(
         int ProductId, 
         int CategoryId, 
@@ -50,7 +54,8 @@ namespace SouqSofra.Application.DTOs
         string? ImageUrl, 
         bool IsAvailable, 
         bool IsFeatured,
-        List<ProductVariantDto> Variants
+        List<ProductVariantDto> Variants,
+        List<ProductAddonDto> Addons
     );
 
     public record ProductCreateDto(
@@ -64,10 +69,13 @@ namespace SouqSofra.Application.DTOs
         string? ImageUrl, 
         bool IsAvailable, 
         bool IsFeatured,
-        List<ProductVariantCreateDto>? Variants
+        List<ProductVariantCreateDto>? Variants,
+        List<ProductAddonCreateDto>? Addons = null
     );
 
     // Orders
+    public record OrderItemAddonDto(int AddonId, string NameAr, string NameEn, decimal Price);
+
     public record OrderItemDto(
         int OrderItemId, 
         int ProductId, 
@@ -77,7 +85,8 @@ namespace SouqSofra.Application.DTOs
         string? VariantNameAr, 
         decimal UnitPrice, 
         int Quantity, 
-        decimal TotalPrice
+        decimal TotalPrice,
+        List<OrderItemAddonDto> Addons
     );
 
     public record OrderDto(
@@ -102,7 +111,8 @@ namespace SouqSofra.Application.DTOs
         int ProductId, 
         int? VariantId, 
         int Quantity, 
-        decimal UnitPrice
+        decimal UnitPrice,
+        List<int>? AddonIds = null
     );
 
     public record OrderCreateDto(

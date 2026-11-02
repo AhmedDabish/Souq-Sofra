@@ -17,6 +17,19 @@ namespace SouqSofra.Domain.Entities
 
         public Category? Category { get; set; }
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+        public ICollection<ProductAddon> Addons { get; set; } = new List<ProductAddon>();
+    }
+
+    public class ProductAddon
+    {
+        public int AddonId { get; set; }
+        public int ProductId { get; set; }
+        public string NameAr { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public bool IsAvailable { get; set; } = true;
+
+        public Product? Product { get; set; }
     }
 
     public class ProductVariant

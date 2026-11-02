@@ -19,7 +19,7 @@ namespace SouqSofra.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var orders = await _context.Orders
-                .Include(o => o.Items)
+                .Include(o => o.Items).ThenInclude(item => item.Addons)
                 .OrderByDescending(o => o.CreatedAt)
                 .Select(o => new OrderDto(
                     o.OrderId,
@@ -45,7 +45,8 @@ namespace SouqSofra.API.Controllers
                         i.VariantNameAr,
                         i.UnitPrice,
                         i.Quantity,
-                        i.TotalPrice
+                        i.TotalPrice,
+                        i.Addons.Select(addon => new OrderItemAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList()
                     )).ToList()
                 ))
                 .ToListAsync();
@@ -57,7 +58,7 @@ namespace SouqSofra.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var o = await _context.Orders.Include(x => x.Items).FirstOrDefaultAsync(x => x.OrderId == id);
+            var o = await _context.Orders.Include(x => x.Items).ThenInclude(item => item.Addons).FirstOrDefaultAsync(x => x.OrderId == id);
             if (o == null) return NotFound(new { message = "الطلب غير موجود." });
 
             var dto = new OrderDto(
@@ -66,7 +67,8 @@ namespace SouqSofra.API.Controllers
                 o.PaymentMethod, o.OrderStatus, o.Notes, o.CreatedAt,
                 o.Items.Select(i => new OrderItemDto(
                     i.OrderItemId, i.ProductId, i.VariantId, i.ProductNameAr, i.ProductNameEn,
-                    i.VariantNameAr, i.UnitPrice, i.Quantity, i.TotalPrice
+                    i.VariantNameAr, i.UnitPrice, i.Quantity, i.TotalPrice,
+                    i.Addons.Select(addon => new OrderItemAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList()
                 )).ToList()
             );
 
@@ -102,7 +104,7 @@ namespace SouqSofra.API.Controllers
                 if (item.Quantity <= 0)
                     return BadRequest(new { message = "كمية المنتج يجب أن تكون أكبر من صفر." });
 
-                var prod = await _context.Products.Include(product => product.Variants)
+                var prod = await _context.Products.Include(product => product.Variants).Include(product => product.Addons)
                     .FirstOrDefaultAsync(product => product.ProductId == item.ProductId && product.IsAvailable);
                 if (prod == null)
                     return BadRequest(new { message = "أحد المنتجات غير متاح حالياً. حدّث السلة وحاول مرة أخرى." });
@@ -127,10 +129,22 @@ namespace SouqSofra.API.Controllers
                         : prod.BasePrice;
                 }
 
-                var total = unitPrice * item.Quantity;
+                var selectedAddonIds = item.AddonIds ?? new List<int>();
+                if (selectedAddonIds.Count != selectedAddonIds.Distinct().Count())
+                    return BadRequest(new { message = "لا يمكن اختيار الإضافة أكثر من مرة." });
+
+                var selectedAddons = prod.Addons
+                    .Where(addon => addon.IsAvailable && selectedAddonIds.Contains(addon.AddonId))
+                    .ToList();
+                if (selectedAddons.Count != selectedAddonIds.Count)
+                    return BadRequest(new { message = "إحدى الإضافات غير صالحة أو غير متاحة لهذا المنتج." });
+
+                var addonUnitTotal = selectedAddons.Sum(addon => addon.Price);
+                var lineUnitPrice = unitPrice + addonUnitTotal;
+                var total = lineUnitPrice * item.Quantity;
                 subTotal += total;
 
-                order.Items.Add(new OrderItem
+                var orderItem = new OrderItem
                 {
                     ProductId = prod.ProductId,
                     VariantId = item.VariantId,
@@ -140,7 +154,16 @@ namespace SouqSofra.API.Controllers
                     UnitPrice = unitPrice,
                     Quantity = item.Quantity,
                     TotalPrice = total
-                });
+                };
+                foreach (var addon in selectedAddons)
+                    orderItem.Addons.Add(new OrderItemAddon
+                    {
+                        AddonId = addon.AddonId,
+                        NameAr = addon.NameAr,
+                        NameEn = addon.NameEn,
+                        Price = addon.Price
+                    });
+                order.Items.Add(orderItem);
             }
 
             order.SubTotal = subTotal;

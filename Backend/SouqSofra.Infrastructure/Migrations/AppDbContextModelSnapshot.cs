@@ -248,6 +248,41 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.ToTable("OrderItems", (string)null);
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.OrderItemAddon", b =>
+                {
+                    b.Property<int>("OrderItemAddonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemAddonId"));
+
+                    b.Property<int>("AddonId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderItemAddonId");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.ToTable("OrderItemAddons", (string)null);
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -338,6 +373,41 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductVariants", (string)null);
+                });
+
+            modelBuilder.Entity("SouqSofra.Domain.Entities.ProductAddon", b =>
+                {
+                    b.Property<int>("AddonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddonId"));
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AddonId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductAddons", (string)null);
                 });
 
             modelBuilder.Entity("SouqSofra.Domain.Entities.SiteSetting", b =>
@@ -444,6 +514,28 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.Navigation("Variant");
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.OrderItemAddon", b =>
+                {
+                    b.HasOne("SouqSofra.Domain.Entities.OrderItem", "OrderItem")
+                        .WithMany("Addons")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderItem");
+                });
+
+            modelBuilder.Entity("SouqSofra.Domain.Entities.ProductAddon", b =>
+                {
+                    b.HasOne("SouqSofra.Domain.Entities.Product", "Product")
+                        .WithMany("Addons")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.Product", b =>
                 {
                     b.HasOne("SouqSofra.Domain.Entities.Category", "Category")
@@ -481,9 +573,15 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.OrderItem", b =>
+                {
+                    b.Navigation("Addons");
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.Product", b =>
                 {
                     b.Navigation("Variants");
+                    b.Navigation("Addons");
                 });
 #pragma warning restore 612, 618
         }

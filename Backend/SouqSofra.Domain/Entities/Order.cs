@@ -34,8 +34,22 @@ namespace SouqSofra.Domain.Entities
         public int Quantity { get; set; } = 1;
         public decimal TotalPrice { get; set; }
 
+        public ICollection<OrderItemAddon> Addons { get; set; } = new List<OrderItemAddon>();
+
         public Order? Order { get; set; }
         public Product? Product { get; set; }
         public ProductVariant? Variant { get; set; }
+    }
+
+    public class OrderItemAddon
+    {
+        public int OrderItemAddonId { get; set; }
+        public int OrderItemId { get; set; }
+        public int AddonId { get; set; }
+        public string NameAr { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+
+        public OrderItem? OrderItem { get; set; }
     }
 }
