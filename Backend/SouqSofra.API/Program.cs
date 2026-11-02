@@ -77,8 +77,8 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ClockSkew = TimeSpan.Zero
-    },
-    Events = new JwtBearerEvents
+    };
+    options.Events = new JwtBearerEvents
     {
         OnTokenValidated = async context =>
         {
