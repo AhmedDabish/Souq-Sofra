@@ -33,31 +33,31 @@ import { Category, Product } from '../../../../core/models/models';
         <section class="container-wide widget-spacing">
           <div class="grid gap-5 grid-cols-1 lg:grid-cols-2">
             @for (offer of offers; track offer.title) {
-              <div class="relative flex min-h-[260px] items-center sm:min-h-[285px] md:min-h-[310px]">
-                <div class="relative w-full min-h-[260px] sm:min-h-[285px] md:min-h-[300px] px-4 py-6 sm:px-6 md:w-[99%] md:py-10 rounded-[20px] md:rounded-s-[10rem] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
+              <div class="flex items-center relative max-md:mt-25 min-h-[200px] md:min-h-[310px] max-h-[360px]">
+                <div class="relative w-full min-h-[200px] md:min-h-[300px] md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
                      [style.backgroundColor]="offer.color">
-                  <div class="relative z-10 flex max-w-[62%] flex-col justify-center gap-2.5 sm:gap-3.5 md:max-w-[50%] md:pe-2 lg:pe-6 2xl:!max-w-[55%]">
-                    <h2 class="text-sm leading-tight text-black font-bold line-clamp-2 sm:text-base md:text-xl xl:text-2xl">{{ language.isEnglish() ? offer.titleEn : offer.title }}</h2>
-                    <span class="text-[10px] leading-snug sm:text-xs md:text-sm lg:text-base line-clamp-3">
+                  <div class="md:pe-2 lg:pe-6 2xl:!pe-2 flex flex-col justify-center gap-3.5 md:gap-3.5 max-w-full md:max-w-[50%] 2xl:!max-w-[55%]">
+                    <h2 class="text-base text-black md:text-xl xl:text-2xl font-bold leading-tight line-clamp-1">{{ language.isEnglish() ? offer.titleEn : offer.title }}</h2>
+                    <span class="text-xs md:text-sm lg:text-base line-clamp-2">
                       <p>{{ language.isEnglish() ? offer.descriptionEn : offer.description }}</p>
                     </span>
-                    <a class="w-fit rounded-full px-3 py-2 text-[10px] font-semibold text-white transition-all duration-300 hover:opacity-85 sm:px-4 sm:text-xs md:text-base"
+                    <a class="text-white w-fit px-4 py-2 rounded-full text-xs md:text-base font-medium hover:opacity-85 transition-all duration-300"
                        [routerLink]="offerLink(offer.title)"
                        style="background-color: rgb(0, 0, 0);">
                       {{ language.isEnglish() ? offer.buttonTextEn : offer.buttonText }}
                     </a>
                   </div>
-                  <div class="absolute start-4 top-0 z-20 rounded-b-[10px] px-2.5 py-1.5 text-[10px] font-bold shadow-md sm:start-5 sm:px-3 sm:text-xs md:text-sm"
+                  <div class="absolute top-0 start-5 px-3 py-1.5 rounded-b-[10px] font-bold text-xs md:text-sm shadow-md z-20"
                        [style.backgroundColor]="offer.badgeBg"
                        style="color: rgb(255, 255, 255);">
                     {{ language.isEnglish() ? offer.badgeEn : offer.badge }}
                   </div>
                 </div>
-                <div class="absolute end-0 top-1/2 z-0 flex h-auto w-[39%] max-w-[160px] -translate-y-1/2 items-center overflow-hidden rounded-full sm:max-w-[190px] md:end-0 md:w-[38%] md:max-w-[270px] xl:max-w-[320px]">
+                <div class="absolute h-full max-md:top-0 max-md:end-1/2 md:top-1/2 md:end-0 -translate-y-[65%] md:-translate-y-1/2 ltr:max-md:translate-x-1/2 rtl:max-md:-translate-x-1/2 flex items-center h-fit w-[165px] md:w-[200px] lg:w-[270px] 3xl:!w-[350px] z-30 rounded-full overflow-hidden">
                   <div class="relative w-full h-full overflow-hidden">
-                    <div class="relative aspect-square w-full overflow-hidden rounded-full rounded-spin-img-wrapper">
-                      <img [alt]="language.isEnglish() ? offer.titleEn : offer.title" width="350" height="350"
-                           class="bg-background p-1.5 sm:p-3 animate-spin [animation-duration:150s] rounded-full relative block h-full w-full object-contain overflow-hidden"
+                    <div class="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center max-md:items-end rounded-spin-img-wrapper">
+                      <img [alt]="offer.title" width="350" height="350"
+                           class="bg-background p-4 animate-spin [animation-duration:150s] rounded-full relative block object-contain overflow-hidden max-md:object-bottom"
                            [src]="offer.image">
                     </div>
                   </div>
