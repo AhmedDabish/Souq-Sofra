@@ -6,7 +6,6 @@ import { CartItem, Product, ProductAddon, ProductVariant } from '../models/model
 })
 export class CartService {
   private itemsSignal = signal<CartItem[]>([]);
-  public isDrawerOpen = signal<boolean>(false);
 
   public items = this.itemsSignal.asReadonly();
   
@@ -55,7 +54,6 @@ export class CartService {
     }
 
     this.itemsSignal.set(current);
-    this.isDrawerOpen.set(true);
   }
 
   updateQuantity(item: CartItem, delta: number) {
@@ -81,7 +79,4 @@ export class CartService {
     this.itemsSignal.set([]);
   }
 
-  toggleDrawer() {
-    this.isDrawerOpen.update(v => !v);
-  }
 }

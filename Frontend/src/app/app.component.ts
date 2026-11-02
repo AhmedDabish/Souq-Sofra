@@ -2,14 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from './features/public/components/header/header.component';
-import { CartDrawerComponent } from './features/public/components/cart-drawer/cart-drawer.component';
 import { BottomNavComponent } from './features/public/components/bottom-nav/bottom-nav.component';
 import { ApiService } from './core/services/api.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, HeaderComponent, CartDrawerComponent, BottomNavComponent],
+  imports: [CommonModule, RouterOutlet, RouterModule, HeaderComponent, BottomNavComponent],
   template: `
     @if (!isAdminRoute()) {
       <app-header></app-header>
@@ -20,7 +19,6 @@ import { ApiService } from './core/services/api.service';
     </main>
 
     @if (!isAdminRoute()) {
-      <app-cart-drawer></app-cart-drawer>
       <app-bottom-nav></app-bottom-nav>
 
       <!-- Polished Souq & Sofra footer -->
