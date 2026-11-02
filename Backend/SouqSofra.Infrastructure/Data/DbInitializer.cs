@@ -36,9 +36,20 @@ namespace SouqSofra.Infrastructure.Data
                     new() { SettingKey = "CurrencyAr", SettingValue = "درهم", Description = "العملة بالعربية" },
                     new() { SettingKey = "CurrencyEn", SettingValue = "AED", Description = "Currency English" },
                     new() { SettingKey = "DeliveryFee", SettingValue = "10.00", Description = "رسوم التوصيل الثابتة" },
-                    new() { SettingKey = "Announcement", SettingValue = "أهلاً بكم في مطعم ومخبز سوق وسفرة - خصم 15% على جميع الفطائر والمخبوزات الطازجة!", Description = "شريط الإعلانات أعلى الموقع" }
+                    new() { SettingKey = "Announcement", SettingValue = "", Description = "شريط الإعلانات أعلى الموقع" }
                 };
                 await context.SiteSettings.AddRangeAsync(settings);
+                await context.SaveChangesAsync();
+            }
+
+            // Clear the retired default promotion from existing databases without
+            // overwriting any announcement that an administrator has since configured.
+            var retiredAnnouncement = await context.SiteSettings.FirstOrDefaultAsync(setting =>
+                setting.SettingKey == "Announcement" &&
+                setting.SettingValue == "أهلاً بكم في مطعم ومخبز سوق وسفرة - خصم 15% على جميع الفطائر والمخبوزات الطازجة!");
+            if (retiredAnnouncement is not null)
+            {
+                retiredAnnouncement.SettingValue = string.Empty;
                 await context.SaveChangesAsync();
             }
 

@@ -321,8 +321,8 @@ export class AdminSettingsComponent implements OnInit {
   private api = inject(ApiService);
 
   settings: SiteSettings = {
-    Announcement: 'أهلاً بكم في مطعم ومخبز سوق وسفرة (Good Food, Good Mood) - التوصيل متاح الآن بأبوظبي!',
-    AnnouncementEn: 'Welcome to Souq & Sofra Restaurant and Bakery - delivery is available in Abu Dhabi!',
+    Announcement: '',
+    AnnouncementEn: '',
     PhoneNumber: '02 633 3136',
     WhatsApp: '+971 50 315 7884',
     DeliveryFee: '10.00',
