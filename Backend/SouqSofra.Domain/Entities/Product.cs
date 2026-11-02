@@ -13,6 +13,7 @@ namespace SouqSofra.Domain.Entities
         public string? ImageUrl { get; set; }
         public bool IsAvailable { get; set; } = true;
         public bool IsFeatured { get; set; } = false;
+        public bool IsManuallyBestSelling { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Category? Category { get; set; }

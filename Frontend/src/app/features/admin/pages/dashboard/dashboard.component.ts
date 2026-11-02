@@ -11,13 +11,13 @@ import { forkJoin } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
       
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
       <!-- Main Content -->
-      <main class="flex-1 p-6 md:p-8 overflow-y-auto max-h-screen">
+      <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 class="text-2xl font-black font-baloo text-gray-800">لوحة المؤشرات والتحليلات</h1>
@@ -165,6 +165,7 @@ import { forkJoin } from 'rxjs';
                   <tr>
                     <th class="p-4">رقم الطلب</th>
                     <th class="p-4">العميل</th>
+                    <th class="p-4">قناة الطلب</th>
                     <th class="p-4">العنوان</th>
                     <th class="p-4">القيمة</th>
                     <th class="p-4">الحالة</th>
@@ -178,6 +179,7 @@ import { forkJoin } from 'rxjs';
                         <div class="font-bold text-gray-800">{{ order.customerName }}</div>
                         <div class="text-[10px] text-gray-400 dir-ltr text-right">{{ order.customerPhone }}</div>
                       </td>
+                      <td class="p-4"><span [class]="order.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ order.orderChannel === 'WhatsApp' ? 'واتساب' : 'الموقع' }}</span></td>
                       <td class="p-4 text-gray-500 max-w-xs truncate">{{ order.deliveryAddress }}</td>
                       <td class="p-4 font-black text-primary">{{ order.totalAmount }} درهم</td>
                       <td class="p-4">
@@ -188,7 +190,7 @@ import { forkJoin } from 'rxjs';
                     </tr>
                   } @empty {
                     <tr>
-                      <td colspan="5" class="p-8 text-center text-gray-400 text-xs">
+                      <td colspan="6" class="p-8 text-center text-gray-400 text-sm">
                         لا توجد طلبات مسجلة حالياً
                       </td>
                     </tr>

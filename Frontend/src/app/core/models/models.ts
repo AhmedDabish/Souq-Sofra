@@ -46,6 +46,8 @@ export interface Product {
   imageUrl?: string;
   isAvailable: boolean;
   isFeatured: boolean;
+  isManuallyBestSelling?: boolean;
+  completedSalesQuantity?: number;
   variants: ProductVariant[];
   addons: ProductAddon[];
 }
@@ -61,6 +63,7 @@ export interface ProductCreate {
   imageUrl?: string;
   isAvailable: boolean;
   isFeatured: boolean;
+  isManuallyBestSelling?: boolean;
   variants?: ProductVariant[];
   addons?: ProductAddon[];
 }
@@ -92,6 +95,7 @@ export interface OrderCreate {
   paymentMethod: string;
   notes?: string;
   items: OrderItemCreate[];
+  orderChannel?: 'Website' | 'WhatsApp';
 }
 
 export interface OrderItem {
@@ -123,6 +127,7 @@ export interface AdminOrder {
   notes?: string;
   createdAt: string;
   items: OrderItem[];
+  orderChannel: 'Website' | 'WhatsApp' | string;
 }
 
 export interface Branch {
@@ -155,6 +160,16 @@ export interface LoginResponse {
   email: string;
   role: string;
   expiresAt: string;
+}
+
+export interface StaffUser {
+  userId: number;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role: 'User' | 'Admin' | 'SuperAdmin' | string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface UserProfile {

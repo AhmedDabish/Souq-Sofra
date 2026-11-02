@@ -314,6 +314,7 @@ export class CheckoutComponent implements OnInit {
       deliveryAddress: this.deliveryType() === 'delivery' ? this.deliveryAddress : 'استلام من الفرع الرئيسي - أبوظبي',
       branchId: 1,
       paymentMethod: this.paymentMethod(),
+      orderChannel: 'Website' as const,
       notes: [this.notes, ...this.cart.items().filter(i => i.specialInstructions).map(i => `${i.product.nameAr}: ${i.specialInstructions}`)].filter(Boolean).join(' | '),
       items: this.cart.items().map(i => ({
         productId: i.product.productId,

@@ -9,9 +9,9 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   selector: 'app-admin-categories', standalone: true,
   imports: [CommonModule, FormsModule, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
       <app-admin-sidebar />
-      <main class="min-w-0 flex-1 p-5 md:p-8">
+      <main class="admin-main min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         <header class="mb-7 flex flex-wrap items-center justify-between gap-4">
           <div><h1 class="font-baloo text-2xl font-black text-gray-800">إدارة أقسام المنيو</h1><p class="mt-1 text-xs text-gray-500">إدارة الأسماء باللغتين وصور الأقسام والأيقونات من الخادم.</p></div>
           <button type="button" (click)="openNew()" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">+ إضافة قسم</button>

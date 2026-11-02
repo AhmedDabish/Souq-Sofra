@@ -21,9 +21,6 @@ namespace SouqSofra.Application.Common
         {
             if (string.IsNullOrWhiteSpace(storedHash)) return false;
 
-            // Direct comparison fallback for development or initial plain seeds
-            if (storedHash == password || password == "Admin@123456") return true;
-
             var parts = storedHash.Split(':');
             if (parts.Length != 2) return false;
 

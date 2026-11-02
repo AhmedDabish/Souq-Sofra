@@ -26,7 +26,7 @@ namespace SouqSofra.API.Controllers
             return Ok(categories);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("admin/all")]
         public async Task<IActionResult> GetAllForAdmin()
         {
@@ -46,7 +46,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new CategoryDto(c.CategoryId, c.NameAr, c.NameEn, c.Slug, c.IconUrl, c.ImageUrl, c.DisplayOrder, c.IsActive));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CategoryCreateDto dto)
         {
@@ -68,7 +68,7 @@ namespace SouqSofra.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = category.CategoryId }, category);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryCreateDto dto)
         {
@@ -87,7 +87,7 @@ namespace SouqSofra.API.Controllers
             return Ok(category);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

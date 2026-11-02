@@ -1,4 +1,5 @@
 using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -76,7 +77,26 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ClockSkew = TimeSpan.Zero
-    };
+    },
+    Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var userIdText = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roleClaim = context.Principal?.FindFirst(ClaimTypes.Role)?.Value;
+            if (!int.TryParse(userIdText, out var userId) || string.IsNullOrWhiteSpace(roleClaim))
+            {
+                context.Fail("Invalid user claims.");
+                return;
+            }
+
+            var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(candidate => candidate.UserId == userId && candidate.IsActive);
+            var currentRole = user?.RoleId switch { 1 => "Admin", 2 => "User", 3 => "SuperAdmin", _ => null };
+            if (currentRole == null || !string.Equals(currentRole, roleClaim, StringComparison.Ordinal))
+                context.Fail("The account is inactive or its role has changed. Please sign in again.");
+        }
+    }
 });
 
 builder.Services.AddAuthorization();

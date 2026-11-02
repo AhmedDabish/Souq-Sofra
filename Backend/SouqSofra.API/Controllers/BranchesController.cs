@@ -28,7 +28,7 @@ namespace SouqSofra.API.Controllers
             return Ok(branches);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Branch branch)
         {

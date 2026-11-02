@@ -23,7 +23,7 @@ namespace SouqSofra.API.Controllers
             return Ok(settings);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut]
         public async Task<IActionResult> UpdateSetting([FromBody] UpdateSiteSettingDto dto)
         {

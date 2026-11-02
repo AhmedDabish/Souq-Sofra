@@ -176,6 +176,7 @@ export class CartPageComponent {
       branchId: 1,
       paymentMethod: 'CashOnDelivery',
       notes: cartSnapshot.filter(item => item.instructions).map(item => `${item.name}: ${item.instructions}`).join(' | '),
+      orderChannel: 'WhatsApp',
       items
     }).subscribe({
       next: order => {

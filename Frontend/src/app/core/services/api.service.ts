@@ -9,7 +9,8 @@ import {
   OrderCreate,
   AdminOrder,
   Branch,
-  SiteSettings
+  SiteSettings,
+  StaffUser
 } from '../models/models';
 
 export interface OrderCreateResponse {
@@ -59,7 +60,8 @@ export class ApiService {
   }
 
   createOrder(order: OrderCreate): Observable<OrderCreateResponse> {
-    return this.http.post<OrderCreateResponse>(`${this.apiUrl}/orders`, order);
+    const endpoint = order.orderChannel === 'WhatsApp' ? `${this.apiUrl}/orders/whatsapp` : `${this.apiUrl}/orders`;
+    return this.http.post<OrderCreateResponse>(endpoint, order);
   }
 
   getBranches(): Observable<Branch[]> {
@@ -96,6 +98,24 @@ export class ApiService {
 
   toggleProductFeatured(id: number): Observable<{ productId: number; isFeatured: boolean }> {
     return this.http.patch<{ productId: number; isFeatured: boolean }>(`${this.apiUrl}/products/${id}/featured`, {});
+  }
+
+  toggleProductBestSelling(id: number): Observable<{ productId: number; isManuallyBestSelling: boolean }> {
+    return this.http.patch<{ productId: number; isManuallyBestSelling: boolean }>(`${this.apiUrl}/products/${id}/best-selling`, {});
+  }
+
+  bootstrapSuperAdmin(currentPassword: string, newPassword: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/users/bootstrap-super-admin`, { currentPassword, newPassword });
+  }
+  getStaffUsers(): Observable<StaffUser[]> { return this.http.get<StaffUser[]>(`${this.apiUrl}/users`); }
+  createStaffUser(user: { fullName: string; email: string; password: string; phoneNumber?: string; role: string }): Observable<StaffUser> {
+    return this.http.post<StaffUser>(`${this.apiUrl}/users`, user);
+  }
+  updateStaffRole(id: number, role: string): Observable<{ userId: number; role: string }> {
+    return this.http.patch<{ userId: number; role: string }>(`${this.apiUrl}/users/${id}/role`, { role });
+  }
+  toggleStaffActive(id: number): Observable<{ userId: number; isActive: boolean }> {
+    return this.http.patch<{ userId: number; isActive: boolean }>(`${this.apiUrl}/users/${id}/active`, {});
   }
 
 

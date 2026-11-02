@@ -11,7 +11,7 @@ import { AdminOrdersComponent } from './features/admin/pages/orders/admin-orders
 import { AdminProductsComponent } from './features/admin/pages/products/admin-products.component';
 import { AdminCategoriesComponent } from './features/admin/pages/categories/admin-categories.component';
 import { AdminSettingsComponent } from './features/admin/pages/settings/admin-settings.component';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // Public Storefront Routes
@@ -24,11 +24,12 @@ export const routes: Routes = [
 
   // Admin Dashboard Routes (Isolated & Protected via authGuard)
   { path: 'admin/login', component: AdminLoginComponent },
-  { path: 'admin', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'admin/orders', component: AdminOrdersComponent, canActivate: [authGuard] },
-  { path: 'admin/products', component: AdminProductsComponent, canActivate: [authGuard] },
-  { path: 'admin/categories', component: AdminCategoriesComponent, canActivate: [authGuard] },
-  { path: 'admin/settings', component: AdminSettingsComponent, canActivate: [authGuard] },
+  { path: 'admin', component: DashboardComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
+  { path: 'admin/orders', component: AdminOrdersComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'] } },
+  { path: 'admin/products', component: AdminProductsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
+  { path: 'admin/categories', component: AdminCategoriesComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
+  { path: 'admin/settings', component: AdminSettingsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
+  { path: 'admin/staff', loadComponent: () => import('./features/admin/pages/staff/admin-staff.component').then(m => m.AdminStaffComponent), canActivate: [authGuard, roleGuard], data: { roles: ['Admin', 'SuperAdmin'] } },
 
   // Fallback
   { path: '**', redirectTo: '' }

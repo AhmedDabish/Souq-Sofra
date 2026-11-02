@@ -38,6 +38,7 @@ namespace SouqSofra.API.Controllers
                 return Unauthorized(new { message = "بيانات تسجيل الدخول غير صحيحة." });
             }
 
+            var role = RoleName(user.RoleId);
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "SouqSofra_SuperSecret_Jwt_SecurityKey_2026_AbuDhabi_Dubai_UAE_123456789!");
             var expiryDays = int.TryParse(_configuration["Jwt:ExpiryInDays"], out int days) ? days : 7;
@@ -50,7 +51,7 @@ namespace SouqSofra.API.Controllers
                     new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     new Claim(ClaimTypes.Name, user.FullName),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, "Admin")
+                    new Claim(ClaimTypes.Role, role)
                 }),
                 Expires = expires,
                 Issuer = _configuration["Jwt:Issuer"] ?? "SouqSofraAPI",
@@ -61,7 +62,7 @@ namespace SouqSofra.API.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new LoginResponseDto(tokenString, user.FullName, user.Email, "Admin", expires));
+            return Ok(new LoginResponseDto(tokenString, user.FullName, user.Email, role, expires));
         }
 
         [Authorize]
@@ -83,11 +84,11 @@ namespace SouqSofra.API.Controllers
                 user.FullName,
                 user.Email,
                 user.PhoneNumber,
-                Role = "Admin"
+                Role = RoleName(user.RoleId)
             });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User,SuperAdmin")]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
@@ -107,5 +108,12 @@ namespace SouqSofra.API.Controllers
 
             return Ok(new { success = true, message = "تم تحديث كلمة المرور بنجاح." });
         }
+        private static string RoleName(int roleId) => roleId switch
+        {
+            1 => "Admin",
+            2 => "User",
+            3 => "SuperAdmin",
+            _ => "User"
+        };
     }
 }

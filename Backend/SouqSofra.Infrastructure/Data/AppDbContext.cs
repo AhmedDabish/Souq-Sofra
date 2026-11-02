@@ -46,6 +46,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(p => p.BasePrice).HasPrecision(18, 2);
                 entity.Property(p => p.DiscountPrice).HasPrecision(18, 2);
                 entity.Property(p => p.ImageUrl).HasMaxLength(500);
+                entity.Property(p => p.IsManuallyBestSelling).HasDefaultValue(false);
 
                 entity.HasOne(p => p.Category)
                       .WithMany(c => c.Products)
@@ -114,6 +115,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(o => o.DeliveryAddress).IsRequired().HasMaxLength(500);
                 entity.Property(o => o.PaymentMethod).IsRequired().HasMaxLength(50);
                 entity.Property(o => o.OrderStatus).IsRequired().HasMaxLength(50);
+                entity.Property(o => o.OrderChannel).IsRequired().HasMaxLength(30).HasDefaultValue("Website");
                 entity.Property(o => o.Notes).HasMaxLength(500);
                 entity.Property(o => o.SubTotal).HasPrecision(18, 2);
                 entity.Property(o => o.DeliveryFee).HasPrecision(18, 2);

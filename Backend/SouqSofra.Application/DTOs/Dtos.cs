@@ -55,7 +55,9 @@ namespace SouqSofra.Application.DTOs
         bool IsAvailable, 
         bool IsFeatured,
         List<ProductVariantDto> Variants,
-        List<ProductAddonDto> Addons
+        List<ProductAddonDto> Addons,
+        bool IsManuallyBestSelling = false,
+        int CompletedSalesQuantity = 0
     );
 
     public record ProductCreateDto(
@@ -70,7 +72,8 @@ namespace SouqSofra.Application.DTOs
         bool IsAvailable, 
         bool IsFeatured,
         List<ProductVariantCreateDto>? Variants,
-        List<ProductAddonCreateDto>? Addons = null
+        List<ProductAddonCreateDto>? Addons = null,
+        bool IsManuallyBestSelling = false
     );
 
     // Orders
@@ -104,7 +107,8 @@ namespace SouqSofra.Application.DTOs
         string OrderStatus, 
         string? Notes, 
         DateTime CreatedAt, 
-        List<OrderItemDto> Items
+        List<OrderItemDto> Items,
+        string OrderChannel = "Website"
     );
 
     public record OrderItemCreateDto(
@@ -123,7 +127,8 @@ namespace SouqSofra.Application.DTOs
         int BranchId, 
         string PaymentMethod, 
         string? Notes, 
-        List<OrderItemCreateDto> Items
+        List<OrderItemCreateDto> Items,
+        string OrderChannel = "Website"
     );
 
     public record UpdateOrderStatusDto(string Status);
@@ -140,6 +145,10 @@ namespace SouqSofra.Application.DTOs
     );
 
     public record ChangePasswordDto(string OldPassword, string NewPassword);
+    public record StaffUserDto(int UserId, string FullName, string Email, string? PhoneNumber, string Role, bool IsActive, DateTime CreatedAt);
+    public record CreateStaffUserDto(string FullName, string Email, string Password, string? PhoneNumber, string Role);
+    public record UpdateStaffRoleDto(string Role);
+    public record BootstrapSuperAdminDto(string CurrentPassword, string NewPassword);
 
     // Branches
     public record BranchDto(

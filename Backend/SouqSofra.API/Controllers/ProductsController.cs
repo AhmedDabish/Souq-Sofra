@@ -49,55 +49,58 @@ namespace SouqSofra.API.Controllers
                     p.IsAvailable,
                     p.IsFeatured,
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList()
+                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                    p.IsManuallyBestSelling,
+                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
                 ))
                 .ToListAsync();
 
             return Ok(products);
         }
 
-        // Public best-sellers ranked by quantity in completed orders.
+        // Best sellers include products pinned by staff and products ranked by completed-order quantities.
         [HttpGet("best-selling")]
         public async Task<IActionResult> GetBestSelling()
         {
-            var rankedIds = await _context.OrderItems
-                .Where(item => item.Order != null && item.Order.OrderStatus == "Completed")
-                .GroupBy(item => item.ProductId)
-                .Select(group => new { ProductId = group.Key, Quantity = group.Sum(item => item.Quantity) })
-                .OrderByDescending(item => item.Quantity)
-                .ThenBy(item => item.ProductId)
-                .Take(10)
-                .Select(item => item.ProductId)
-                .ToListAsync();
-
-            if (rankedIds.Count == 0) return Ok(Array.Empty<ProductDto>());
-
             var products = await _context.Products
                 .Include(product => product.Variants).Include(product => product.Addons)
-                .Where(product => product.IsAvailable && rankedIds.Contains(product.ProductId))
-                .Select(product => new ProductDto(
-                    product.ProductId,
-                    product.CategoryId,
-                    product.NameAr,
-                    product.NameEn,
-                    product.DescriptionAr,
-                    product.DescriptionEn,
-                    product.BasePrice,
-                    product.DiscountPrice,
-                    product.ImageUrl,
-                    product.IsAvailable,
-                    product.IsFeatured,
-                    product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
-                    product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList()
+                .Where(product => product.IsAvailable)
+                .Select(product => new
+                {
+                    Product = product,
+                    CompletedQuantity = _context.OrderItems
+                        .Where(item => item.ProductId == product.ProductId && item.Order != null && item.Order.OrderStatus == "Completed")
+                        .Sum(item => (int?)item.Quantity) ?? 0
+                })
+                .Where(row => row.Product.IsManuallyBestSelling || row.CompletedQuantity > 0)
+                .OrderByDescending(row => row.Product.IsManuallyBestSelling)
+                .ThenByDescending(row => row.CompletedQuantity)
+                .ThenBy(row => row.Product.ProductId)
+                .Take(10)
+                .Select(row => new ProductDto(
+                    row.Product.ProductId,
+                    row.Product.CategoryId,
+                    row.Product.NameAr,
+                    row.Product.NameEn,
+                    row.Product.DescriptionAr,
+                    row.Product.DescriptionEn,
+                    row.Product.BasePrice,
+                    row.Product.DiscountPrice,
+                    row.Product.ImageUrl,
+                    row.Product.IsAvailable,
+                    row.Product.IsFeatured,
+                    row.Product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
+                    row.Product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price)).ToList(),
+                    row.Product.IsManuallyBestSelling,
+                    row.CompletedQuantity
                 ))
                 .ToListAsync();
 
-            var productsById = products.ToDictionary(product => product.ProductId);
-            return Ok(rankedIds.Where(productsById.ContainsKey).Select(productId => productsById[productId]));
+            return Ok(products);
         }
 
         // Admin endpoint (returns all products including hidden/unavailable)
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpGet("admin/all")]
         public async Task<IActionResult> GetAllForAdmin()
         {
@@ -117,7 +120,9 @@ namespace SouqSofra.API.Controllers
                     p.IsAvailable,
                     p.IsFeatured,
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList()
+                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                    p.IsManuallyBestSelling,
+                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
                 ))
                 .ToListAsync();
 
@@ -134,13 +139,15 @@ namespace SouqSofra.API.Controllers
                 p.ProductId, p.CategoryId, p.NameAr, p.NameEn, p.DescriptionAr, p.DescriptionEn,
                 p.BasePrice, p.DiscountPrice, p.ImageUrl, p.IsAvailable, p.IsFeatured,
                 p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList()
+                p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price)).ToList(),
+                p.IsManuallyBestSelling,
+                await _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").SumAsync(item => (int?)item.Quantity) ?? 0
             );
 
             return Ok(dto);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
@@ -162,6 +169,7 @@ namespace SouqSofra.API.Controllers
                 ImageUrl = dto.ImageUrl,
                 IsAvailable = dto.IsAvailable,
                 IsFeatured = dto.IsFeatured,
+                IsManuallyBestSelling = dto.IsManuallyBestSelling,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -189,7 +197,7 @@ namespace SouqSofra.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = product.ProductId }, product);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
         {
@@ -212,6 +220,7 @@ namespace SouqSofra.API.Controllers
             product.ImageUrl = dto.ImageUrl;
             product.IsAvailable = dto.IsAvailable;
             product.IsFeatured = dto.IsFeatured;
+            product.IsManuallyBestSelling = dto.IsManuallyBestSelling;
 
             // Update variants if provided
             if (dto.Variants != null)
@@ -242,7 +251,7 @@ namespace SouqSofra.API.Controllers
             return Ok(product);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPatch("{id}/availability")]
         public async Task<IActionResult> ToggleAvailability(int id)
         {
@@ -255,7 +264,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, isAvailable = product.IsAvailable });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPatch("{id}/featured")]
         public async Task<IActionResult> ToggleFeatured(int id)
         {
@@ -268,13 +277,25 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, isFeatured = product.IsFeatured });
         }
 
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [HttpPatch("{id}/best-selling")]
+        public async Task<IActionResult> ToggleBestSelling(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound(new { message = "المنتج غير موجود." });
+
+            product.IsManuallyBestSelling = !product.IsManuallyBestSelling;
+            await _context.SaveChangesAsync();
+            return Ok(new { productId = product.ProductId, isManuallyBestSelling = product.IsManuallyBestSelling });
+        }
+
 
         public class SetDiscountDto
         {
             public decimal? DiscountPrice { get; set; }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPatch("{id}/discount")]
         public async Task<IActionResult> SetDiscount(int id, [FromBody] SetDiscountDto dto)
         {
@@ -296,7 +317,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, discountPrice = product.DiscountPrice });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

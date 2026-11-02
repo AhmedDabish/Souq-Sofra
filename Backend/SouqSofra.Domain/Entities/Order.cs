@@ -14,6 +14,7 @@ namespace SouqSofra.Domain.Entities
         public decimal TotalAmount { get; set; }
         public string PaymentMethod { get; set; } = "CashOnDelivery";
         public string OrderStatus { get; set; } = "Pending";
+        public string OrderChannel { get; set; } = "Website";
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -11,13 +11,13 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
       
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
       <!-- Main Content -->
-      <main class="flex-1 p-6 md:p-8 overflow-y-auto max-h-screen">
+      <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         
         <!-- Header -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -90,6 +90,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                   <th class="p-4">الخصم والعرض</th>
                   <th class="p-4">التوفر</th>
                   <th class="p-4">مميز</th>
+                  <th class="p-4">الأكثر مبيعًا</th>
                   <th class="p-4 text-center">إجراءات</th>
                 </tr>
               </thead>
@@ -161,6 +162,14 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       </button>
                     </td>
                     <td class="p-4">
+                      <button type="button" (click)="toggleBestSelling(prod)" [disabled]="isUpdatingId() === prod.productId"
+                        [class]="prod.isManuallyBestSelling ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-gray-100 text-gray-500 border-gray-200'"
+                        class="rounded-full border px-3 py-1 text-xs font-bold transition hover:opacity-80">
+                        {{ prod.isManuallyBestSelling ? '♥ مختار يدويًا' : '♡ اختيار' }}
+                      </button>
+                      <div class="mt-1 text-center text-xs text-gray-500">{{ prod.completedSalesQuantity || 0 }} مبيع مكتمل</div>
+                    </td>
+                    <td class="p-4">
                       <div class="flex items-center justify-center gap-2">
                         <button 
                           (click)="openEditModal(prod)"
@@ -177,7 +186,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="7" class="p-10 text-center text-gray-400 text-xs">
+                    <td colspan="8" class="p-10 text-center text-gray-400 text-sm">
                       لا توجد أصناف تطابق معايير البحث
                     </td>
                   </tr>
@@ -402,6 +411,10 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                   <input type="checkbox" [(ngModel)]="formProduct.isFeatured" name="isFeatured" class="rounded text-primary focus:ring-primary w-4 h-4">
                   <span class="font-bold text-gray-700">صنف مميز ⭐</span>
                 </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="formProduct.isManuallyBestSelling" name="isManuallyBestSelling" class="rounded text-rose-600 focus:ring-rose-500 w-4 h-4">
+                  <span class="font-bold text-gray-700">اختيار ضمن الأكثر مبيعًا ♥</span>
+                </label>
               </div>
 
               <!-- Action buttons -->
@@ -463,6 +476,7 @@ export class AdminProductsComponent implements OnInit {
     imageUrl: '',
     isAvailable: true,
     isFeatured: false,
+    isManuallyBestSelling: false,
     variants: []
   };
 
@@ -622,6 +636,18 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  toggleBestSelling(prod: Product) {
+    this.isUpdatingId.set(prod.productId);
+    this.api.toggleProductBestSelling(prod.productId).subscribe({
+      next: result => {
+        this.products.update(rows => rows.map(row => row.productId === prod.productId ? { ...row, isManuallyBestSelling: result.isManuallyBestSelling } : row));
+        this.isUpdatingId.set(null);
+        this.showFeedback(result.isManuallyBestSelling ? `تم اختيار ${prod.nameAr} ضمن الأكثر مبيعًا.` : `تم إلغاء الاختيار اليدوي لـ ${prod.nameAr}.`, 'success');
+      },
+      error: () => { this.isUpdatingId.set(null); this.showFeedback('تعذر تحديث قائمة الأكثر مبيعًا.', 'error'); }
+    });
+  }
+
   toggleAvailability(prod: Product) {
     this.isUpdatingId.set(prod.productId);
     this.api.toggleProductAvailability(prod.productId).subscribe({
@@ -672,6 +698,7 @@ export class AdminProductsComponent implements OnInit {
       imageUrl: '',
       isAvailable: true,
       isFeatured: false,
+      isManuallyBestSelling: false,
       variants: [],
       addons: []
     };
@@ -692,6 +719,7 @@ export class AdminProductsComponent implements OnInit {
       imageUrl: prod.imageUrl || '',
       isAvailable: prod.isAvailable,
       isFeatured: prod.isFeatured,
+      isManuallyBestSelling: prod.isManuallyBestSelling ?? false,
       variants: prod.variants ? [...prod.variants] : [],
       addons: (prod.addons || []).map(addon => ({ ...addon }))
     };

@@ -92,7 +92,7 @@ export class AdminLoginComponent {
     this.auth.login(this.email, this.password).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.router.navigate(['/admin']);
+        this.router.navigate([this.auth.currentUser()?.role === 'User' ? '/admin/orders' : '/admin']);
       },
       error: (err) => {
         this.isLoading.set(false);

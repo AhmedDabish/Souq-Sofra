@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { AdminOrder } from '../../../../core/models/models';
+import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -11,13 +12,13 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
       
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
       <!-- Main Orders Content -->
-      <main class="flex-1 p-6 md:p-8 overflow-y-auto max-h-screen">
+      <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         
         <!-- Header -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -98,6 +99,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                 <tr>
                   <th class="p-4">رقم الطلب</th>
                   <th class="p-4">العميل والهاتف</th>
+                  <th class="p-4">قناة الطلب</th>
                   <th class="p-4">العنوان</th>
                   <th class="p-4">القيمة الإجمالية</th>
                   <th class="p-4">الدفع</th>
@@ -119,6 +121,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       <div class="font-bold text-gray-800">{{ order.customerName }}</div>
                       <div class="text-[11px] text-gray-500 dir-ltr text-right">{{ order.customerPhone }}</div>
                     </td>
+                    <td class="p-4"><span [class]="order.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="inline-flex rounded-full px-3 py-1 text-xs font-bold">{{ order.orderChannel === 'WhatsApp' ? 'واتساب' : 'الموقع' }}</span></td>
                     <td class="p-4 text-gray-500 max-w-xs truncate">{{ order.deliveryAddress }}</td>
                     <td class="p-4 font-black text-primary">
                       {{ order.totalAmount }} درهم
@@ -154,7 +157,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="8" class="p-10 text-center text-gray-400 text-xs">
+                    <td colspan="9" class="p-10 text-center text-gray-400 text-sm">
                       لا توجد طلبات تطابق المعايير المحددة
                     </td>
                   </tr>
@@ -176,7 +179,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                 <h2 class="text-base font-bold font-baloo text-gray-800">
                   تفاصيل الطلب: {{ selectedOrder()!.orderNumber }}
                 </h2>
-                <span class="text-[10px] text-gray-400">{{ formatDate(selectedOrder()!.createdAt) }}</span>
+                <div class="mt-1 flex items-center gap-2"><span class="text-xs text-gray-500">{{ formatDate(selectedOrder()!.createdAt) }}</span><span [class]="selectedOrder()!.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ selectedOrder()!.orderChannel === 'WhatsApp' ? 'طلب واتساب' : 'طلب من الموقع' }}</span></div>
               </div>
               <button (click)="selectedOrder.set(null)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm font-bold">✕</button>
             </div>
@@ -236,12 +239,14 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
             </div>
 
             <div class="flex justify-between items-center pt-2">
+              @if (auth.currentUser()?.role !== 'User') {
               <button 
                 (click)="deleteOrder(selectedOrder()!)" 
                 class="px-4 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition-colors">
                 حذف الطلب
               </button>
 
+              }
               <button 
                 (click)="selectedOrder.set(null)" 
                 class="px-6 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors">
@@ -258,6 +263,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 })
 export class AdminOrdersComponent implements OnInit {
   private api = inject(ApiService);
+  auth = inject(AuthService);
 
   orders = signal<AdminOrder[]>([]);
   selectedStatus = signal<string>('ALL');

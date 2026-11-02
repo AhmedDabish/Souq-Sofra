@@ -12,13 +12,13 @@ import { forkJoin } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
+    <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" dir="rtl">
       
       <!-- Shared Sidebar -->
       <app-admin-sidebar />
 
       <!-- Main Settings Content -->
-      <main class="flex-1 p-6 md:p-8 overflow-y-auto max-h-screen">
+      <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         
         <!-- Header -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
