@@ -1,6 +1,4 @@
 using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using SouqSofra.Infrastructure.Data;
 
@@ -8,8 +6,6 @@ using SouqSofra.Infrastructure.Data;
 
 namespace SouqSofra.Infrastructure.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20261102000000_AddProductAddons")]
     public partial class AddProductAddons : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
