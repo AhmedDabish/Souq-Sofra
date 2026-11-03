@@ -235,10 +235,23 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
 
           <!-- Additional homepage promo banners -->
           <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
-            <div class="border-b border-gray-100 pb-4"><h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('بنرات العروض الإضافية', 'Additional promotion banners') }}</h2><p class="text-[11px] text-gray-400">{{ language.t('إدارة الصور الإضافية الظاهرة في الصفحة الرئيسية.', 'Manage additional homepage images.') }}</p></div>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              @for (index of [1, 2]; track index) {
-                <div class="rounded-2xl border border-gray-100 p-3"><img [src]="promoBannerPreview(index)" [alt]="language.t('بنر عرض', 'Promotion banner') + ' ' + index" class="mb-3 h-32 w-full rounded-xl bg-orange-50 object-cover"><p class="mb-2 text-xs font-bold">{{ language.t('بنر العرض', 'Promotion banner') }} {{ index }}</p><label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700">{{ language.t('اختيار صورة ورفعها', 'Choose and upload image') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload')" (change)="uploadPromoBanner($event, index)" class="sr-only"></label></div>
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+              <div><h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('بنرات العروض الإضافية', 'Additional promotion banners') }}</h2><p class="text-[11px] text-gray-400">{{ language.t('إدارة الصور الإضافية الظاهرة في الصفحة الرئيسية.', 'Manage additional homepage images.') }}</p></div>
+              <button type="button" [hidden]="!auth.hasPermission('settings.update')" [disabled]="promoBannerSlots().length >= 20" (click)="addPromoBanner()" class="rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">+ {{ language.t('إضافة بنر', 'Add banner') }}</button>
+            </div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              @for (index of promoBannerSlots(); track index) {
+                <article class="min-w-0 rounded-2xl border border-gray-100 bg-gray-50/60 p-3">
+                  @if (promoBannerPreview(index)) {
+                    <img [src]="promoBannerPreview(index)" [alt]="language.t('بنر عرض', 'Promotion banner') + ' ' + index" class="mb-3 h-36 w-full rounded-xl bg-orange-50 object-contain">
+                  } @else {
+                    <div class="mb-3 flex h-36 items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white text-xs text-gray-400">{{ language.t('لم يتم اختيار صورة لهذا البنر', 'No image selected for this banner') }}</div>
+                  }
+                  <div class="mb-3 flex items-center justify-between gap-2"><p class="text-xs font-bold">{{ language.t('بنر العرض', 'Promotion banner') }} {{ index }}</p><button type="button" [hidden]="!auth.hasPermission('settings.update')" [disabled]="uploadingPromoBanner() === index" (click)="removePromoBanner(index)" class="rounded-lg bg-red-50 px-3 py-2 text-[11px] font-bold text-red-700 hover:bg-red-100 disabled:opacity-50">{{ language.t('حذف', 'Delete') }}</button></div>
+                  <label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">{{ uploadingPromoBanner() === index ? language.t('جارٍ الرفع...', 'Uploading...') : language.t('اختيار صورة ورفعها', 'Choose and upload image') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload') || uploadingPromoBanner() !== null" (change)="uploadPromoBanner($event, index)" class="sr-only"></label>
+                </article>
+              } @empty {
+                <div class="rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-500 sm:col-span-2 xl:col-span-3">{{ language.t('لا توجد بنرات عروض ظاهرة. أضف بنرًا للبدء.', 'No promotion banners are shown. Add a banner to get started.') }}</div>
               }
             </div>
           </div>
@@ -385,6 +398,8 @@ export class AdminSettingsComponent implements OnInit {
 
   isSaving = signal<boolean>(false);
   uploadingBanner = signal<number | null>(null);
+  uploadingPromoBanner = signal<number | null>(null);
+  promoBannerSlots = signal<number[]>([1, 2]);
   uploadingHeroSlide = signal<number | null>(null);
   heroSlides = signal<HeroSlide[]>([]);
   uploadingLogo = signal(false);
@@ -504,17 +519,92 @@ export class AdminSettingsComponent implements OnInit {
 
   promoBannerPreview(index: number): string {
     const url = this.settings[`PromoBanner${index}`];
-    if (!url) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
-    return this.imageUrl(url);
+    if (url) return this.imageUrl(url);
+    if (index === 1) return 'assets/morein-banner-1.png';
+    if (index === 2) return 'assets/morein-banner-2.jpg';
+    return '';
+  }
+
+  addPromoBanner() {
+    if (!this.auth.hasPermission('settings.update') || this.promoBannerSlots().length >= 20) return;
+    const slots = this.promoBannerSlots();
+    const nextIndex = slots.length ? Math.max(...slots) + 1 : 1;
+    const nextSlots = [...slots, nextIndex];
+    const countWasConfigured = this.settings['PromoBannerCount'] !== undefined;
+    const updates = [
+      ...(countWasConfigured ? [] : [
+        this.api.updateSetting('PromoBanner1', this.settings['PromoBanner1'] || 'assets/morein-banner-1.png'),
+        this.api.updateSetting('PromoBanner2', this.settings['PromoBanner2'] || 'assets/morein-banner-2.jpg')
+      ]),
+      this.api.updateSetting(`PromoBanner${nextIndex}`, ''),
+      this.api.updateSetting('PromoBannerCount', String(nextSlots.length))
+    ];
+    forkJoin(updates).subscribe({
+      next: () => {
+        if (!countWasConfigured) {
+          this.settings['PromoBanner1'] ||= 'assets/morein-banner-1.png';
+          this.settings['PromoBanner2'] ||= 'assets/morein-banner-2.jpg';
+        }
+        this.settings[`PromoBanner${nextIndex}`] = '';
+        this.settings['PromoBannerCount'] = String(nextSlots.length);
+        this.promoBannerSlots.set(nextSlots);
+      },
+      error: () => this.showFeedback(this.language.t('تعذر إضافة بنر جديد.', 'Could not add a new banner.'), 'error')
+    });
+  }
+
+  removePromoBanner(index: number) {
+    if (!this.auth.hasPermission('settings.update')) return;
+    const slots = this.promoBannerSlots();
+    if (!slots.includes(index)) return;
+    const nextSlots = slots.filter(slot => slot !== index);
+    const updates = [
+      ...nextSlots.map((slot, i) => this.api.updateSetting(`PromoBanner${i + 1}`, this.promoBannerPreview(slot))),
+      ...Array.from({ length: slots.length - nextSlots.length + 1 }, (_, i) =>
+        this.api.updateSetting(`PromoBanner${nextSlots.length + i + 1}`, '')
+      ),
+      this.api.updateSetting('PromoBannerCount', String(nextSlots.length))
+    ];
+    forkJoin(updates).subscribe({
+      next: () => {
+        nextSlots.forEach((slot, i) => { this.settings[`PromoBanner${i + 1}`] = this.promoBannerPreview(slot); });
+        for (let i = nextSlots.length + 1; i <= slots.length + 1; i++) this.settings[`PromoBanner${i}`] = '';
+        this.settings['PromoBannerCount'] = String(nextSlots.length);
+        this.promoBannerSlots.set(nextSlots.map((_, i) => i + 1));
+        this.showFeedback(this.language.t('تم حذف بنر العرض.', 'Promotion banner deleted.'), 'success');
+      },
+      error: () => this.showFeedback(this.language.t('تعذر حذف بنر العرض. لم يتم تغيير ترتيب البنرات.', 'Could not delete the banner. The banner order was not changed.'), 'error')
+    });
   }
 
   uploadPromoBanner(event: Event, index: number) {
-    const input = event.target as HTMLInputElement; const file = input.files?.[0]; if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { this.showFeedback(this.language.t('حجم الصورة أكبر من 10 ميجابايت.', 'Image exceeds 10 MB.'), 'error'); input.value = ''; return; }
-    this.api.uploadImage(file, 'banners').subscribe({ next: result => this.api.updateSetting(`PromoBanner${index}`, result.url).subscribe({
-      next: () => { this.settings[`PromoBanner${index}`] = result.url; this.showFeedback(this.language.t('تم حفظ بنر العرض.', 'Promotion banner saved.'), 'success'); },
-      error: () => this.showFeedback(this.language.t('تم رفع الصورة لكن تعذر حفظ إعداد البنر.', 'Image uploaded, but the banner setting could not be saved.'), 'error')
-    }), error: () => this.showFeedback(this.language.t('تعذر رفع بنر العرض.', 'Could not upload the promotion banner.'), 'error') }); input.value = '';
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      this.showFeedback(this.language.t('حجم الصورة أكبر من 10 ميجابايت.', 'Image exceeds 10 MB.'), 'error');
+      input.value = '';
+      return;
+    }
+    this.uploadingPromoBanner.set(index);
+    this.api.uploadImage(file, 'banners').subscribe({
+      next: result => this.api.updateSetting(`PromoBanner${index}`, result.url).subscribe({
+        next: () => {
+          this.settings[`PromoBanner${index}`] = result.url;
+          this.uploadingPromoBanner.set(null);
+          this.showFeedback(this.language.t('تم حفظ بنر العرض.', 'Promotion banner saved.'), 'success');
+        },
+        error: () => {
+          this.uploadingPromoBanner.set(null);
+          this.showFeedback(this.language.t('تم رفع الصورة لكن تعذر حفظ إعداد البنر.', 'Image uploaded, but the banner setting could not be saved.'), 'error');
+        }
+      }),
+      error: () => {
+        this.uploadingPromoBanner.set(null);
+        this.showFeedback(this.language.t('تعذر رفع بنر العرض.', 'Could not upload the promotion banner.'), 'error');
+      }
+    });
+    input.value = '';
   }
 
   uploadBanner(event: Event, index: number) {
@@ -563,6 +653,9 @@ export class AdminSettingsComponent implements OnInit {
         if (res.settings && Object.keys(res.settings).length > 0) {
           this.settings = { ...this.settings, ...res.settings };
         }
+        const promoCountSetting = res.settings?.['PromoBannerCount'];
+        const promoCount = promoCountSetting === undefined ? 2 : Math.max(0, Math.min(20, Number.parseInt(promoCountSetting, 10) || 0));
+        this.promoBannerSlots.set(Array.from({ length: promoCount }, (_, index) => index + 1));
         const configuredCount = res.settings?.['HeroSlideCount'];
         if (configuredCount !== undefined) {
           const count = Math.max(0, Math.min(30, Number.parseInt(configuredCount, 10) || 0));

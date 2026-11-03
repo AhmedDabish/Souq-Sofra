@@ -100,15 +100,17 @@ import { Category, Product } from '../../../../core/models/models';
     </div>
 
     <!-- More-In style paired promotional banners -->
+    @if (promoBanners.length) {
     <section class="widget-container">
       <div class="container-wide widget-spacing grid grid-cols-1 lg:grid-cols-2 gap-5">
-        @for (banner of promoBanners; track banner; let index = $index) {
+        @for (banner of promoBanners; track $index; let index = $index) {
           <div [class.promo-banner-first]="index === 0" [class.promo-banner-second]="index === 1" class="group relative mx-auto min-h-[220px] w-[92%] max-w-[360px] overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md md:mx-0 md:min-h-[300px] md:w-full md:max-w-none xl:min-h-[340px]">
             <img [src]="banner" [alt]="language.t('عروض سوق وسفرة', 'Souq & Sofra offers')" loading="lazy" class="absolute inset-0 w-full h-full object-contain md:object-cover transform transition-transform duration-700 ease-out group-hover:scale-[1.03]">
           </div>
         }
       </div>
     </section>
+    }
 
     <!-- Best sellers ranked from completed order items -->
     <section class="widget-container">
@@ -187,11 +189,15 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.updateHomeProductLimit();
     this.api.getSettings().subscribe({ next: settings => {
-      this.promoBanners = [1, 2].map(index => {
+      const countSetting = settings['PromoBannerCount'];
+      const count = countSetting === undefined ? 2 : Math.max(0, Math.min(20, Number.parseInt(countSetting, 10) || 0));
+      this.promoBanners = Array.from({ length: count }, (_, i) => {
+        const index = i + 1;
         const url = settings[`PromoBanner${index}`];
-        if (!url) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
+        if (!url && countSetting === undefined) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
+        if (!url) return '';
         return /^https?:\/\//i.test(url) || url.startsWith('assets/') ? url : `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
-      });
+      }).filter(Boolean);
     }, error: () => {} });
     this.api.getCategories().subscribe(categories => this.categories.set(categories));
     this.api.getProducts().subscribe({
