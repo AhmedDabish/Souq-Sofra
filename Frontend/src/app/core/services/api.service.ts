@@ -206,7 +206,19 @@ export class ApiService {
     });
   }
 
+  getAdminBranches(): Observable<Branch[]> {
+    return this.http.get<Branch[]>(`${this.apiUrl}/branches/admin/all`);
+  }
+
   createBranch(branch: Partial<Branch>): Observable<Branch> {
     return this.http.post<Branch>(`${this.apiUrl}/branches`, branch);
+  }
+
+  updateBranch(id: number, branch: Partial<Branch>): Observable<Branch> {
+    return this.http.put<Branch>(`${this.apiUrl}/branches/${id}`, branch);
+  }
+
+  deleteBranch(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/branches/${id}`);
   }
 }

@@ -212,7 +212,7 @@ import { forkJoin } from 'rxjs';
                 <p class="text-[11px] text-gray-400">{{ language.t('الفروع المتاحة لاستلام وتوصيل الطلبات', 'Branches available for pickup and delivery') }}</p>
               </div>
               <button
-                [hidden]="!auth.hasPermission('branches.create')" (click)="showBranchModal.set(true)"
+                [hidden]="!auth.hasPermission('branches.create')" (click)="openNewBranch()"
                 class="px-3.5 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors">
                 + {{ language.t('إضافة فرع', 'Add branch') }}
               </button>
@@ -237,9 +237,9 @@ import { forkJoin } from 'rxjs';
 
                   </div>
 
-                  <div class="flex items-center gap-4 text-[11px] text-primary font-medium pt-2 border-t border-gray-100">
-                    <div>📞 {{ branch.phone }}</div>
-                    <div>💬 {{ branch.whatsApp }}</div>
+                  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-2">
+                    <div class="flex flex-wrap items-center gap-4 text-[11px] text-primary font-medium"><div>📞 {{ branch.phone }}</div><div>💬 {{ branch.whatsApp }}</div></div>
+                    <div class="flex gap-2"><button type="button" [hidden]="!auth.hasPermission('branches.update')" (click)="openEditBranch(branch)" class="rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700">{{language.t('تعديل','Edit')}}</button><button type="button" [hidden]="!auth.hasPermission('branches.delete')" (click)="deleteBranch(branch)" class="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700">{{language.t('حذف','Delete')}}</button></div>
                   </div>
                 </div>
               } @empty {
@@ -259,7 +259,7 @@ import { forkJoin } from 'rxjs';
         <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl">
             <div class="flex items-center justify-between pb-4 border-b border-gray-100">
-              <h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('إضافة فرع جديد', 'Add branch') }}</h2>
+              <h2 class="text-base font-bold font-baloo text-gray-800">{{ editingBranchId() ? language.t('تعديل الفرع', 'Edit branch') : language.t('إضافة فرع جديد', 'Add branch') }}</h2>
               <button (click)="showBranchModal.set(false)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm font-bold">✕</button>
             </div>
 
@@ -306,7 +306,7 @@ import { forkJoin } from 'rxjs';
                   {{ language.t('إلغاء', 'Cancel') }}
                 </button>
                 <button type="submit" [disabled]="isSavingBranch() || !auth.hasPermission('branches.create')" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
-                  {{ language.t('إضافة الفرع', 'Add branch') }}
+                  {{ editingBranchId() ? language.t('حفظ التعديلات', 'Save changes') : language.t('إضافة الفرع', 'Add branch') }}
                 </button>
               </div>
             </form>
@@ -445,7 +445,7 @@ export class AdminSettingsComponent implements OnInit {
   loadData() {
     forkJoin({
       settings: this.api.getSettings(),
-      branches: this.api.getBranches()
+      branches: this.auth.hasPermission('branches.view') ? this.api.getAdminBranches() : this.api.getBranches()
     }).subscribe({
       next: (res) => {
         if (res.settings && Object.keys(res.settings).length > 0) {
@@ -505,6 +505,21 @@ export class AdminSettingsComponent implements OnInit {
     this.deliveryZones.update(zones => zones.filter((_, i) => i !== index));
   }
 
+  editingBranchId = signal<number | null>(null);
+
+  openNewBranch() { this.editingBranchId.set(null); this.newBranch = { nameAr: '', nameEn: '', addressAr: '', addressEn: '', phone: '', whatsApp: '', isActive: true }; this.showBranchModal.set(true); }
+
+  openEditBranch(branch: Branch) {
+    this.editingBranchId.set(branch.branchId);
+    this.newBranch = { nameAr: branch.nameAr, nameEn: branch.nameEn, addressAr: branch.addressAr, addressEn: branch.addressEn, phone: branch.phone, whatsApp: branch.whatsApp, latitude: branch.latitude, longitude: branch.longitude, isActive: branch.isActive };
+    this.showBranchModal.set(true);
+  }
+
+  deleteBranch(branch: Branch) {
+    if (!confirm(this.language.t(`حذف الفرع «${branch.nameAr}»؟`, `Delete branch “${branch.nameEn || branch.nameAr}”?`))) return;
+    this.api.deleteBranch(branch.branchId).subscribe({ next: () => { this.branches.update(items => items.filter(item => item.branchId !== branch.branchId)); this.showFeedback(this.language.t('تم حذف الفرع.','Branch deleted.'),'success'); }, error: err => this.showFeedback(this.language.isEnglish() ? 'Could not delete this branch.' : (err.error?.message || 'تعذر حذف الفرع.'), 'error') });
+  }
+
   saveBranch() {
     if (!this.newBranch.nameAr || !this.newBranch.nameEn) {
       alert(this.language.t('يرجى كتابة اسم الفرع بالعربية والإنجليزية.', 'Enter the branch name in Arabic and English.'));
@@ -512,13 +527,16 @@ export class AdminSettingsComponent implements OnInit {
     }
 
     this.isSavingBranch.set(true);
-    this.api.createBranch(this.newBranch).subscribe({
+    const branchId = this.editingBranchId();
+    const request = branchId ? this.api.updateBranch(branchId, this.newBranch) : this.api.createBranch(this.newBranch);
+    request.subscribe({
       next: (b) => {
         this.isSavingBranch.set(false);
         this.showBranchModal.set(false);
-        this.branches.set([...this.branches(), b]);
+        this.branches.update(items => branchId ? items.map(item => item.branchId === branchId ? b : item) : [...items, b]);
+        this.editingBranchId.set(null);
         this.newBranch = { nameAr: '', nameEn: '', addressAr: '', addressEn: '', phone: '', whatsApp: '', isActive: true };
-        this.showFeedback(this.language.t('تمت إضافة الفرع الجديد بنجاح.', 'Branch added successfully.'), 'success');
+        this.showFeedback(branchId ? this.language.t('تم تحديث الفرع.', 'Branch updated.') : this.language.t('تمت إضافة الفرع الجديد بنجاح.', 'Branch added successfully.'), 'success');
       },
       error: () => {
         this.isSavingBranch.set(false);

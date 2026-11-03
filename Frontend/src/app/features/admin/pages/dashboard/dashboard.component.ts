@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { AdminOrder, Product, Branch } from '../../../../core/models/models';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -209,6 +210,7 @@ import { forkJoin } from 'rxjs';
 })
 export class DashboardComponent implements OnInit {
   language = inject(LanguageService);
+  auth = inject(AuthService);
   private api = inject(ApiService);
 
   orders = signal<AdminOrder[]>([]);
@@ -232,9 +234,9 @@ export class DashboardComponent implements OnInit {
     this.errorMessage.set('');
 
     forkJoin({
-      orders: this.api.getAdminOrders(),
-      products: this.api.getAllAdminProducts(),
-      branches: this.api.getBranches()
+      orders: this.auth.hasPermission('orders.view') ? this.api.getAdminOrders() : of([]),
+      products: this.auth.hasPermission('products.view') ? this.api.getAllAdminProducts() : of([]),
+      branches: this.auth.hasPermission('branches.view') ? this.api.getAdminBranches() : of([])
     }).subscribe({
       next: (res) => {
         this.isLoading.set(false);
