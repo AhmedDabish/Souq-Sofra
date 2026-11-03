@@ -23,7 +23,7 @@ import { AuthService } from '../../../../core/services/auth.service';
       <svg viewBox="0 0 24 24" class="h-5 w-5 transition-transform" [class.rotate-180]="!isCollapsed()" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/><path d="M20 12H9"/></svg>
     </button>
 
-    <aside [style.width]="isCollapsed() ? '5rem' : '18rem'" [style.right]="language.isEnglish() ? 'auto' : '0'" [style.left]="language.isEnglish() ? '0' : 'auto'" [class.sidebar-mobile-open]="mobileOpen()" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-[#32120e] text-white shadow-[0_20px_70px_rgba(36,12,8,.32)] transition-[width,transform] duration-300 ease-out translate-x-full lg:translate-x-0">
+    <aside [style.width]="isCollapsed() ? '5rem' : '18rem'" [style.right]="language.isEnglish() ? 'auto' : '0'" [style.left]="language.isEnglish() ? '0' : 'auto'" [class.sidebar-mobile-open]="mobileOpen()" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/10 bg-[#32120e] text-white shadow-[0_20px_70px_rgba(36,12,8,.32)] transition-[width,transform] duration-300 ease-out">
       <div class="sidebar-brand relative flex h-[6.25rem] shrink-0 items-center gap-3 border-b border-white/[.08] px-4">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l from-amber-300 via-orange-400 to-transparent"></div>
         <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-[0_5px_22px_rgba(247,176,77,.18)] ring-1 ring-amber-200/30">
@@ -73,7 +73,13 @@ import { AuthService } from '../../../../core/services/auth.service';
   `,
   styles: [`
     :host{display:contents}
-    .admin-sidebar.sidebar-mobile-open{transform:translateX(0)}
+    /* Use transform instead of Tailwind's translate utility: Tailwind's translate property
+       can otherwise keep the drawer off-canvas even when transform is reset. */
+    .admin-sidebar{translate:none!important;will-change:transform}
+    .admin-sidebar[dir="rtl"]{transform:translate3d(100%,0,0)}
+    .admin-sidebar[dir="ltr"]{transform:translate3d(-100%,0,0)}
+    .admin-sidebar.sidebar-mobile-open{transform:translate3d(0,0,0)}
+    @media (min-width:1024px){.admin-sidebar{transform:translate3d(0,0,0)!important;will-change:auto}}
     .admin-nav-active{background:linear-gradient(105deg,rgba(230,104,33,.98),rgba(196,72,23,.98));color:#fff;box-shadow:0 7px 20px rgba(230,104,33,.20)}
     .admin-nav-active .admin-nav-icon{background:rgba(255,255,255,.16);color:#fff}
   `]
