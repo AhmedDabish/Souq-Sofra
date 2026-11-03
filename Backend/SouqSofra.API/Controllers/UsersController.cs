@@ -9,6 +9,7 @@ using SouqSofra.Domain.Entities;
 using SouqSofra.Infrastructure.Data;
 using SouqSofra.Domain.Authorization;
 using System.Text.Json;
+using SouqSofra.API.Authorization;
 
 namespace SouqSofra.API.Controllers
 {
