@@ -10,7 +10,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-cairo" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
+    <div class="admin-login-shell min-h-screen bg-gray-100 flex items-center justify-center p-4 font-cairo" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
       <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 space-y-6 border border-gray-200">
         <div class="flex justify-end"><button type="button" (click)="language.toggle()" class="rounded-full border border-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">{{ language.isEnglish() ? 'العربية' : 'English' }}</button></div>
 

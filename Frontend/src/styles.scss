@@ -773,3 +773,332 @@ footer {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Final admin responsive pass: consistent behavior across every admin route. */
+.admin-shell,
+.admin-login-shell {
+  --admin-gutter: clamp(.75rem, 2.5vw, 2rem);
+}
+
+.admin-shell :where(main, section, article, form, fieldset, label, .flex, .grid) {
+  min-width: 0;
+}
+
+.admin-shell :where(img, video, canvas, svg) {
+  max-width: 100%;
+}
+
+.admin-shell :where(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: max(16px, 1em);
+}
+
+.admin-shell :where(button, a) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-shell :where(button, select) {
+  touch-action: manipulation;
+}
+
+.admin-shell .overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #f3b36c #fff7ed;
+  overscroll-behavior-inline: contain;
+}
+
+.admin-shell .overflow-x-auto::-webkit-scrollbar { height: 7px; }
+.admin-shell .overflow-x-auto::-webkit-scrollbar-thumb { background: #f3b36c; border-radius: 999px; }
+.admin-shell .overflow-x-auto::-webkit-scrollbar-track { background: #fff7ed; }
+
+.admin-login-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1024px) {
+  .admin-shell > main {
+    width: auto;
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-shell > main,
+  .admin-shell .admin-main,
+  .admin-shell .admin-dashboard-main {
+    padding: 5.25rem clamp(1.25rem, 3vw, 2rem) 2rem !important;
+  }
+
+  .admin-shell main > header {
+    align-items: center;
+  }
+
+  .admin-shell main > header > div {
+    min-width: 0;
+  }
+
+  .admin-shell main > header :where(button, a) {
+    min-height: 2.75rem;
+  }
+
+  .admin-shell :where(.grid) {
+    gap: clamp(.75rem, 2vw, 1.25rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-shell {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  .admin-shell > app-admin-sidebar {
+    display: contents;
+  }
+
+  .admin-shell > main,
+  .admin-shell .admin-main,
+  .admin-shell .admin-dashboard-main {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100dvh;
+    margin: 0 !important;
+    padding: calc(4.5rem + env(safe-area-inset-top)) var(--admin-gutter) calc(1.5rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .admin-shell main > header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch !important;
+    justify-content: flex-start;
+    gap: .75rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .admin-shell main > header > :where(div, button, a) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .admin-shell main > header h1 {
+    font-size: clamp(1.25rem, 5.6vw, 1.65rem);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-shell main > header p {
+    font-size: .875rem;
+    line-height: 1.55;
+  }
+
+  .admin-shell main :where(button, a) {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-shell main > header :where(button, a),
+  .admin-shell main > header > div > button {
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+
+  .admin-shell main > :where(.grid, section.grid, div.grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+  }
+
+  .admin-shell main > :where(.grid, section.grid, div.grid) > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-shell main :where(.flex.items-center, .flex.justify-between) {
+    min-width: 0;
+  }
+
+  .admin-shell main .overflow-x-auto {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: .75rem;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .admin-shell main table {
+    width: max-content;
+    min-width: 42rem;
+    max-width: none;
+    table-layout: auto;
+  }
+
+  .admin-shell main th,
+  .admin-shell main td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+  }
+
+  .admin-shell main td :where(button, select) {
+    min-height: 2.5rem;
+  }
+
+  .admin-shell .fixed.inset-0 {
+    position: fixed;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100vw;
+    max-height: 100dvh;
+    padding: max(.5rem, env(safe-area-inset-top)) .5rem max(.5rem, env(safe-area-inset-bottom)) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-items: center;
+  }
+
+  .admin-shell .fixed.inset-0 > :where(section, form, div) {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 42rem;
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin-block: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  .admin-shell .fixed.inset-0 :where(.flex.items-center.justify-between, .flex.justify-end) {
+    flex-wrap: wrap;
+    row-gap: .75rem;
+  }
+
+  .admin-shell .fixed.inset-0 :where(.flex.justify-end, .flex.items-center.justify-between) > :where(div, button) {
+    min-width: 0;
+  }
+
+  .admin-shell .fixed.inset-0 form,
+  .admin-shell .fixed.inset-0 form :where(input, select, textarea) {
+    max-width: 100%;
+  }
+
+  .admin-shell .fixed.inset-0 form > .flex.justify-end {
+    flex-wrap: wrap;
+  }
+
+  .admin-dashboard-main .admin-dashboard-header-actions {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .625rem;
+  }
+
+  .admin-dashboard-main .dashboard-connection-status {
+    align-self: flex-start;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .admin-dashboard-main .admin-dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .75rem;
+  }
+
+  .admin-dashboard-main .admin-dashboard-metrics > * {
+    padding: clamp(.75rem, 3vw, 1rem);
+  }
+
+  .admin-dashboard-main .admin-dashboard-metrics .text-2xl {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+    overflow-wrap: anywhere;
+  }
+
+  .admin-dashboard-main .admin-dashboard-orders {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: .875rem;
+  }
+
+  .admin-dashboard-main .admin-dashboard-orders > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-dashboard-main .recent-orders-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding: 1rem;
+  }
+
+  .admin-login-shell > div {
+    width: 100%;
+    padding: clamp(1.25rem, 5vw, 2rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-shell > main,
+  .admin-shell .admin-main,
+  .admin-shell .admin-dashboard-main {
+    padding-inline: .75rem !important;
+  }
+
+  .admin-shell main > :where(.grid, section.grid, div.grid),
+  .admin-shell main > section.grid,
+  .admin-shell main > div.grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-dashboard-main .admin-dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .admin-shell main :where(.flex.items-center, .flex.justify-between) {
+    flex-wrap: wrap;
+  }
+
+  .admin-shell main .flex.items-center > button,
+  .admin-shell main .flex.justify-between > button {
+    max-width: 100%;
+  }
+
+  .admin-shell .fixed.inset-0 > :where(section, form, div) {
+    border-radius: 1.25rem;
+  }
+}
+
+@media (max-width: 359px) {
+  .admin-shell > main,
+  .admin-shell .admin-main,
+  .admin-shell .admin-dashboard-main {
+    padding-inline: .625rem !important;
+  }
+
+  .admin-dashboard-main .admin-dashboard-metrics {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .admin-shell main table {
+    min-width: 38rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *, .admin-login-shell * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
