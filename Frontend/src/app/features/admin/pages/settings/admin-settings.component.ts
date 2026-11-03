@@ -9,6 +9,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
 
+type HeroSlide = { image: string; title: string; titleEn: string; subtitle: string; subtitleEn: string };
+
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
@@ -171,27 +173,64 @@ import { forkJoin } from 'rxjs';
             <div class="flex items-center gap-4"><img [src]="logoPreview()" [alt]="language.t('معاينة شعار الموقع', 'Store logo preview')" class="h-24 w-24 rounded-full border bg-orange-50 object-cover"><div><label class="inline-flex cursor-pointer rounded-xl bg-orange-50 px-4 py-3 text-xs font-bold text-orange-800 hover:bg-orange-100">{{ uploadingLogo() ? language.t('جارٍ الرفع…', 'Uploading…') : language.t('اختيار شعار ورفعه', 'Choose and upload logo') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload')" (change)="uploadLogo($event)" class="sr-only"></label><p class="mt-2 text-[10px] text-gray-400">{{ language.t('سيتم حفظ مسار الصورة في إعدادات المتجر.', 'The image path will be saved in store settings.') }}</p></div></div>
           </div>
 
-          <!-- Homepage banner management -->
-          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
-            <div class="border-b border-gray-100 pb-4">
-              <h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('صور واجهة المتجر', 'Storefront images') }}</h2>
-              <p class="text-[11px] text-gray-400">{{ language.t('اختيار ورفع صور شرائح الصفحة الرئيسية إلى مجلد wwwroot/uploads/banners', 'Upload homepage slide images') }}</p>
+          <!-- Homepage hero carousel management -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5 lg:col-span-2">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+              <div>
+                <h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('صور ونصوص واجهة المتجر', 'Storefront slides & text') }}</h2>
+                <p class="text-[11px] text-gray-400">{{ language.t('أضف شرائح بلا عدد ثابت، ارفع صورها، وعدّل العناوين والوصف بالعربي والإنجليزي.', 'Add as many slides as needed, upload images, and edit Arabic and English headings and descriptions.') }}</p>
+              </div>
+              <button type="button" [hidden]="!auth.hasPermission('settings.update')" [disabled]="heroSlides().length >= 30" (click)="addHeroSlide()" class="rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">+ {{ language.t('إضافة شريحة', 'Add slide') }}</button>
             </div>
-            <div class="grid grid-cols-1 gap-4">
-              @for (index of [1, 2, 3]; track index) {
-                <div class="flex items-center gap-4 rounded-2xl border border-gray-100 p-3">
-                  <img [src]="bannerPreview(index)" [alt]="language.t('معاينة الشريحة', 'Slide preview') + ' ' + index" class="w-28 h-16 rounded-xl object-cover bg-orange-50">
-                  <div class="flex-1">
-                    <p class="font-bold text-xs text-gray-700 mb-2">{{ language.t('الشريحة', 'Slide') }} {{ index }}</p>
-                    <label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700 hover:bg-orange-100">
-                      {{ language.t('اختيار صورة ورفعها', 'Choose and upload image') }}
-                      <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadBanner($event, index)" class="sr-only">
-                    </label>
-                    @if (uploadingBanner() === index) { <span class="mr-2 text-[10px] text-gray-500">{{ language.t('جارٍ الرفع...', 'Uploading...') }}</span> }
+            <div class="grid gap-4 xl:grid-cols-2">
+              @for (slide of heroSlides(); track $index; let index = $index) {
+                <article class="min-w-0 space-y-4 rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h3 class="text-sm font-black text-gray-800">{{ language.t('الشريحة', 'Slide') }} {{ index + 1 }}</h3>
+                    <button type="button" [hidden]="!auth.hasPermission('settings.update')" (click)="removeHeroSlide(index)" class="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100">{{ language.t('حذف الشريحة', 'Delete slide') }}</button>
                   </div>
-                </div>
+                  <div class="flex flex-wrap items-center gap-4">
+                    <img [src]="heroSlidePreview(slide, index)" [alt]="language.t('معاينة الشريحة', 'Slide preview') + ' ' + (index + 1)" class="h-24 w-40 rounded-xl border bg-white object-cover">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2.5 text-xs font-bold text-orange-800 hover:bg-orange-100">
+                        {{ uploadingHeroSlide() === index ? language.t('جارٍ الرفع...', 'Uploading...') : language.t('اختيار صورة ورفعها', 'Choose and upload image') }}
+                        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload') || uploadingHeroSlide() !== null" (change)="uploadHeroSlide($event, index)" class="sr-only">
+                      </label>
+                    </div>
+                  </div>
+                  <label class="block text-xs font-bold text-gray-700">{{ language.t('العنوان بالعربية', 'Arabic heading') }}
+                    <input type="text" [ngModel]="slide.title" (ngModelChange)="updateHeroSlide(index, 'title', $event)" [name]="'heroTitleAr' + index" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-normal" [placeholder]="language.t('عنوان الشريحة', 'Slide heading')">
+                  </label>
+                  <label class="block text-xs font-bold text-gray-700">{{ language.t('العنوان بالإنجليزية', 'English heading') }}
+                    <input type="text" dir="ltr" [ngModel]="slide.titleEn" (ngModelChange)="updateHeroSlide(index, 'titleEn', $event)" [name]="'heroTitleEn' + index" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-left font-normal" placeholder="Slide heading">
+                  </label>
+                  <label class="block text-xs font-bold text-gray-700">{{ language.t('الوصف بالعربية', 'Arabic description') }}
+                    <textarea rows="2" [ngModel]="slide.subtitle" (ngModelChange)="updateHeroSlide(index, 'subtitle', $event)" [name]="'heroSubtitleAr' + index" class="mt-1 w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-normal" [placeholder]="language.t('وصف مختصر يظهر على الصورة', 'Short description shown on the image')"></textarea>
+                  </label>
+                  <label class="block text-xs font-bold text-gray-700">{{ language.t('الوصف بالإنجليزية', 'English description') }}
+                    <textarea rows="2" dir="ltr" [ngModel]="slide.subtitleEn" (ngModelChange)="updateHeroSlide(index, 'subtitleEn', $event)" [name]="'heroSubtitleEn' + index" class="mt-1 w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-left font-normal" placeholder="Short description shown on the image"></textarea>
+                  </label>
+                </article>
+              } @empty {
+                <div class="rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-500 xl:col-span-2">{{ language.t('لا توجد شرائح ظاهرة في واجهة المتجر. أضف شريحة للبدء.', 'No storefront slides are shown. Add a slide to get started.') }}</div>
               }
             </div>
+            <section class="grid gap-4 rounded-2xl border border-orange-100 bg-orange-50/50 p-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div class="sm:col-span-2 lg:col-span-4"><h3 class="text-sm font-black text-gray-800">{{ language.t('الشارة أعلى الصورة', 'Badge on the image') }}</h3><p class="mt-1 text-[11px] text-gray-500">{{ language.t('اترك النص فارغًا لإخفاء الشارة. إعدادات الحجم واللون تطبق على الشارة.', 'Leave the text empty to hide the badge. Size and color apply to the badge text.') }}</p></div>
+              <label class="block text-xs font-bold text-gray-700">{{ language.t('نص الشارة بالعربية', 'Badge text in Arabic') }}
+                <input type="text" [(ngModel)]="settings['HeroBadgeAr']" name="heroBadgeAr" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-normal">
+              </label>
+              <label class="block text-xs font-bold text-gray-700">{{ language.t('نص الشارة بالإنجليزية', 'Badge text in English') }}
+                <input type="text" dir="ltr" [(ngModel)]="settings['HeroBadgeEn']" name="heroBadgeEn" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-left font-normal">
+              </label>
+              <label class="block text-xs font-bold text-gray-700">{{ language.t('حجم الخط (بكسل)', 'Font size (px)') }}
+                <input type="number" min="8" max="48" [(ngModel)]="settings['HeroBadgeFontSize']" name="heroBadgeFontSize" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-normal">
+              </label>
+              <label class="block text-xs font-bold text-gray-700">{{ language.t('لون الخط', 'Text color') }}
+                <span class="mt-1 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2"><input type="color" [(ngModel)]="settings['HeroBadgeColor']" name="heroBadgeColor" class="h-8 w-10 cursor-pointer border-0 bg-transparent p-0"><span dir="ltr" class="text-xs font-medium text-gray-500">{{ settings['HeroBadgeColor'] }}</span></span>
+              </label>
+              <div class="sm:col-span-2 lg:col-span-4"><span class="inline-flex rounded-full bg-[#f47621] px-3 py-1.5 font-bold shadow" [style.fontSize.px]="badgeFontSize()" [style.color]="settings['HeroBadgeColor'] || '#ffffff'">{{ language.isEnglish() ? (settings['HeroBadgeEn'] || '') : (settings['HeroBadgeAr'] || '') }}</span></div>
+            </section>
           </div>
 
           <!-- Additional homepage promo banners -->
@@ -325,6 +364,10 @@ export class AdminSettingsComponent implements OnInit {
   settings: SiteSettings = {
     Announcement: '',
     AnnouncementEn: '',
+    HeroBadgeAr: 'طازج يومياً من سوق وسفرة',
+    HeroBadgeEn: 'Fresh every day from Souq & Sofra',
+    HeroBadgeFontSize: '12',
+    HeroBadgeColor: '#ffffff',
     PhoneNumber: '02 633 3136',
     WhatsApp: '+971 50 315 7884',
     DeliveryFee: '10.00',
@@ -342,6 +385,8 @@ export class AdminSettingsComponent implements OnInit {
 
   isSaving = signal<boolean>(false);
   uploadingBanner = signal<number | null>(null);
+  uploadingHeroSlide = signal<number | null>(null);
+  heroSlides = signal<HeroSlide[]>([]);
   uploadingLogo = signal(false);
   isSavingBranch = signal<boolean>(false);
   showBranchModal = signal<boolean>(false);
@@ -359,18 +404,86 @@ export class AdminSettingsComponent implements OnInit {
     isActive: true
   };
 
+  private readonly defaultHeroSlides: HeroSlide[] = [
+    { image: 'assets/banners/banner-1.jpg', title: 'سفرة عامرة.. بطعم أصيل', titleEn: 'A table full of authentic flavor', subtitle: 'اختار من أشهى الأطباق والمخبوزات، ونحضّر طلبك طازج بكل حب.', subtitleEn: 'Choose from our favorite dishes and baked goods, freshly prepared with care.' },
+    { image: 'assets/banners/banner-2.jpg', title: 'كل اللي بتحبه.. في مكان واحد', titleEn: 'Everything you love, all in one place', subtitle: 'من الفطائر والمخبوزات إلى الوجبات اليومية، تجربة تناسب كل سفرة.', subtitleEn: 'From feteer and bakery favorites to everyday meals, there is something for every table.' },
+    { image: 'assets/banners/banner-3.jpg', title: 'اختار وجبتك واطلبها بسهولة', titleEn: 'Choose your meal and order with ease', subtitle: 'تصفح القائمة، أضف اختياراتك للسلة، واستمتع بطلبك من سوق وسفرة.', subtitleEn: 'Browse the menu, add your favorites to the cart, and enjoy your Souq & Sofra order.' }
+  ];
+
+  badgeFontSize(): number {
+    const value = Number(this.settings['HeroBadgeFontSize'] || 12);
+    return Number.isFinite(value) ? Math.min(48, Math.max(8, value)) : 12;
+  }
+
+  heroSlidePreview(slide: HeroSlide, index: number): string {
+    return slide.image ? this.imageUrl(slide.image) : this.defaultHeroSlides[index % this.defaultHeroSlides.length].image;
+  }
+
+  private imageUrl(url: string): string {
+    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+  }
+
+  updateHeroSlide(index: number, key: keyof HeroSlide, value: string) {
+    this.heroSlides.update(slides => slides.map((slide, i) => i === index ? { ...slide, [key]: value } : slide));
+  }
+
+  addHeroSlide() {
+    if (this.heroSlides().length >= 30) return;
+    this.heroSlides.update(slides => [...slides, { image: '', title: '', titleEn: '', subtitle: '', subtitleEn: '' }]);
+  }
+
+  removeHeroSlide(index: number) {
+    this.heroSlides.update(slides => slides.filter((_, i) => i !== index));
+  }
+
+  uploadHeroSlide(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      this.showFeedback(this.language.t('حجم الصورة أكبر من 10 ميجابايت.', 'Image exceeds 10 MB.'), 'error');
+      input.value = '';
+      return;
+    }
+    this.uploadingHeroSlide.set(index);
+    this.api.uploadImage(file, 'banners').subscribe({
+      next: result => {
+        this.updateHeroSlide(index, 'image', result.url);
+        this.uploadingHeroSlide.set(null);
+        this.showFeedback(this.language.t('تم رفع الصورة. اضغط حفظ التغييرات لنشر الشريحة.', 'Image uploaded. Save changes to publish the slide.'), 'success');
+      },
+      error: () => {
+        this.uploadingHeroSlide.set(null);
+        this.showFeedback(this.language.t('تعذر رفع صورة الشريحة.', 'Could not upload the slide image.'), 'error');
+      }
+    });
+    input.value = '';
+  }
+
+  private syncHeroSlidesToSettings() {
+    this.settings['HeroSlideCount'] = String(this.heroSlides().length);
+    this.heroSlides().forEach((slide, index) => {
+      const slot = index + 1;
+      this.settings[`HeroBanner${slot}`] = slide.image;
+      this.settings[`HeroSlideTitleAr${slot}`] = slide.title;
+      this.settings[`HeroSlideTitleEn${slot}`] = slide.titleEn;
+      this.settings[`HeroSlideSubtitleAr${slot}`] = slide.subtitle;
+      this.settings[`HeroSlideSubtitleEn${slot}`] = slide.subtitleEn;
+    });
+    this.settings['HeroBadgeFontSize'] = String(this.badgeFontSize());
+  }
+
   bannerPreview(index: number): string {
     const url = this.settings[`HeroBanner${index}`];
     if (!url) return `assets/banners/banner-${index}.jpg`;
-    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
-    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+    return this.imageUrl(url);
   }
 
   logoPreview(): string {
     const url = this.settings['StoreLogo'];
     if (!url) return 'assets/MAIN.jpg';
-    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
-    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+    return this.imageUrl(url);
   }
 
   uploadLogo(event: Event) {
@@ -392,8 +505,7 @@ export class AdminSettingsComponent implements OnInit {
   promoBannerPreview(index: number): string {
     const url = this.settings[`PromoBanner${index}`];
     if (!url) return index === 1 ? 'assets/morein-banner-1.png' : 'assets/morein-banner-2.jpg';
-    if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
-    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
+    return this.imageUrl(url);
   }
 
   uploadPromoBanner(event: Event, index: number) {
@@ -451,6 +563,25 @@ export class AdminSettingsComponent implements OnInit {
         if (res.settings && Object.keys(res.settings).length > 0) {
           this.settings = { ...this.settings, ...res.settings };
         }
+        const configuredCount = res.settings?.['HeroSlideCount'];
+        if (configuredCount !== undefined) {
+          const count = Math.max(0, Math.min(30, Number.parseInt(configuredCount, 10) || 0));
+          this.heroSlides.set(Array.from({ length: count }, (_, index) => {
+            const slot = index + 1;
+            return {
+              image: res.settings?.[`HeroBanner${slot}`] || '',
+              title: res.settings?.[`HeroSlideTitleAr${slot}`] || '',
+              titleEn: res.settings?.[`HeroSlideTitleEn${slot}`] || '',
+              subtitle: res.settings?.[`HeroSlideSubtitleAr${slot}`] || '',
+              subtitleEn: res.settings?.[`HeroSlideSubtitleEn${slot}`] || ''
+            };
+          }));
+        } else {
+          this.heroSlides.set(this.defaultHeroSlides.map((slide, index) => ({
+            ...slide,
+            image: res.settings?.[`HeroBanner${index + 1}`] || slide.image
+          })));
+        }
         this.branches.set(res.branches || []);
         try {
           const savedZones = JSON.parse(res.settings?.['DeliveryZones'] || '[]') as DeliveryZone[];
@@ -466,6 +597,7 @@ export class AdminSettingsComponent implements OnInit {
   saveSettings() {
     this.isSaving.set(true);
 
+    this.syncHeroSlidesToSettings();
     this.settings['DeliveryZones'] = JSON.stringify(this.deliveryZones());
     const keys = Object.keys(this.settings) as (keyof SiteSettings)[];
     const updates = keys

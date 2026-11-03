@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
             <img [src]="slide.image" [alt]="language.isEnglish() ? slide.titleEn : slide.alt" class="absolute inset-0 w-full h-full object-cover">
             <div [class.bg-gradient-to-l]="!language.isEnglish()" [class.bg-gradient-to-r]="language.isEnglish()" class="absolute inset-0 from-[#20130d]/75 via-[#20130d]/20 to-transparent"></div>
             <div [class.right-0]="!language.isEnglish()" [class.left-0]="language.isEnglish()" [class.text-right]="!language.isEnglish()" [class.text-left]="language.isEnglish()" class="absolute inset-y-0 z-10 w-full md:w-[72%] lg:w-[58%] flex flex-col justify-center p-4 sm:p-7 lg:p-12 xl:p-16 text-white">
-              <span class="inline-flex self-start md:self-end rounded-full bg-[#f47621] px-3 py-1 text-[10px] sm:text-xs font-bold shadow">{{ language.t('طازج يومياً من سوق وسفرة', 'Fresh every day from Souq & Sofra') }}</span>
+              @if (badgeText()) { <span class="inline-flex self-start md:self-end rounded-full bg-[#f47621] px-3 py-1 font-bold shadow" [style.fontSize.px]="badgeFontSize()" [style.color]="badgeColor()">{{ badgeText() }}</span> }
               <h1 class="mt-2 text-lg leading-tight font-black font-baloo sm:mt-3 sm:text-3xl lg:text-5xl max-w-2xl">{{ language.isEnglish() ? slide.titleEn : slide.title }}</h1>
               <p class="mt-2 sm:mt-3 text-[10px] leading-snug sm:text-sm lg:text-base text-white/90 max-w-xl sm:leading-relaxed">{{ language.isEnglish() ? slide.subtitleEn : slide.subtitle }}</p>
               <div class="mt-3 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
@@ -39,6 +39,10 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
   language = inject(LanguageService);
   activeIndex = signal(0);
   private timer?: ReturnType<typeof setInterval>;
+  private badgeAr = 'طازج يومياً من سوق وسفرة';
+  private badgeEn = 'Fresh every day from Souq & Sofra';
+  private badgeSize = 12;
+  private badgeTextColor = '#ffffff';
   slides = [
     { image: 'assets/banners/banner-1.jpg', alt: 'أطباق سوق وسفرة الطازجة', title: 'سفرة عامرة.. بطعم أصيل', titleEn: 'A table full of authentic flavor', subtitle: 'اختار من أشهى الأطباق والمخبوزات، ونحضّر طلبك طازج بكل حب.', subtitleEn: 'Choose from our favorite dishes and baked goods, freshly prepared with care.' },
     { image: 'assets/banners/banner-2.jpg', alt: 'وجبات متنوعة من سوق وسفرة', title: 'كل اللي بتحبه.. في مكان واحد', titleEn: 'Everything you love, all in one place', subtitle: 'من الفطائر والمخبوزات إلى الوجبات اليومية، تجربة تناسب كل سفرة.', subtitleEn: 'From feteer and bakery favorites to everyday meals, there is something for every table.' },
@@ -47,18 +51,58 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.api.getSettings().subscribe({ next: settings => {
-      this.slides = this.slides.map((slide, i) => {
-        const url = settings[`HeroBanner${i + 1}`];
-        return url ? { ...slide, image: this.imageUrl(url) } : slide;
-      });
+      this.badgeAr = settings['HeroBadgeAr'] ?? this.badgeAr;
+      this.badgeEn = settings['HeroBadgeEn'] ?? this.badgeEn;
+      this.badgeSize = this.clampFontSize(settings['HeroBadgeFontSize']);
+      this.badgeTextColor = this.isHexColor(settings['HeroBadgeColor']) ? settings['HeroBadgeColor']! : '#ffffff';
+      const configuredCount = settings['HeroSlideCount'];
+      if (configuredCount !== undefined) {
+        const count = Math.max(0, Math.min(30, Number.parseInt(configuredCount, 10) || 0));
+        this.slides = Array.from({ length: count }, (_, i) => {
+          const slot = i + 1;
+          return {
+            image: settings[`HeroBanner${slot}`] || '',
+            alt: settings[`HeroSlideTitleAr${slot}`] || 'سوق وسفرة',
+            title: settings[`HeroSlideTitleAr${slot}`] || '',
+            titleEn: settings[`HeroSlideTitleEn${slot}`] || '',
+            subtitle: settings[`HeroSlideSubtitleAr${slot}`] || '',
+            subtitleEn: settings[`HeroSlideSubtitleEn${slot}`] || ''
+          };
+        }).filter(slide => !!slide.image).map(slide => ({ ...slide, image: this.imageUrl(slide.image) }));
+      } else {
+        this.slides = this.slides.map((slide, i) => ({
+          ...slide,
+          image: settings[`HeroBanner${i + 1}`] ? this.imageUrl(settings[`HeroBanner${i + 1}`]!) : slide.image,
+          title: settings[`HeroSlideTitleAr${i + 1}`] ?? slide.title,
+          titleEn: settings[`HeroSlideTitleEn${i + 1}`] ?? slide.titleEn,
+          subtitle: settings[`HeroSlideSubtitleAr${i + 1}`] ?? slide.subtitle,
+          subtitleEn: settings[`HeroSlideSubtitleEn${i + 1}`] ?? slide.subtitleEn
+        }));
+      }
+      this.activeIndex.set(0);
     }, error: () => {} });
     this.timer = setInterval(() => this.next(), 5500);
   }
+  badgeText(): string { return this.language.isEnglish() ? this.badgeEn : this.badgeAr; }
+  badgeFontSize(): number { return this.badgeSize; }
+  badgeColor(): string { return this.badgeTextColor; }
+  private clampFontSize(value?: string): number {
+    const size = Number(value || 12);
+    return Number.isFinite(size) ? Math.min(48, Math.max(8, size)) : 12;
+  }
+  private isHexColor(value?: string): boolean { return !!value && /^#[0-9a-f]{6}$/i.test(value); }
+
   private imageUrl(url: string): string {
     if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url;
     return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
   }
   ngOnDestroy() { if (this.timer) clearInterval(this.timer); }
-  next() { this.activeIndex.update(i => (i + 1) % this.slides.length); }
-  previous() { this.activeIndex.update(i => (i - 1 + this.slides.length) % this.slides.length); }
+  next() {
+    if (!this.slides.length) return;
+    this.activeIndex.update(i => (i + 1) % this.slides.length);
+  }
+  previous() {
+    if (!this.slides.length) return;
+    this.activeIndex.update(i => (i - 1 + this.slides.length) % this.slides.length);
+  }
 }
