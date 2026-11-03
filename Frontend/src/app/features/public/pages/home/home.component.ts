@@ -102,9 +102,9 @@ import { Category, Product } from '../../../../core/models/models';
     <!-- More-In style paired promotional banners -->
     <section class="widget-container">
       <div class="container-wide widget-spacing grid grid-cols-1 lg:grid-cols-2 gap-5">
-        @for (banner of promoBanners; track banner) {
-          <div class="group relative mx-auto min-h-[220px] w-[92%] max-w-[360px] overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md md:mx-0 md:min-h-[300px] md:w-full md:max-w-none xl:min-h-[340px]">
-            <img [src]="banner" [alt]="language.t('عروض سوق وسفرة', 'Souq & Sofra offers')" loading="lazy" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+        @for (banner of promoBanners; track banner; let index = $index) {
+          <div [class.promo-banner-first]="index === 0" [class.promo-banner-second]="index === 1" class="group relative mx-auto min-h-[220px] w-[92%] max-w-[360px] overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md md:mx-0 md:min-h-[300px] md:w-full md:max-w-none xl:min-h-[340px]">
+            <img [src]="banner" [alt]="language.t('عروض سوق وسفرة', 'Souq & Sofra offers')" loading="lazy" class="absolute inset-0 w-full h-full object-contain md:object-cover transform transition-transform duration-700 ease-out group-hover:scale-[1.03]">
           </div>
         }
       </div>

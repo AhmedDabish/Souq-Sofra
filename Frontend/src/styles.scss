@@ -313,6 +313,19 @@ body {
 }
 
 @media (max-width: 639px) {
+  .promo-banner-first,
+  .promo-banner-second {
+    min-height: 0 !important;
+  }
+  .promo-banner-first {
+    aspect-ratio: 828 / 398;
+  }
+  .promo-banner-second {
+    aspect-ratio: 1600 / 1072;
+  }
+}
+
+@media (max-width: 639px) {
   .admin-shell main {
     padding: 5rem 1rem calc(6rem + env(safe-area-inset-bottom)) !important;
   }
