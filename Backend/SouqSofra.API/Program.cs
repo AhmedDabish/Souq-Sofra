@@ -141,7 +141,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        await DbInitializer.InitializeAsync(context);
+        await DbInitializer.InitializeAsync(context, app.Configuration);
     }
     catch (Exception ex)
     {
