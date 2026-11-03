@@ -18,13 +18,13 @@ import { forkJoin } from 'rxjs';
       <app-admin-sidebar />
 
       <!-- Main Content -->
-      <main class="min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
+      <main class="admin-dashboard-main min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 class="text-2xl font-black font-baloo text-gray-800">{{ language.t('لوحة المؤشرات والتحليلات', 'Dashboard & analytics') }}</h1>
             <p class="text-xs text-gray-400">{{ language.t('متابعة فورية لنشاط مطعم ومخبز سوق وسفرة', 'Live activity for Souq & Sofra restaurant and bakery') }}</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="admin-dashboard-header-actions flex items-center gap-3">
             <button
               (click)="loadData()"
               [disabled]="isLoading()"
@@ -32,7 +32,7 @@ import { forkJoin } from 'rxjs';
               <span [class.animate-spin]="isLoading()">🔄</span>
               <span>{{ language.t('تحديث البيانات', 'Refresh data') }}</span>
             </button>
-            <span class="text-xs font-bold bg-green-100 text-green-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
+            <span class="dashboard-connection-status text-xs font-bold bg-green-100 text-green-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
               <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               <span>{{ language.t('متصل مباشر بالخادم', 'Connected to server') }}</span>
             </span>
@@ -50,7 +50,7 @@ import { forkJoin } from 'rxjs';
         }
 
         <!-- Metrics Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div class="admin-dashboard-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs relative overflow-hidden">
             <div class="flex items-center justify-between mb-2">
@@ -111,7 +111,7 @@ import { forkJoin } from 'rxjs';
         </div>
 
         <!-- Orders Breakdown & Quick Actions -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="admin-dashboard-orders grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs lg:col-span-1 space-y-4">
             <h3 class="font-bold text-gray-800 text-sm font-baloo">{{ language.t('توزيع حالات الطلبات', 'Order status overview') }}</h3>
@@ -152,7 +152,7 @@ import { forkJoin } from 'rxjs';
 
           <!-- Recent Orders Table -->
           <div class="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden lg:col-span-2">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div class="recent-orders-header p-6 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h3 class="font-bold text-gray-800 text-base font-baloo">{{ language.t('أحدث طلبات الزبائن', 'Latest customer orders') }}</h3>
                 <p class="text-[11px] text-gray-400">{{ language.t('آخر 5 طلبات مسجلة على النظام', 'Last 5 orders recorded') }}</p>

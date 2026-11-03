@@ -353,11 +353,22 @@ body {
     width: 100%;
     min-width: 0;
   }
-  .admin-shell main > header > button {
+  .admin-shell main > header > div > button {
     width: 100%;
     min-height: 2.75rem;
     justify-content: center;
     align-self: stretch !important;
+    white-space: normal;
+  }
+  .admin-dashboard-main .admin-dashboard-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .625rem;
+  }
+  .admin-dashboard-main .dashboard-connection-status {
+    align-self: flex-start;
+    max-width: 100%;
     white-space: normal;
   }
   .admin-shell main > header h1 {
@@ -369,6 +380,21 @@ body {
   .admin-shell main > section.grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: .75rem;
+  }
+  .admin-dashboard-main .admin-dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .admin-dashboard-main .admin-dashboard-orders {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .admin-dashboard-main .admin-dashboard-orders > * {
+    width: 100%;
+    min-width: 0;
+  }
+  .admin-dashboard-main .recent-orders-header {
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1rem;
   }
   .admin-shell main > div.grid > *,
   .admin-shell main > section.grid > * {
@@ -392,6 +418,12 @@ body {
   .admin-shell .overflow-x-auto {
     border-radius: .75rem;
     touch-action: pan-x pan-y;
+  }
+}
+
+@media (max-width: 389px) {
+  .admin-dashboard-main .admin-dashboard-metrics {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
