@@ -153,6 +153,9 @@ export class ApiService {
   toggleStaffActive(id: number): Observable<{ userId: number; isActive: boolean }> {
     return this.http.patch<{ userId: number; isActive: boolean }>(`${this.apiUrl}/users/${id}/active`, {});
   }
+  deleteStaffUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/${id}`);
+  }
 
 
   updateProductDiscount(id: number, discountPrice: number | null): Observable<{ productId: number; discountPrice: number | null }> {

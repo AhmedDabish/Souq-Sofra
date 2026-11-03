@@ -45,6 +45,9 @@ import { AuthService } from '../../../../core/services/auth.service';
                 <select [value]="user.role" [disabled]="!auth.hasPermission('users.update') || user.role === 'SuperAdmin'" (change)="changeRole(user, $any($event.target).value)" class="min-w-0 rounded-lg border bg-white px-3 py-2 text-sm"><option value="User">{{ language.t('موظف طلبات', 'Orders staff') }}</option><option value="Admin">{{ language.t('مدير', 'Admin') }}</option><option value="SuperAdmin">{{ language.t('مدير عام', 'Super Admin') }}</option></select>
                 <button type="button" (click)="editPermissions(user)" [disabled]="user.role === 'SuperAdmin' || !auth.hasPermission('users.update')" class="rounded-lg bg-orange-50 px-3 py-2 text-sm font-bold text-orange-800 disabled:opacity-50">{{language.t('تخصيص الصلاحيات', 'Customize permissions')}}</button>
                 <button type="button" (click)="toggleActive(user)" [disabled]="!auth.hasPermission('users.delete') || user.role === 'SuperAdmin'" class="rounded-lg px-3 py-2 text-xs font-bold disabled:opacity-50" [class.bg-red-50]="user.isActive" [class.text-red-700]="user.isActive" [class.bg-green-50]="!user.isActive" [class.text-green-700]="!user.isActive">{{user.isActive ? language.t('إيقاف الحساب', 'Deactivate account') : language.t('تفعيل الحساب', 'Activate account')}}</button>
+                @if (auth.currentUser()?.role === 'SuperAdmin' && !isCurrentUser(user)) {
+                  <button type="button" (click)="deleteUser(user)" [disabled]="saving()" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-50">{{language.t('حذف المستخدم', 'Delete user')}}</button>
+                }
               </div>
               @if (editingPermissionsFor() === user.userId) {
                 <div class="border-t border-gray-100 bg-gray-50 p-4 sm:p-6">
@@ -81,6 +84,16 @@ export class AdminStaffComponent implements OnInit {
   savePermissions(user:StaffUser){this.saving.set(true);this.api.updateStaffPermissions(user.userId,this.draftPermissions()).subscribe({next:()=>{this.saving.set(false);this.notify(this.language.t('تم حفظ صلاحيات المستخدم.','User permissions saved.'));this.editingPermissionsFor.set(null);this.load();},error:err=>{this.saving.set(false);this.notify(this.language.isEnglish()?'Could not save permissions.':(err.error?.message||'تعذر حفظ الصلاحيات.'),true);}});}
   changeRole(user:StaffUser, role:string){this.api.updateStaffRole(user.userId,role).subscribe({next:()=>{this.notify(this.language.t('تم تحديث صلاحية الحساب.','Account role updated.'));this.load();},error:()=>{this.notify(this.language.t('تعذر تغيير الصلاحية.','Could not change the role.'),true);this.load();}});}
   toggleActive(user:StaffUser){this.api.toggleStaffActive(user.userId).subscribe({next:()=>{this.notify(this.language.t('تم تحديث حالة الحساب.','Account status updated.'));this.load();},error:()=>this.notify(this.language.t('تعذر تحديث الحساب.','Could not update the account.'),true)});}
+  isCurrentUser(user:StaffUser){return user.email.toLowerCase()===this.auth.currentUser()?.email?.toLowerCase();}
+  deleteUser(user:StaffUser){
+    const prompt=this.language.t(`هل أنت متأكد من حذف حساب ${user.fullName}؟ لا يمكن التراجع عن هذا الإجراء.`,`Delete ${user.fullName}'s account? This cannot be undone.`);
+    if(!window.confirm(prompt))return;
+    this.saving.set(true);
+    this.api.deleteStaffUser(user.userId).subscribe({
+      next:()=>{this.saving.set(false);this.notify(this.language.t('تم حذف المستخدم.','User deleted.'));this.load();},
+      error:err=>{this.saving.set(false);this.notify(this.language.isEnglish()?'Could not delete the user.':(err.error?.message||'تعذر حذف المستخدم.'),true);}
+    });
+  }
   roleLabel(role:string){const labels:Record<string,[string,string]>={User:['موظف طلبات','Orders staff'],Admin:['مدير','Admin'],SuperAdmin:['مدير عام','Super Admin']};const pair=labels[role];return pair?this.language.t(pair[0],pair[1]):role;}
   private notify(text:string,error=false){this.message.set(text);this.isError.set(error);}
 }

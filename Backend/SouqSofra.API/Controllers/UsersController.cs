@@ -18,7 +18,12 @@ namespace SouqSofra.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public UsersController(AppDbContext context) => _context = context;
+        private readonly IConfiguration _configuration;
+        public UsersController(AppDbContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost("bootstrap-super-admin")]
@@ -168,6 +173,59 @@ namespace SouqSofra.API.Controllers
             user.IsActive = !user.IsActive;
             await _context.SaveChangesAsync();
             return Ok(new { userId = user.UserId, isActive = user.IsActive });
+        }
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            var user = await _context.Users.FirstOrDefaultAsync(candidate => candidate.UserId == id);
+            if (user == null) return NotFound(new { message = "المستخدم غير موجود." });
+
+            var currentUserId = int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedId) ? parsedId : 0;
+            if (user.UserId == currentUserId)
+                return Conflict(new { message = "لا يمكنك حذف حسابك الحالي." });
+
+            if (user.IsActive && user.RoleId == 3 &&
+                !await _context.Users.AnyAsync(other => other.UserId != id && other.IsActive && other.RoleId == 3))
+                return Conflict(new { message = "لا يمكن حذف آخر حساب Super Admin نشط." });
+
+            await RememberDeletedBootstrapUserAsync(user.Email);
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return NoContent();
+        }
+
+        private async Task RememberDeletedBootstrapUserAsync(string email)
+        {
+            var bootstrapEmails = new[]
+            {
+                _configuration["BootstrapUsers:Admin:Email"] ?? "admin@souqsofra.com",
+                _configuration["BootstrapUsers:SuperAdmin:Email"] ?? "superadmin@souqsofra.com",
+                _configuration["BootstrapUsers:User:Email"] ?? "user@souqsofra.com"
+            };
+            if (!bootstrapEmails.Contains(email, StringComparer.OrdinalIgnoreCase)) return;
+
+            const string settingKey = "DeletedBootstrapUsers";
+            var setting = await _context.SiteSettings.FirstOrDefaultAsync(item => item.SettingKey == settingKey);
+            var deletedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (setting != null)
+            {
+                try
+                {
+                    foreach (var storedEmail in JsonSerializer.Deserialize<string[]>(setting.SettingValue) ?? [])
+                        deletedEmails.Add(storedEmail);
+                }
+                catch (JsonException) { /* Recover by starting a fresh tombstone list. */ }
+            }
+            deletedEmails.Add(email);
+            var value = JsonSerializer.Serialize(deletedEmails);
+            if (setting == null)
+                _context.SiteSettings.Add(new SiteSetting { SettingKey = settingKey, SettingValue = value, Description = "Prevents deleted bootstrap accounts from being recreated." });
+            else
+                setting.SettingValue = value;
         }
 
         private static IReadOnlyList<string> EffectivePermissions(User user)

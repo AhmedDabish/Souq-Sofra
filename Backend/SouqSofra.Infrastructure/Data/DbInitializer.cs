@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SouqSofra.Application.Common;
@@ -235,6 +236,16 @@ namespace SouqSofra.Infrastructure.Data
             var configuredEmail = configuration[$"BootstrapUsers:{accountKey}:Email"];
             var email = string.IsNullOrWhiteSpace(configuredEmail) ? defaultEmail : configuredEmail.Trim();
             var normalizedEmail = email.ToLowerInvariant();
+            var deletedBootstrapUsers = await context.SiteSettings.FirstOrDefaultAsync(setting => setting.SettingKey == "DeletedBootstrapUsers");
+            if (deletedBootstrapUsers is not null)
+            {
+                try
+                {
+                    var deletedEmails = JsonSerializer.Deserialize<string[]>(deletedBootstrapUsers.SettingValue) ?? [];
+                    if (deletedEmails.Contains(email, StringComparer.OrdinalIgnoreCase)) return;
+                }
+                catch (JsonException) { /* Ignore malformed tombstones and allow normal bootstrap recovery. */ }
+            }
             var existingUser = await context.Users.FirstOrDefaultAsync(user => user.Email.ToLower() == normalizedEmail);
             if (existingUser is not null)
             {
