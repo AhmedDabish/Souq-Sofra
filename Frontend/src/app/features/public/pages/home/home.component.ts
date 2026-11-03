@@ -16,6 +16,36 @@ import { Category, Product } from '../../../../core/models/models';
     <app-hero-slider></app-hero-slider>
     <app-category-slider [isEnglish]="language.isEnglish()" [categories]="categories()" [selectedId]="selectedCategoryId()" (categorySelected)="onCategorySelect($event)"></app-category-slider>
 
+    <section class="widget-container" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
+      <div class="container-wide widget-spacing">
+        <div class="flex items-center justify-between widget-content-spacing">
+          <div>
+            <h2 class="theme-title">{{ language.t('المنتجات', 'Products') }}</h2>
+            <p class="mt-1 text-xs text-gray-500">{{ language.t('تصفح منتجاتنا المتنوعة', 'Browse our selection') }}</p>
+          </div>
+          <a routerLink="/menu" class="shrink-0 rounded-full bg-gray px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary hover:text-white">{{ language.t('عرض الكل', 'View all') }}</a>
+        </div>
+
+        @if (homeProducts().length > 0) {
+          <div class="mt-4 grid grid-cols-1 gap-3 sm:gap-4">
+            @for (prod of homeProducts(); track prod.productId) {
+              <app-product-card [product]="prod" layout="menu"></app-product-card>
+            }
+          </div>
+        } @else if (productsLoaded()) {
+          <div class="mt-4 rounded-2xl border border-gray-100 bg-white px-4 py-8 text-center text-sm text-gray-500">
+            {{ language.t('لا توجد منتجات متاحة حالياً.', 'No products are available right now.') }}
+          </div>
+        } @else {
+          <div class="mt-4 grid grid-cols-1 gap-3 sm:gap-4" [attr.aria-label]="language.t('جاري تحميل المنتجات', 'Loading products')">
+            @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+              <div class="h-36 animate-pulse rounded-2xl bg-white shadow-sm"></div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
     @if (featuredProducts().length > 0) {
       <section class="widget-container">
         <div class="container-wide widget-spacing">
@@ -108,6 +138,8 @@ export class HomeComponent implements OnInit {
   categories = signal<Category[]>([]);
   selectedCategoryId = signal(0);
   products = signal<Product[]>([]);
+  productsLoaded = signal(false);
+  homeProducts = computed(() => this.products().slice(0, 4));
   bestSellingProducts = signal<Product[]>([]);
   featuredProducts = computed(() => {
     // Featured products are specifically those with discounts (on sale)
@@ -160,7 +192,10 @@ export class HomeComponent implements OnInit {
       });
     }, error: () => {} });
     this.api.getCategories().subscribe(categories => this.categories.set(categories));
-    this.api.getProducts().subscribe(products => this.products.set(products));
+    this.api.getProducts().subscribe({
+      next: products => { this.products.set(products); this.productsLoaded.set(true); },
+      error: () => { this.products.set([]); this.productsLoaded.set(true); }
+    });
     this.api.getBestSellingProducts().subscribe({ next: products => this.bestSellingProducts.set(products), error: () => this.bestSellingProducts.set([]) });
   }
 
