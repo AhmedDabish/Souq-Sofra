@@ -905,7 +905,23 @@ footer {
   .admin-shell main :where(button, a) {
     max-width: 100%;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-height: 1.45;
+  }
+
+  /* A phone/tablet admin page must never inherit the old forced two-column layout. */
+  .admin-shell > main > :where(.grid, section.grid, div.grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .admin-shell > main > .admin-dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .admin-shell main :where(button, a) {
+    min-height: 2.75rem;
+    align-items: center;
   }
 
   .admin-shell main > header :where(button, a),
