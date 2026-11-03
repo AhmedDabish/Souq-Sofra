@@ -178,7 +178,7 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
               <div>
                 <h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('صور ونصوص واجهة المتجر', 'Storefront slides & text') }}</h2>
-                <p class="text-[11px] text-gray-400">{{ language.t('أضف شرائح بلا عدد ثابت، ارفع صورها، وعدّل العناوين والوصف بالعربي والإنجليزي.', 'Add as many slides as needed, upload images, and edit Arabic and English headings and descriptions.') }}</p>
+                <p class="text-[11px] text-gray-400">{{ language.t('أضف حتى 30 شريحة، ارفع صورها، وعدّل العناوين والوصف بالعربي والإنجليزي.', 'Add up to 30 slides, upload images, and edit Arabic and English headings and descriptions.') }}</p>
               </div>
               <button type="button" [hidden]="!auth.hasPermission('settings.update')" [disabled]="heroSlides().length >= 30" (click)="addHeroSlide()" class="rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">+ {{ language.t('إضافة شريحة', 'Add slide') }}</button>
             </div>
