@@ -184,7 +184,8 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.searchQuery.set(params['search'] || '');
-      this.selectedCategoryId.set(params['categoryId'] ? Number(params['categoryId']) : null);
+      const requestedCategoryId = Number(params['categoryId']);
+      this.selectedCategoryId.set(Number.isSafeInteger(requestedCategoryId) && requestedCategoryId > 0 ? requestedCategoryId : null);
       this.showAllProducts.set(false);
     });
     this.api.getCategories().subscribe(c => this.categories.set(c));
