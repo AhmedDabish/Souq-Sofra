@@ -101,7 +101,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                   <tr class="hover:bg-gray-50/50 transition-colors">
                     <td class="p-4">
                       <div class="flex items-center gap-3">
-                        <img [src]="prod.imageUrl || 'assets/MAIN.jpg'" class="w-12 h-12 rounded-2xl object-cover border border-gray-100 shrink-0">
+                        <img [src]="imageUrl(prod.imageUrl)" [alt]="language.isEnglish() ? (prod.nameEn || prod.nameAr) : prod.nameAr" class="w-12 h-12 rounded-2xl object-cover border border-gray-100 shrink-0">
                         <div>
                           <div class="font-bold text-gray-800 text-xs">{{ language.isEnglish() ? (prod.nameEn || prod.nameAr) : prod.nameAr }}</div>
 
@@ -779,6 +779,12 @@ export class AdminProductsComponent implements OnInit {
 
   closeModal() {
     this.showModal.set(false);
+  }
+
+  imageUrl(url?: string): string {
+    if (!url) return 'assets/MAIN.jpg';
+    if (/^https?:\/\//i.test(url) || url.startsWith('data:') || url.startsWith('assets/')) return url;
+    return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
   }
 
   imagePreviewUrl(url: string): string {
