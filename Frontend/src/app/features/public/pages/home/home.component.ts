@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, HostListener, inject, signal, computed, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../../core/services/api.service';
@@ -27,9 +27,9 @@ import { Category, Product } from '../../../../core/models/models';
         </div>
 
         @if (homeProducts().length > 0) {
-          <div class="mt-4 grid grid-cols-1 gap-3 sm:gap-4">
+          <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 2xl:grid-cols-5">
             @for (prod of homeProducts(); track prod.productId) {
-              <app-product-card [product]="prod" layout="menu"></app-product-card>
+              <app-product-card [product]="prod"></app-product-card>
             }
           </div>
         } @else if (productsLoaded()) {
@@ -139,7 +139,8 @@ export class HomeComponent implements OnInit {
   selectedCategoryId = signal(0);
   products = signal<Product[]>([]);
   productsLoaded = signal(false);
-  homeProducts = computed(() => this.products().slice(0, 4));
+  homeProductLimit = signal(16);
+  homeProducts = computed(() => this.products().slice(0, this.homeProductLimit()));
   bestSellingProducts = signal<Product[]>([]);
   featuredProducts = computed(() => {
     // Featured products are specifically those with discounts (on sale)
@@ -184,6 +185,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateHomeProductLimit();
     this.api.getSettings().subscribe({ next: settings => {
       this.promoBanners = [1, 2].map(index => {
         const url = settings[`PromoBanner${index}`];
@@ -197,6 +199,13 @@ export class HomeComponent implements OnInit {
       error: () => { this.products.set([]); this.productsLoaded.set(true); }
     });
     this.api.getBestSellingProducts().subscribe({ next: products => this.bestSellingProducts.set(products), error: () => this.bestSellingProducts.set([]) });
+  }
+
+  @HostListener('window:resize')
+  updateHomeProductLimit() {
+    const width = typeof window === 'undefined' ? 1280 : window.innerWidth;
+    const columns = width >= 1536 ? 5 : width >= 1024 ? 4 : width >= 768 ? 3 : 2;
+    this.homeProductLimit.set(columns * 4);
   }
 
   onCategorySelect(categoryId: number) {
