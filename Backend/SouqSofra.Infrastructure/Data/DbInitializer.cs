@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SouqSofra.Application.Common;
 using SouqSofra.Domain.Entities;
 
 namespace SouqSofra.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static async Task InitializeAsync(AppDbContext context)
+        public static async Task InitializeAsync(AppDbContext context, IConfiguration configuration)
         {
             // 1. Auto-apply EF Core Migrations if relational
             try
@@ -72,22 +74,11 @@ namespace SouqSofra.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            // 4. Seed Default Admin (Password: Admin@123456)
-            if (!await context.Users.AnyAsync())
-            {
-                var admin = new User
-                {
-                    FullName = "مدير سوق وسفرة",
-                    Email = "admin@souqsofra.com",
-                    PasswordHash = "jm5qtRcShtk8AL+DvQozYQ==:t9jeA8Uawu/5NkZyj3ydmT1h5hF5hQrEisCPxOUX8/Y=", // PBKDF2 hash for Admin@123456
-                    PhoneNumber = "+971503157884",
-                    RoleId = 1,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await context.Users.AddAsync(admin);
-                await context.SaveChangesAsync();
-            }
+            // 4. Seed default accounts for all three roles. Passwords are supplied
+            // via local user-secrets or deployment environment variables, never source control.
+            await SeedBootstrapUserAsync(context, configuration, "Admin", "admin@souqsofra.com", "مدير سوق وسفرة", 1);
+            await SeedBootstrapUserAsync(context, configuration, "SuperAdmin", "superadmin@souqsofra.com", "مدير النظام", 3);
+            await SeedBootstrapUserAsync(context, configuration, "User", "user@souqsofra.com", "مستخدم", 2);
 
             // 5. Seed Menu Categories
             if (!await context.Categories.AnyAsync())
@@ -224,6 +215,48 @@ namespace SouqSofra.Infrastructure.Data
             // Replace the storefront catalog once with the bilingual menu supplied by the owner.
             // The initializer archives old products to keep their historical orders intact.
             await MenuCatalogV2Initializer.ApplyAsync(context);
+        }
+
+        private const string LegacyDefaultAdminPasswordHash = "jm5qtRcShtk8AL+DvQozYQ==:t9jeA8Uawu/5NkZyj3ydmT1h5hF5hQrEisCPxOUX8/Y=";
+
+        private static async Task SeedBootstrapUserAsync(
+            AppDbContext context,
+            IConfiguration configuration,
+            string accountKey,
+            string defaultEmail,
+            string fullName,
+            int roleId)
+        {
+            var password = configuration[$"BootstrapUsers:{accountKey}:Password"];
+            if (string.IsNullOrWhiteSpace(password)) return;
+            if (password.Length < 12)
+                throw new InvalidOperationException($"Bootstrap password for {accountKey} must be at least 12 characters.");
+
+            var configuredEmail = configuration[$"BootstrapUsers:{accountKey}:Email"];
+            var email = string.IsNullOrWhiteSpace(configuredEmail) ? defaultEmail : configuredEmail.Trim();
+            var normalizedEmail = email.ToLowerInvariant();
+            var existingUser = await context.Users.FirstOrDefaultAsync(user => user.Email.ToLower() == normalizedEmail);
+            if (existingUser is not null)
+            {
+                // Rotate only the known, publicly documented legacy admin credential.
+                if (accountKey == "Admin" && existingUser.PasswordHash == LegacyDefaultAdminPasswordHash)
+                {
+                    existingUser.PasswordHash = PasswordHasher.HashPassword(password);
+                    await context.SaveChangesAsync();
+                }
+                return;
+            }
+
+            await context.Users.AddAsync(new User
+            {
+                FullName = fullName,
+                Email = email,
+                PasswordHash = PasswordHasher.HashPassword(password),
+                RoleId = roleId,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
         }
     }
 }
