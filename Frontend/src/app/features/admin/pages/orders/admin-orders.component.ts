@@ -140,7 +140,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                     <td class="p-4">
                       <select
                         [value]="order.orderStatus"
-                        (change)="changeStatus(order, $any($event.target).value)"
+                        [disabled]="!auth.hasPermission('orders.update')" (change)="changeStatus(order, $any($event.target).value)"
                         class="text-xs px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
                         <option value="Pending">{{ language.t('جديد (قيد المراجعة)', 'New (pending review)') }}</option>
                         <option value="Preparing">{{ language.t('قيد التجهيز بالمطبخ', 'Preparing in kitchen') }}</option>
@@ -242,7 +242,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
             </div>
 
             <div class="flex justify-between items-center pt-2">
-              @if (auth.currentUser()?.role !== 'User') {
+              @if (auth.hasPermission('orders.delete')) {
               <button
                 (click)="deleteOrder(selectedOrder()!)"
                 class="px-4 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition-colors">

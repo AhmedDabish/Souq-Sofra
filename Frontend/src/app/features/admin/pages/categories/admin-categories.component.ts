@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../core/services/api.service';
 import { Category, CategoryCreate } from '../../../../core/models/models';
+import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -15,7 +16,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
       <main class="admin-main min-w-0 flex-1 p-5 pt-20 md:p-8 lg:mr-64">
         <header class="mb-7 flex flex-wrap items-center justify-between gap-4">
           <div><h1 class="font-baloo text-2xl font-black text-gray-800">{{ language.t('إدارة أقسام المنيو', 'Manage menu categories') }}</h1><p class="mt-1 text-xs text-gray-500">{{ language.t('إدارة الأسماء باللغتين وصور الأقسام والأيقونات من الخادم.', 'Manage bilingual names, category images, and icons.') }}</p></div>
-          <button type="button" (click)="openNew()" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">{{ language.t('+ إضافة قسم', '+ Add category') }}</button>
+          <button [hidden]="!auth.hasPermission('categories.create')" type="button" (click)="openNew()" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white">{{ language.t('+ إضافة قسم', '+ Add category') }}</button>
         </header>
         @if (message()) { <p class="mb-5 rounded-xl border p-3 text-sm" [class.border-green-200]="!error()" [class.text-green-700]="!error()" [class.border-red-200]="error()" [class.text-red-700]="error()">{{ message() }}</p> }
         <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -23,7 +24,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
             <article class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
               <img [src]="imageUrl(category.imageUrl || category.iconUrl)" [alt]="category.nameAr" class="h-40 w-full bg-orange-50 object-cover">
               <div class="space-y-2 p-4"><h2 class="font-bold text-gray-900">{{ language.isEnglish() ? (category.nameEn || category.nameAr) : category.nameAr }}</h2><p class="text-xs text-gray-400">{{ language.t('ترتيب العرض:', 'Display order:') }} {{ category.displayOrder }}</p>
-                <div class="flex gap-2 pt-2"><button type="button" (click)="edit(category)" class="flex-1 rounded-lg bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700">{{ language.t('تعديل', 'Edit') }}</button><button type="button" (click)="remove(category)" class="rounded-lg bg-red-50 px-3 py-2 text-sm font-bold text-red-600">{{ language.t('تعطيل', 'Disable') }}</button></div>
+                <div class="flex gap-2 pt-2"><button type="button" [hidden]="!auth.hasPermission('categories.update')" (click)="edit(category)" class="flex-1 rounded-lg bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700">{{ language.t('تعديل', 'Edit') }}</button><button type="button" [hidden]="!auth.hasPermission('categories.delete')" (click)="remove(category)" class="rounded-lg bg-red-50 px-3 py-2 text-sm font-bold text-red-600">{{ language.t('تعطيل', 'Disable') }}</button></div>
               </div>
             </article>
           } @empty { <div class="col-span-full rounded-2xl bg-white p-10 text-center text-gray-500">{{ language.t('لا توجد أقسام نشطة.', 'No active categories.') }}</div> }
@@ -49,6 +50,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 })
 export class AdminCategoriesComponent implements OnInit {
   language = inject(LanguageService);
+  auth = inject(AuthService);
   private api = inject(ApiService);
   categories = signal<Category[]>([]); message = signal(''); error = signal(false); showForm = signal(false); saving = signal(false); uploading = signal(false); editingId = signal<number | null>(null);
   form: CategoryCreate = this.emptyForm();

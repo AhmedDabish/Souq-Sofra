@@ -15,7 +15,7 @@ namespace SouqSofra.API.Controllers
         private readonly AppDbContext _context;
         public OrdersController(AppDbContext context) => _context = context;
 
-        [Authorize(Roles = "Admin,User,SuperAdmin")]
+        [Authorize(Policy = "Permission:orders.view")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -57,7 +57,7 @@ namespace SouqSofra.API.Controllers
             return Ok(orders);
         }
 
-        [Authorize(Roles = "Admin,User,SuperAdmin")]
+        [Authorize(Policy = "Permission:orders.view")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -237,7 +237,7 @@ namespace SouqSofra.API.Controllers
 
         private sealed record DeliveryZoneSetting(string Id, string Emirate, string Name, decimal Fee, bool Enabled);
 
-        [Authorize(Roles = "Admin,User,SuperAdmin")]
+        [Authorize(Policy = "Permission:orders.update")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusDto dto)
         {
@@ -250,7 +250,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { success = true, orderId = order.OrderId, status = order.OrderStatus });
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:orders.delete")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

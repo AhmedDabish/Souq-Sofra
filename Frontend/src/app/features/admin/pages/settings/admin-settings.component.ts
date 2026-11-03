@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { Branch, SiteSettings, DeliveryZone } from '../../../../core/models/models';
+import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
 
@@ -28,7 +29,7 @@ import { forkJoin } from 'rxjs';
             <p class="text-xs text-gray-400">{{ language.t('إدارة معلومات الاتصال، شريط الإعلانات، رسوم التوصيل وفروع المطعم', 'Manage contact details, announcement banner, delivery fees, and branches') }}</p>
           </div>
           <button
-            (click)="saveSettings()"
+            [hidden]="!auth.hasPermission('settings.update')" (click)="saveSettings()"
             [disabled]="isSaving()"
             class="px-6 py-2.5 rounded-2xl bg-primary hover:bg-primaryHover text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-2 self-start sm:self-auto">
             @if (isSaving()) {
@@ -116,7 +117,7 @@ import { forkJoin } from 'rxjs';
               <section class="rounded-2xl border border-orange-100 bg-orange-50/40 p-4 space-y-4">
                 <div class="flex items-start justify-between gap-3">
                   <div><h3 class="font-bold text-sm text-gray-800">{{ language.t('مناطق ورسوم التوصيل', 'Delivery areas & fees') }}</h3><p class="mt-1 text-[11px] text-gray-500">{{ language.t('ابدأ بالإمارات السبع، وأضف مناطق فرعية وحدد رسوم كل منطقة أو أوقف التوصيل إليها.', 'Start with the seven emirates, add areas, set fees, or disable delivery.') }}</p></div>
-                  <button type="button" (click)="addDeliveryZone()" class="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white">+ {{ language.t('إضافة منطقة', 'Add area') }}</button>
+                  <button type="button" [hidden]="!auth.hasPermission('settings.update')" (click)="addDeliveryZone()" class="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white">+ {{ language.t('إضافة منطقة', 'Add area') }}</button>
                 </div>
                 <div class="space-y-3">
                   @for (zone of deliveryZones(); track zone.id; let i = $index) {
@@ -136,7 +137,7 @@ import { forkJoin } from 'rxjs';
                         <input type="number" min="0" step="0.5" [ngModel]="zone.fee" (ngModelChange)="updateDeliveryZone(i, 'fee', $event)" [name]="'zoneFee' + i" class="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-xs">
                       </label>
                       <label class="flex items-center gap-2 text-[11px] font-bold text-gray-600 sm:col-span-1"><input type="checkbox" [ngModel]="zone.enabled" (ngModelChange)="updateDeliveryZone(i, 'enabled', $event)" [name]="'zoneEnabled' + i" class="accent-orange-500"> {{ language.t('متاح', 'Available') }}</label>
-                      <button type="button" (click)="removeDeliveryZone(i)" class="rounded-lg px-2 py-2 text-xs font-bold text-red-600 hover:bg-red-50 sm:col-span-1" [attr.aria-label]="language.t('حذف ', 'Delete ') + (language.isEnglish() ? (zone.nameEn || zone.name) : zone.name)">{{ language.t('حذف', 'Delete') }}</button>
+                      <button type="button" [hidden]="!auth.hasPermission('settings.update')" (click)="removeDeliveryZone(i)" class="rounded-lg px-2 py-2 text-xs font-bold text-red-600 hover:bg-red-50 sm:col-span-1" [attr.aria-label]="language.t('حذف ', 'Delete ') + (language.isEnglish() ? (zone.nameEn || zone.name) : zone.name)">{{ language.t('حذف', 'Delete') }}</button>
                     </div>
                   }
                 </div>
@@ -167,7 +168,7 @@ import { forkJoin } from 'rxjs';
           <!-- Site logo management -->
           <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs space-y-5">
             <div class="border-b border-gray-100 pb-4"><h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('شعار الموقع', 'Store logo') }}</h2><p class="text-[11px] text-gray-400">{{ language.t('رفع شعار المتجر وحفظه ضمن إعدادات الموقع على الخادم', 'Upload and save the store logo in site settings') }}</p></div>
-            <div class="flex items-center gap-4"><img [src]="logoPreview()" [alt]="language.t('معاينة شعار الموقع', 'Store logo preview')" class="h-24 w-24 rounded-full border bg-orange-50 object-cover"><div><label class="inline-flex cursor-pointer rounded-xl bg-orange-50 px-4 py-3 text-xs font-bold text-orange-800 hover:bg-orange-100">{{ uploadingLogo() ? language.t('جارٍ الرفع…', 'Uploading…') : language.t('اختيار شعار ورفعه', 'Choose and upload logo') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadLogo($event)" class="sr-only"></label><p class="mt-2 text-[10px] text-gray-400">{{ language.t('سيتم حفظ مسار الصورة في إعدادات المتجر.', 'The image path will be saved in store settings.') }}</p></div></div>
+            <div class="flex items-center gap-4"><img [src]="logoPreview()" [alt]="language.t('معاينة شعار الموقع', 'Store logo preview')" class="h-24 w-24 rounded-full border bg-orange-50 object-cover"><div><label class="inline-flex cursor-pointer rounded-xl bg-orange-50 px-4 py-3 text-xs font-bold text-orange-800 hover:bg-orange-100">{{ uploadingLogo() ? language.t('جارٍ الرفع…', 'Uploading…') : language.t('اختيار شعار ورفعه', 'Choose and upload logo') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload')" (change)="uploadLogo($event)" class="sr-only"></label><p class="mt-2 text-[10px] text-gray-400">{{ language.t('سيتم حفظ مسار الصورة في إعدادات المتجر.', 'The image path will be saved in store settings.') }}</p></div></div>
           </div>
 
           <!-- Homepage banner management -->
@@ -198,7 +199,7 @@ import { forkJoin } from 'rxjs';
             <div class="border-b border-gray-100 pb-4"><h2 class="text-base font-bold font-baloo text-gray-800">{{ language.t('بنرات العروض الإضافية', 'Additional promotion banners') }}</h2><p class="text-[11px] text-gray-400">{{ language.t('إدارة الصور الإضافية الظاهرة في الصفحة الرئيسية.', 'Manage additional homepage images.') }}</p></div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               @for (index of [1, 2]; track index) {
-                <div class="rounded-2xl border border-gray-100 p-3"><img [src]="promoBannerPreview(index)" [alt]="language.t('بنر عرض', 'Promotion banner') + ' ' + index" class="mb-3 h-32 w-full rounded-xl bg-orange-50 object-cover"><p class="mb-2 text-xs font-bold">{{ language.t('بنر العرض', 'Promotion banner') }} {{ index }}</p><label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700">{{ language.t('اختيار صورة ورفعها', 'Choose and upload image') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="uploadPromoBanner($event, index)" class="sr-only"></label></div>
+                <div class="rounded-2xl border border-gray-100 p-3"><img [src]="promoBannerPreview(index)" [alt]="language.t('بنر عرض', 'Promotion banner') + ' ' + index" class="mb-3 h-32 w-full rounded-xl bg-orange-50 object-cover"><p class="mb-2 text-xs font-bold">{{ language.t('بنر العرض', 'Promotion banner') }} {{ index }}</p><label class="inline-flex cursor-pointer rounded-lg bg-orange-50 px-3 py-2 text-[11px] font-bold text-orange-700">{{ language.t('اختيار صورة ورفعها', 'Choose and upload image') }}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="!auth.hasPermission('media.upload')" (change)="uploadPromoBanner($event, index)" class="sr-only"></label></div>
               }
             </div>
           </div>
@@ -211,7 +212,7 @@ import { forkJoin } from 'rxjs';
                 <p class="text-[11px] text-gray-400">{{ language.t('الفروع المتاحة لاستلام وتوصيل الطلبات', 'Branches available for pickup and delivery') }}</p>
               </div>
               <button
-                (click)="showBranchModal.set(true)"
+                [hidden]="!auth.hasPermission('branches.create')" (click)="showBranchModal.set(true)"
                 class="px-3.5 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors">
                 + {{ language.t('إضافة فرع', 'Add branch') }}
               </button>
@@ -304,7 +305,7 @@ import { forkJoin } from 'rxjs';
                 <button type="button" (click)="showBranchModal.set(false)" class="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200">
                   {{ language.t('إلغاء', 'Cancel') }}
                 </button>
-                <button type="submit" [disabled]="isSavingBranch()" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
+                <button type="submit" [disabled]="isSavingBranch() || !auth.hasPermission('branches.create')" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
                   {{ language.t('إضافة الفرع', 'Add branch') }}
                 </button>
               </div>
@@ -318,6 +319,7 @@ import { forkJoin } from 'rxjs';
 })
 export class AdminSettingsComponent implements OnInit {
   language = inject(LanguageService);
+  auth = inject(AuthService);
   private api = inject(ApiService);
 
   settings: SiteSettings = {

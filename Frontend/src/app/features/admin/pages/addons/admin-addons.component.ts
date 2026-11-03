@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { AddonTemplate, AddonTemplateCreate, Category, Product } from '../../../../core/models/models';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ApiService } from '../../../../core/services/api.service';
 
 @Component({
@@ -20,7 +21,7 @@ import { ApiService } from '../../../../core/services/api.service';
             <h1 class="font-baloo text-3xl font-black text-slate-900">{{ language.t('المنتجات الإضافية', 'Product extras') }}</h1>
             <p class="mt-1 text-sm text-slate-500">{{ language.t('أنشئ الإضافات مرة واحدة، ثم طبّقها على كل المنتجات أو قسم أو صنف بعينه.', 'Create extras once and apply them to all products, a category, or a product.') }}</p>
           </div>
-          <button (click)="openNew()" class="rounded-2xl bg-[#e86719] px-5 py-3 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-[#d65710]">＋ {{ language.t('إضافة منتج إضافي', 'Add extra') }}</button>
+          <button [hidden]="!auth.hasPermission('addons.create')" (click)="openNew()" class="rounded-2xl bg-[#e86719] px-5 py-3 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:bg-[#d65710]">＋ {{ language.t('إضافة منتج إضافي', 'Add extra') }}</button>
         </header>
 
         @if (notice()) { <div class="mb-5 rounded-2xl border px-4 py-3 text-sm font-bold" [class.border-emerald-200]="!error()" [class.bg-emerald-50]="!error()" [class.text-emerald-800]="!error()" [class.border-rose-200]="error()" [class.bg-rose-50]="error()" [class.text-rose-800]="error()">{{notice()}}</div> }
@@ -37,11 +38,11 @@ import { ApiService } from '../../../../core/services/api.service';
             <div class="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">{{ language.t('✦ الأسعار بالدرهم الإماراتي', '✦ Prices in UAE dirhams') }}</div>
           </div>
           @if (loading()) { <div class="p-12 text-center text-sm text-slate-500">{{ language.t('جارٍ تحميل الإضافات...', 'Loading extras...') }}</div> }
-          @else if (!templates().length) { <div class="p-12 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-2xl">✦</div><p class="font-bold text-slate-800">{{ language.t('لا توجد إضافات بعد', 'No extras yet') }}</p><p class="mt-1 text-sm text-slate-500">{{ language.t('ابدأ بإضافة خيارات مثل الجبن الإضافي أو البطاطس.', 'Add choices such as extra cheese or fries.') }}</p><button (click)="openNew()" class="mt-4 rounded-xl bg-orange-600 px-4 py-2 text-sm font-bold text-white">{{ language.t('إضافة أول منتج إضافي', 'Add your first extra') }}</button></div> }
+          @else if (!templates().length) { <div class="p-12 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-2xl">✦</div><p class="font-bold text-slate-800">{{ language.t('لا توجد إضافات بعد', 'No extras yet') }}</p><p class="mt-1 text-sm text-slate-500">{{ language.t('ابدأ بإضافة خيارات مثل الجبن الإضافي أو البطاطس.', 'Add choices such as extra cheese or fries.') }}</p><button [hidden]="!auth.hasPermission('addons.create')" (click)="openNew()" class="mt-4 rounded-xl bg-orange-600 px-4 py-2 text-sm font-bold text-white">{{ language.t('إضافة أول منتج إضافي', 'Add your first extra') }}</button></div> }
           @else {
             <div class="overflow-x-auto"><table class="w-full min-w-[760px] text-right text-sm"><thead class="bg-slate-50 text-xs font-bold text-slate-500"><tr><th class="px-5 py-3">{{ language.t('الإضافة', 'Extra') }}</th><th class="px-5 py-3">{{ language.t('السعر', 'Price') }}</th><th class="px-5 py-3">{{ language.t('تُطبّق على', 'Applies to') }}</th><th class="px-5 py-3">{{ language.t('الحالة', 'Status') }}</th><th class="px-5 py-3">{{ language.t('إجراءات', 'Actions') }}</th></tr></thead><tbody class="divide-y divide-slate-100">
               @for (item of templates(); track item.addonTemplateId) {
-                <tr class="transition hover:bg-orange-50/30"><td class="px-5 py-4"><div class="font-bold text-slate-900">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</div></td><td class="px-5 py-4 font-black text-slate-800">{{item.price}} <span class="text-xs font-semibold text-slate-400">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-orange-100]="item.scopeType === 'All'" [class.text-orange-800]="item.scopeType === 'All'" [class.bg-sky-100]="item.scopeType === 'Category'" [class.text-sky-800]="item.scopeType === 'Category'" [class.bg-violet-100]="item.scopeType === 'Product'" [class.text-violet-800]="item.scopeType === 'Product'">{{scopeLabel(item)}}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-emerald-50]="item.isAvailable" [class.text-emerald-700]="item.isAvailable" [class.bg-slate-100]="!item.isAvailable" [class.text-slate-500]="!item.isAvailable">{{ language.t(item.isAvailable ? 'مفعّلة' : 'موقوفة', item.isAvailable ? 'Active' : 'Disabled') }}</span></td><td class="px-5 py-4"><div class="flex gap-2"><button (click)="openEdit(item)" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200">{{ language.t('تعديل', 'Edit') }}</button><button (click)="remove(item)" class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100">{{ language.t('حذف', 'Delete') }}</button></div></td></tr>
+                <tr class="transition hover:bg-orange-50/30"><td class="px-5 py-4"><div class="font-bold text-slate-900">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</div></td><td class="px-5 py-4 font-black text-slate-800">{{item.price}} <span class="text-xs font-semibold text-slate-400">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-orange-100]="item.scopeType === 'All'" [class.text-orange-800]="item.scopeType === 'All'" [class.bg-sky-100]="item.scopeType === 'Category'" [class.text-sky-800]="item.scopeType === 'Category'" [class.bg-violet-100]="item.scopeType === 'Product'" [class.text-violet-800]="item.scopeType === 'Product'">{{scopeLabel(item)}}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-emerald-50]="item.isAvailable" [class.text-emerald-700]="item.isAvailable" [class.bg-slate-100]="!item.isAvailable" [class.text-slate-500]="!item.isAvailable">{{ language.t(item.isAvailable ? 'مفعّلة' : 'موقوفة', item.isAvailable ? 'Active' : 'Disabled') }}</span></td><td class="px-5 py-4"><div class="flex gap-2"><button [hidden]="!auth.hasPermission('addons.update')" (click)="openEdit(item)" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200">{{ language.t('تعديل', 'Edit') }}</button><button [hidden]="!auth.hasPermission('addons.delete')" (click)="remove(item)" class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100">{{ language.t('حذف', 'Delete') }}</button></div></td></tr>
               }
             </tbody></table></div>
           }
@@ -69,6 +70,7 @@ import { ApiService } from '../../../../core/services/api.service';
 })
 export class AdminAddonsComponent implements OnInit {
   language = inject(LanguageService);
+  auth = inject(AuthService);
   private api = inject(ApiService);
   templates = signal<AddonTemplate[]>([]);
   categories = signal<Category[]>([]);

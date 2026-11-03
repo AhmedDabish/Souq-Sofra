@@ -9,12 +9,12 @@ namespace SouqSofra.API.Controllers
 {
     [ApiController]
     [Route("api/addons")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
     public class AddonTemplatesController : ControllerBase
     {
         private readonly AppDbContext _context;
         public AddonTemplatesController(AppDbContext context) => _context = context;
 
+        [Authorize(Policy = "Permission:addons.view")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -36,6 +36,7 @@ namespace SouqSofra.API.Controllers
             return Ok(await query.OrderBy(item => item.NameAr).Select(item => new AddonTemplateDto(item.AddonTemplateId, item.NameAr, item.NameEn, item.Price, item.IsAvailable, item.ScopeType, item.CategoryId, item.ProductId)).ToListAsync());
         }
 
+        [Authorize(Policy = "Permission:addons.create")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddonTemplateCreateDto dto)
         {
@@ -52,6 +53,7 @@ namespace SouqSofra.API.Controllers
             return Ok(ToDto(template));
         }
 
+        [Authorize(Policy = "Permission:addons.update")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] AddonTemplateCreateDto dto)
         {
@@ -67,6 +69,7 @@ namespace SouqSofra.API.Controllers
             return Ok(ToDto(template));
         }
 
+        [Authorize(Policy = "Permission:addons.delete")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

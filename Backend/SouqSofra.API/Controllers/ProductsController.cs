@@ -100,7 +100,7 @@ namespace SouqSofra.API.Controllers
         }
 
         // Admin endpoint (returns all products including hidden/unavailable)
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.view")]
         [HttpGet("admin/all")]
         public async Task<IActionResult> GetAllForAdmin()
         {
@@ -147,7 +147,7 @@ namespace SouqSofra.API.Controllers
             return Ok(dto);
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.create")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
         {
@@ -204,7 +204,7 @@ namespace SouqSofra.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = product.ProductId }, product);
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.update")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
         {
@@ -264,7 +264,7 @@ namespace SouqSofra.API.Controllers
             return Ok(product);
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.update")]
         [HttpPatch("{id}/availability")]
         public async Task<IActionResult> ToggleAvailability(int id)
         {
@@ -277,7 +277,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, isAvailable = product.IsAvailable });
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.update")]
         [HttpPatch("{id}/featured")]
         public async Task<IActionResult> ToggleFeatured(int id)
         {
@@ -290,7 +290,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, isFeatured = product.IsFeatured });
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.update")]
         [HttpPatch("{id}/best-selling")]
         public async Task<IActionResult> ToggleBestSelling(int id)
         {
@@ -308,7 +308,7 @@ namespace SouqSofra.API.Controllers
             public decimal? DiscountPrice { get; set; }
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.update")]
         [HttpPatch("{id}/discount")]
         public async Task<IActionResult> SetDiscount(int id, [FromBody] SetDiscountDto dto)
         {
@@ -330,7 +330,7 @@ namespace SouqSofra.API.Controllers
             return Ok(new { productId = product.ProductId, discountPrice = product.DiscountPrice });
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Policy = "Permission:products.delete")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

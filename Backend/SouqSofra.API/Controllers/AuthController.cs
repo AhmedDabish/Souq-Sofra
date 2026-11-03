@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using SouqSofra.Application.Common;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Infrastructure.Data;
+using SouqSofra.Domain.Authorization;
+using System.Text.Json;
 
 namespace SouqSofra.API.Controllers
 {
@@ -62,7 +64,7 @@ namespace SouqSofra.API.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new LoginResponseDto(tokenString, user.FullName, user.Email, role, expires));
+            return Ok(new LoginResponseDto(tokenString, user.FullName, user.Email, role, expires, EffectivePermissions(user)));
         }
 
         [Authorize]
@@ -84,11 +86,12 @@ namespace SouqSofra.API.Controllers
                 user.FullName,
                 user.Email,
                 user.PhoneNumber,
-                Role = RoleName(user.RoleId)
+                Role = RoleName(user.RoleId),
+                Permissions = EffectivePermissions(user)
             });
         }
 
-        [Authorize(Roles = "Admin,User,SuperAdmin")]
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
@@ -108,6 +111,13 @@ namespace SouqSofra.API.Controllers
 
             return Ok(new { success = true, message = "تم تحديث كلمة المرور بنجاح." });
         }
+        private static IReadOnlyList<string> EffectivePermissions(SouqSofra.Domain.Entities.User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.PermissionsJson)) return PermissionCatalog.ForRole(user.RoleId);
+            try { return JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? []; }
+            catch (JsonException) { return []; }
+        }
+
         private static string RoleName(int roleId) => roleId switch
         {
             1 => "Admin",

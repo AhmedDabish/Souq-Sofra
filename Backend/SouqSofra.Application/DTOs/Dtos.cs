@@ -148,13 +148,15 @@ namespace SouqSofra.Application.DTOs
         string FullName, 
         string Email, 
         string Role, 
-        DateTime ExpiresAt
+        DateTime ExpiresAt,
+        IReadOnlyList<string>? Permissions = null
     );
 
     public record ChangePasswordDto(string OldPassword, string NewPassword);
-    public record StaffUserDto(int UserId, string FullName, string Email, string? PhoneNumber, string Role, bool IsActive, DateTime CreatedAt);
+    public record StaffUserDto(int UserId, string FullName, string Email, string? PhoneNumber, string Role, bool IsActive, DateTime CreatedAt, IReadOnlyList<string> Permissions);
     public record CreateStaffUserDto(string FullName, string Email, string Password, string? PhoneNumber, string Role);
     public record UpdateStaffRoleDto(string Role);
+    public record UpdateStaffPermissionsDto(IReadOnlyList<string>? Permissions);
     public record BootstrapSuperAdminDto(string CurrentPassword, string NewPassword);
 
     // Branches

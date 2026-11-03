@@ -90,15 +90,15 @@ export class AdminSidebarComponent {
   collapsed = signal(localStorage.getItem('souq_admin_sidebar_collapsed') === 'true');
   mobileOpen = signal(false);
   private items = [
-    { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', roles:['User','Admin','SuperAdmin'] },
-    { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', roles:['Admin','SuperAdmin'] },
+    { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', permission:'dashboard.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
+    { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', permission:'categories.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', permission:'addons.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', permission:'settings.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', permission:'users.view', roles:['Admin','SuperAdmin'] },
   ];
-  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.roles.includes(role)); }
+  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => this.auth.hasPermission(item.permission)); }
   roleLabel() { const labels: Record<string,[string,string]> = { User:['موظف الطلبات','Orders staff'], Admin:['مدير','Admin'], SuperAdmin:['مدير عام','Super Admin'] }; const pair=labels[this.auth.currentUser()?.role || '']; return pair ? this.language.t(pair[0],pair[1]) : this.language.t('حساب','Account'); }
   initials() { return (this.auth.currentUser()?.fullName || 'م').trim().slice(0,1); }
   isCollapsed() { return this.collapsed() && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches; }

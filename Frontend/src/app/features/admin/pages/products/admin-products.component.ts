@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../../core/services/api.service';
 import { Product, Category, ProductCreate, ProductAddon, ProductVariant, AddonTemplate } from '../../../../core/models/models';
+import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -27,7 +28,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
             <p class="text-xs text-gray-400">{{ language.t('إضافة وتعديل وحذف الأصناف والتحكم في الخصومات والعروض والأسعار وتوفر المنتجات', 'Add, edit, and manage products, discounts, prices, and availability') }}</p>
           </div>
           <button
-            (click)="openAddModal()"
+            [hidden]="!auth.hasPermission('products.create')" (click)="openAddModal()"
             class="px-5 py-2.5 rounded-2xl bg-primary hover:bg-primaryHover text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-2 self-start sm:self-auto cursor-pointer">
             <span>+</span>
             <span>{{ language.t('إضافة صنف جديد', 'Add product') }}</span>
@@ -127,7 +128,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                           </span>
                           <button
                             type="button"
-                            (click)="openQuickDiscountModal(prod)"
+                            [hidden]="!auth.hasPermission('products.update')" (click)="openQuickDiscountModal(prod)"
                             class="text-xs text-blue-600 hover:text-blue-800 font-bold p-1 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
                             [title]="language.t('تعديل الخصم', 'Edit discount')">
                             {{ language.t('✏️ تعديل', '✏️ Edit') }}
@@ -136,7 +137,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       } @else {
                         <button
                           type="button"
-                          (click)="openQuickDiscountModal(prod)"
+                          [hidden]="!auth.hasPermission('products.update')" (click)="openQuickDiscountModal(prod)"
                           class="px-2.5 py-1 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 font-bold text-[11px] transition-colors cursor-pointer border border-orange-200">
                           {{ language.t('+ إضافة خصم', '+ Add discount') }}
                         </button>
@@ -145,7 +146,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 
                     <td class="p-4">
                       <button
-                        (click)="toggleAvailability(prod)"
+                        [hidden]="!auth.hasPermission('products.update')" (click)="toggleAvailability(prod)"
                         [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isAvailable ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'"
                         class="text-[11px] px-3 py-1 rounded-full font-bold transition-colors cursor-pointer">
@@ -154,7 +155,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                     </td>
                     <td class="p-4">
                       <button
-                        (click)="toggleFeatured(prod)"
+                        [hidden]="!auth.hasPermission('products.update')" (click)="toggleFeatured(prod)"
                         [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isFeatured ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-300' : 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200'"
                         class="text-[11px] px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
@@ -163,7 +164,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                       </button>
                     </td>
                     <td class="p-4">
-                      <button type="button" (click)="toggleBestSelling(prod)" [disabled]="isUpdatingId() === prod.productId"
+                      <button type="button" [hidden]="!auth.hasPermission('products.update')" (click)="toggleBestSelling(prod)" [disabled]="isUpdatingId() === prod.productId"
                         [class]="prod.isManuallyBestSelling ? 'bg-rose-100 text-rose-800 border-rose-200' : 'bg-gray-100 text-gray-500 border-gray-200'"
                         class="rounded-full border px-3 py-1 text-xs font-bold transition hover:opacity-80">
                         {{ language.t(prod.isManuallyBestSelling ? '♥ مختار يدويًا' : '♡ اختيار', prod.isManuallyBestSelling ? '♥ Pinned' : '♡ Pin') }}
@@ -173,12 +174,12 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                     <td class="p-4">
                       <div class="flex items-center justify-center gap-2">
                         <button
-                          (click)="openEditModal(prod)"
+                          [hidden]="!auth.hasPermission('products.update')" (click)="openEditModal(prod)"
                           class="px-3 py-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold transition-colors cursor-pointer">
                           {{ language.t('تعديل', 'Edit') }}
                         </button>
                         <button
-                          (click)="deleteProduct(prod)"
+                          [hidden]="!auth.hasPermission('products.delete')" (click)="deleteProduct(prod)"
                           class="px-3 py-1 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 font-bold transition-colors cursor-pointer">
                           {{ language.t('حذف', 'Delete') }}
                         </button>
@@ -454,6 +455,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 })
 export class AdminProductsComponent implements OnInit {
   language = inject(LanguageService);
+  auth = inject(AuthService);
   private api = inject(ApiService);
 
   products = signal<Product[]>([]);

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace SouqSofra.API.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Policy = "Permission:media.upload")]
     [Route("api/[controller]")]
     public class UploadController : ControllerBase
     {

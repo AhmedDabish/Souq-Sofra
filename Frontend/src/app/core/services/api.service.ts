@@ -11,6 +11,7 @@ import {
   Branch,
   SiteSettings,
   StaffUser,
+  PermissionDefinition,
   AddonTemplate,
   AddonTemplateCreate,
   DeliveryZone
@@ -139,6 +140,10 @@ export class ApiService {
     return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/users/bootstrap-super-admin`, { currentPassword, newPassword });
   }
   getStaffUsers(): Observable<StaffUser[]> { return this.http.get<StaffUser[]>(`${this.apiUrl}/users`); }
+  getPermissionCatalog(): Observable<PermissionDefinition[]> { return this.http.get<PermissionDefinition[]>(`${this.apiUrl}/users/permissions/catalog`); }
+  updateStaffPermissions(id: number, permissions: string[]): Observable<{ userId: number; permissions: string[] }> {
+    return this.http.put<{ userId: number; permissions: string[] }>(`${this.apiUrl}/users/${id}/permissions`, { permissions });
+  }
   createStaffUser(user: { fullName: string; email: string; password: string; phoneNumber?: string; role: string }): Observable<StaffUser> {
     return this.http.post<StaffUser>(`${this.apiUrl}/users`, user);
   }

@@ -7,17 +7,19 @@ using SouqSofra.Application.Common;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Domain.Entities;
 using SouqSofra.Infrastructure.Data;
+using SouqSofra.Domain.Authorization;
+using System.Text.Json;
 
 namespace SouqSofra.API.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
         public UsersController(AppDbContext context) => _context = context;
 
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost("bootstrap-super-admin")]
         public async Task<IActionResult> BootstrapSuperAdmin([FromBody] BootstrapSuperAdminDto dto)
         {
@@ -44,23 +46,40 @@ namespace SouqSofra.API.Controllers
             return Ok(new { success = true, message = "تم تفعيل Super Admin. سجّل الخروج ثم ادخل مرة أخرى لتحديث صلاحيات الجلسة." });
         }
 
-        [Authorize(Roles = "SuperAdmin")]
+
+        [Authorize(Policy = "Permission:users.view")]
+        [HttpGet("permissions/catalog")]
+        public IActionResult GetPermissionCatalog()
+        {
+            var permissions = PermissionDefinitions.All.Select(permission => new
+            {
+                permission.Key,
+                permission.Group,
+                permission.GroupEn,
+                permission.Label,
+                permission.LabelEn
+            });
+            return Ok(permissions);
+        }
+
+        [Authorize(Policy = "Permission:users.view")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _context.Users.OrderBy(user => user.FullName)
-                .Select(user => new StaffUserDto(user.UserId, user.FullName, user.Email, user.PhoneNumber,
-                    RoleName(user.RoleId), user.IsActive, user.CreatedAt))
-                .ToListAsync();
+            var records = await _context.Users.OrderBy(user => user.FullName).AsNoTracking().ToListAsync();
+            var users = records.Select(user => new StaffUserDto(user.UserId, user.FullName, user.Email, user.PhoneNumber,
+                RoleName(user.RoleId), user.IsActive, user.CreatedAt, EffectivePermissions(user))).ToList();
             return Ok(users);
         }
 
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Policy = "Permission:users.create")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStaffUserDto dto)
         {
             var roleId = RoleId(dto.Role);
             if (roleId == null) return BadRequest(new { message = "الدور يجب أن يكون User أو Admin أو SuperAdmin." });
+            if (roleId.Value == 3 && User.FindFirst(ClaimTypes.Role)?.Value != "SuperAdmin")
+                return Forbid();
             if (string.IsNullOrWhiteSpace(dto.FullName) || dto.FullName.Trim().Length > 150)
                 return BadRequest(new { message = "اكتب اسمًا صحيحًا لا يتجاوز 150 حرفًا." });
             if (string.IsNullOrWhiteSpace(dto.Email) || dto.Email.Trim().Length > 150 || !dto.Email.Contains('@'))
@@ -83,7 +102,7 @@ namespace SouqSofra.API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAll), new { id = user.UserId }, new StaffUserDto(
-                user.UserId, user.FullName, user.Email, user.PhoneNumber, RoleName(user.RoleId), user.IsActive, user.CreatedAt));
+                user.UserId, user.FullName, user.Email, user.PhoneNumber, RoleName(user.RoleId), user.IsActive, user.CreatedAt, EffectivePermissions(user)));
         }
 
         [Authorize(Roles = "SuperAdmin")]
@@ -92,6 +111,8 @@ namespace SouqSofra.API.Controllers
         {
             var roleId = RoleId(dto.Role);
             if (roleId == null) return BadRequest(new { message = "الدور يجب أن يكون User أو Admin أو SuperAdmin." });
+            if (roleId.Value == 3 && User.FindFirst(ClaimTypes.Role)?.Value != "SuperAdmin")
+                return Forbid();
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(new { message = "المستخدم غير موجود." });
             var currentUserId = int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedId) ? parsedId : 0;
@@ -101,16 +122,42 @@ namespace SouqSofra.API.Controllers
                 !await _context.Users.AnyAsync(other => other.UserId != id && other.IsActive && other.RoleId == 3))
                 return Conflict(new { message = "يجب إبقاء حساب Super Admin نشط واحد على الأقل." });
             user.RoleId = roleId.Value;
+            user.PermissionsJson = null; // A role change restores that role's safe defaults.
             await _context.SaveChangesAsync();
             return Ok(new { userId = user.UserId, role = RoleName(user.RoleId) });
         }
 
-        [Authorize(Roles = "SuperAdmin")]
+
+        [Authorize(Policy = "Permission:users.update")]
+        [HttpPut("{id:int}/permissions")]
+        public async Task<IActionResult> UpdatePermissions(int id, [FromBody] UpdateStaffPermissionsDto dto)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound(new { message = "المستخدم غير موجود." });
+            if (user.RoleId == 3) return Conflict(new { message = "لا يمكن تخصيص صلاحيات Super Admin؛ لديه جميع الصلاحيات دائمًا." });
+            var permissions = dto.Permissions ?? [];
+            if (permissions.Any(permission => !PermissionCatalog.IsKnown(permission)))
+                return BadRequest(new { message = "تتضمن القائمة صلاحية غير معروفة." });
+            var actorId = int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedActorId) ? parsedActorId : 0;
+            var actor = await _context.Users.AsNoTracking().FirstOrDefaultAsync(candidate => candidate.UserId == actorId && candidate.IsActive);
+            if (actor == null) return Forbid();
+            if (actor.RoleId != 3 && permissions.Except(EffectivePermissions(actor), StringComparer.Ordinal).Any())
+                return Forbid();
+            if (user.UserId == actorId &&
+                !permissions.Contains("users.update", StringComparer.Ordinal))
+                return Conflict(new { message = "لا يمكنك إزالة صلاحية إدارة المستخدمين من حسابك الحالي." });
+            user.PermissionsJson = JsonSerializer.Serialize(permissions.Distinct(StringComparer.Ordinal).ToArray());
+            await _context.SaveChangesAsync();
+            return Ok(new { userId = user.UserId, permissions = permissions.Distinct(StringComparer.Ordinal).ToArray() });
+        }
+
+        [Authorize(Policy = "Permission:users.delete")]
         [HttpPatch("{id}/active")]
         public async Task<IActionResult> ToggleActive(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound(new { message = "المستخدم غير موجود." });
+            if (user.RoleId == 3 && User.FindFirst(ClaimTypes.Role)?.Value != "SuperAdmin") return Forbid();
             var currentUserId = int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedId) ? parsedId : 0;
             if (user.UserId == currentUserId && user.IsActive)
                 return Conflict(new { message = "لا يمكنك إيقاف حسابك الحالي." });
@@ -120,6 +167,13 @@ namespace SouqSofra.API.Controllers
             user.IsActive = !user.IsActive;
             await _context.SaveChangesAsync();
             return Ok(new { userId = user.UserId, isActive = user.IsActive });
+        }
+
+        private static IReadOnlyList<string> EffectivePermissions(User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.PermissionsJson)) return PermissionCatalog.ForRole(user.RoleId);
+            try { return JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? []; }
+            catch (JsonException) { return []; }
         }
 
         private static int? RoleId(string? role) => role?.Trim().ToLowerInvariant() switch

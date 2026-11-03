@@ -197,6 +197,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
                 entity.Property(u => u.PhoneNumber).HasMaxLength(50);
+                entity.Property(u => u.PermissionsJson).HasColumnType("nvarchar(max)");
 
                 entity.HasIndex(u => u.Email).IsUnique();
             });

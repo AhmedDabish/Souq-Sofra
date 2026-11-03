@@ -16,14 +16,14 @@ export class AuthService {
   private readonly userKey = 'souq_sofra_admin_user';
 
   public isAuthenticated = signal<boolean>(this.hasToken());
-  public currentUser = signal<{ fullName: string; email: string; role: string } | null>(this.getUser());
+  public currentUser = signal<{ fullName: string; email: string; role: string; permissions: string[] } | null>(this.getUser());
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
       tap((res) => {
         if (res && res.token) {
           localStorage.setItem(this.tokenKey, res.token);
-          const user = { fullName: res.fullName, email: res.email, role: res.role };
+          const user = { fullName: res.fullName, email: res.email, role: res.role, permissions: res.permissions ?? this.defaultPermissions(res.role) };
           localStorage.setItem(this.userKey, JSON.stringify(user));
           this.isAuthenticated.set(true);
           this.currentUser.set(user);
@@ -40,6 +40,19 @@ export class AuthService {
     this.router.navigate(['/admin/login']);
   }
 
+  private defaultPermissions(role: string): string[] {
+    const catalog = ['dashboard.view','orders.view','orders.create','orders.update','orders.delete','products.view','products.create','products.update','products.delete','categories.view','categories.create','categories.update','categories.delete','addons.view','addons.create','addons.update','addons.delete','settings.view','settings.update','media.upload','branches.view','branches.create','branches.update','branches.delete','users.view','users.create','users.update','users.delete'];
+    if (role === 'SuperAdmin') return catalog;
+    if (role === 'Admin') return catalog.filter(permission => !permission.startsWith('users.') || permission === 'users.view');
+    if (role === 'User') return ['orders.view','orders.update'];
+    return [];
+  }
+
+  hasPermission(permission: string): boolean {
+    const user = this.currentUser();
+    return user?.role === 'SuperAdmin' || !!user?.permissions?.includes(permission);
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
@@ -48,10 +61,11 @@ export class AuthService {
     return !!localStorage.getItem(this.tokenKey);
   }
 
-  private getUser(): { fullName: string; email: string; role: string } | null {
+  private getUser(): { fullName: string; email: string; role: string; permissions: string[] } | null {
     const raw = localStorage.getItem(this.userKey);
     try {
-      return raw ? JSON.parse(raw) : null;
+      const user = raw ? JSON.parse(raw) : null;
+      return user ? { ...user, permissions: Array.isArray(user.permissions) ? user.permissions : this.defaultPermissions(user.role) } : null;
     } catch {
       return null;
     }

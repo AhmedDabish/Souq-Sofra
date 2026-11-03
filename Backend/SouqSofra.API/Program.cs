@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SouqSofra.Infrastructure.Data;
+using SouqSofra.API.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,7 +100,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permission in SouqSofra.Domain.Authorization.PermissionCatalog.All)
+        options.AddPolicy(PermissionPolicy.For(permission), policy => policy.Requirements.Add(new PermissionRequirement(permission)));
+});
 
 // Robust CORS Policy for Angular Frontend & Localhost
 builder.Services.AddCors(options =>

@@ -208,6 +208,15 @@ export interface LoginResponse {
   email: string;
   role: string;
   expiresAt: string;
+  permissions?: string[];
+}
+
+export interface PermissionDefinition {
+  key: string;
+  group: string;
+  groupEn: string;
+  label: string;
+  labelEn: string;
 }
 
 export interface StaffUser {
@@ -218,6 +227,7 @@ export interface StaffUser {
   role: 'User' | 'Admin' | 'SuperAdmin' | string;
   isActive: boolean;
   createdAt: string;
+  permissions: string[];
 }
 
 export interface UserProfile {
