@@ -63,7 +63,7 @@ import { Category, Product } from '../../../../core/models/models';
         <section class="container-wide widget-spacing">
           <div class="grid gap-5 grid-cols-1 lg:grid-cols-2">
             @for (offer of offers; track offer.title) {
-              <div class="flex items-center relative max-md:mt-25 min-h-[200px] md:min-h-[310px] max-h-[360px]">
+              <div class="mx-auto flex w-[92%] max-w-[360px] items-center relative max-md:mt-25 min-h-[200px] md:min-h-[310px] max-h-[360px] md:mx-0 md:w-full md:max-w-none">
                 <div class="relative w-full min-h-[200px] md:min-h-[300px] md:w-[99%] pt-18 pb-4 px-6 md:py-10 max-md:rounded-se-[20px] max-md:rounded-ee-[20px] md:rounded-se-[10rem] md:rounded-ee-[10rem] rounded-ss-[20px] rounded-es-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
                      [style.backgroundColor]="offer.color">
                   <div class="md:pe-2 lg:pe-6 2xl:!pe-2 flex flex-col justify-center gap-3.5 md:gap-3.5 max-w-full md:max-w-[50%] 2xl:!max-w-[55%]">
@@ -103,7 +103,7 @@ import { Category, Product } from '../../../../core/models/models';
     <section class="widget-container">
       <div class="container-wide widget-spacing grid grid-cols-1 lg:grid-cols-2 gap-5">
         @for (banner of promoBanners; track banner) {
-          <div class="relative min-h-[220px] md:min-h-[300px] xl:min-h-[340px] rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+          <div class="group relative mx-auto min-h-[220px] w-[92%] max-w-[360px] overflow-hidden rounded-[20px] shadow-sm transition-all duration-300 hover:shadow-md md:mx-0 md:min-h-[300px] md:w-full md:max-w-none xl:min-h-[340px]">
             <img [src]="banner" [alt]="language.t('عروض سوق وسفرة', 'Souq & Sofra offers')" loading="lazy" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-[1.03]">
           </div>
         }
