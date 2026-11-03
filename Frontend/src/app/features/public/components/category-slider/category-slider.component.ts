@@ -148,7 +148,9 @@ export class CategorySliderComponent implements AfterViewInit, OnChanges {
   };
 
   ngAfterViewInit() {
-    this.updateScrollState();
+    // Wait until Angular completes the initial view check before changing the
+    // button disabled bindings based on the rendered track dimensions.
+    requestAnimationFrame(() => this.updateScrollState());
   }
 
   ngOnChanges(changes: SimpleChanges) {
