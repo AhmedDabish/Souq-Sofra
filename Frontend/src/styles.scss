@@ -289,7 +289,50 @@ body {
 .admin-shell[dir="ltr"]:has(app-admin-sidebar aside[style*="5rem"]) main { margin-left: 5rem !important; margin-right: 0 !important; }
 .admin-shell:has(app-admin-sidebar aside[style*="18rem"]) main { margin-right: 18rem !important; }
 .admin-shell[dir="ltr"]:has(app-admin-sidebar aside[style*="18rem"]) main { margin-left: 18rem !important; margin-right: 0 !important; }
-@media (max-width: 1023px) { .admin-shell main { margin-left: 0 !important; margin-right: 0 !important; } }
+@media (max-width: 1023px) {
+  .admin-shell main {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .admin-shell .admin-sidebar {
+    width: min(18rem, calc(100vw - 3rem)) !important;
+  }
+  .admin-shell .overflow-x-auto {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-shell input,
+  .admin-shell select,
+  .admin-shell textarea {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  .admin-shell main {
+    padding: 5rem 1rem calc(6rem + env(safe-area-inset-bottom)) !important;
+  }
+  .admin-shell main > header,
+  .admin-shell main > section,
+  .admin-shell main > form {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .admin-shell main h1 {
+    font-size: clamp(1.25rem, 6vw, 1.55rem);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .admin-shell .fixed.inset-0 > form,
+  .admin-shell .fixed.inset-0 > section,
+  .admin-shell .fixed.inset-0 > div {
+    max-width: calc(100vw - 1rem);
+  }
+}
 
 .delivery-map-pin {
   width: 25px;
