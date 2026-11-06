@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Domain.Entities;
@@ -53,6 +54,7 @@ namespace SouqSofra.API.Controllers
         public class RestaurantReviewForm
         {
             public string CustomerName { get; set; } = string.Empty;
+            public string? PhoneNumber { get; set; }
             public string Comment { get; set; } = string.Empty;
             public int Rating { get; set; } = 5;
             public IFormFile? Avatar { get; set; }
@@ -124,6 +126,7 @@ namespace SouqSofra.API.Controllers
             var review = new RestaurantReview
             {
                 CustomerName = form.CustomerName.Trim(),
+                PhoneNumber = NormalizePhone(form.PhoneNumber),
                 Rating = rating,
                 Comment = form.Comment.Trim(),
                 AvatarUrl = avatarUrl,
@@ -201,6 +204,7 @@ namespace SouqSofra.API.Controllers
             {
                 ProductId = dto.ProductId,
                 CustomerName = dto.CustomerName.Trim(),
+                PhoneNumber = NormalizePhone(dto.PhoneNumber),
                 Rating = dto.Rating,
                 Comment = dto.Comment?.Trim(),
                 IsApproved = true,
@@ -221,5 +225,73 @@ namespace SouqSofra.API.Controllers
 
             return CreatedAtAction(nameof(GetProductReviews), new { productId = review.ProductId }, resultDto);
         }
+
+        // Admin management endpoints
+        [Authorize(Policy = "Permission:reviews.view")]
+        [HttpGet("admin/all")]
+        public async Task<IActionResult> GetAllForAdmin()
+        {
+            var restaurant = await _context.RestaurantReviews.AsNoTracking().Select(r => new AdminReviewDto(
+                "restaurant", r.ReviewId, null, null, r.CustomerName, r.PhoneNumber, r.Rating, r.Comment, r.AvatarUrl, r.VideoUrl, r.IsApproved, r.CreatedAt)).ToListAsync();
+            var products = await _context.ProductReviews.AsNoTracking().Select(r => new AdminReviewDto(
+                "product", r.ProductReviewId, r.ProductId, r.Product == null ? null : r.Product.NameAr, r.CustomerName, r.PhoneNumber, r.Rating, r.Comment ?? string.Empty, null, null, r.IsApproved, r.CreatedAt)).ToListAsync();
+            return Ok(restaurant.Concat(products).OrderByDescending(r => r.CreatedAt));
+        }
+
+        [Authorize(Policy = "Permission:reviews.create")]
+        [HttpPost("admin")]
+        public async Task<IActionResult> CreateForAdmin([FromBody] AdminReviewCreateDto dto)
+        {
+            var validation = ValidateAdminReview(dto);
+            if (validation != null) return validation;
+            if (dto.Type == "restaurant")
+            {
+                var row = new RestaurantReview { CustomerName = dto.CustomerName.Trim(), PhoneNumber = NormalizePhone(dto.PhoneNumber), Rating = dto.Rating, Comment = dto.Comment.Trim(), AvatarUrl = dto.AvatarUrl, VideoUrl = dto.VideoUrl, IsApproved = dto.IsApproved, CreatedAt = DateTime.UtcNow };
+                _context.RestaurantReviews.Add(row); await _context.SaveChangesAsync(); return Ok(new { id = row.ReviewId });
+            }
+            if (!await _context.Products.AnyAsync(p => p.ProductId == dto.ProductId)) return BadRequest(new { message = "اختر منتجاً موجوداً." });
+            var productRow = new ProductReview { ProductId = dto.ProductId!.Value, CustomerName = dto.CustomerName.Trim(), PhoneNumber = NormalizePhone(dto.PhoneNumber), Rating = dto.Rating, Comment = dto.Comment.Trim(), IsApproved = dto.IsApproved, CreatedAt = DateTime.UtcNow };
+            _context.ProductReviews.Add(productRow); await _context.SaveChangesAsync(); return Ok(new { id = productRow.ProductReviewId });
+        }
+
+        [Authorize(Policy = "Permission:reviews.update")]
+        [HttpPut("admin/{type}/{id:int}")]
+        public async Task<IActionResult> UpdateForAdmin(string type, int id, [FromBody] AdminReviewCreateDto dto)
+        {
+            var validation = ValidateAdminReview(dto); if (validation != null) return validation;
+            if (!string.Equals(type, dto.Type, StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "نوع التقييم غير متطابق." });
+            if (type == "restaurant")
+            {
+                var row = await _context.RestaurantReviews.FindAsync(id); if (row == null) return NotFound();
+                row.CustomerName = dto.CustomerName.Trim(); row.PhoneNumber = NormalizePhone(dto.PhoneNumber); row.Rating = dto.Rating; row.Comment = dto.Comment.Trim(); row.AvatarUrl = dto.AvatarUrl; row.VideoUrl = dto.VideoUrl; row.IsApproved = dto.IsApproved;
+            }
+            else if (type == "product")
+            {
+                var row = await _context.ProductReviews.FindAsync(id); if (row == null) return NotFound();
+                if (!await _context.Products.AnyAsync(p => p.ProductId == dto.ProductId)) return BadRequest(new { message = "اختر منتجاً موجوداً." });
+                row.ProductId = dto.ProductId!.Value; row.CustomerName = dto.CustomerName.Trim(); row.PhoneNumber = NormalizePhone(dto.PhoneNumber); row.Rating = dto.Rating; row.Comment = dto.Comment.Trim(); row.IsApproved = dto.IsApproved;
+            }
+            else return BadRequest(new { message = "نوع التقييم غير صالح." });
+            await _context.SaveChangesAsync(); return NoContent();
+        }
+
+        [Authorize(Policy = "Permission:reviews.delete")]
+        [HttpDelete("admin/{type}/{id:int}")]
+        public async Task<IActionResult> DeleteForAdmin(string type, int id)
+        {
+            if (type == "restaurant") { var row = await _context.RestaurantReviews.FindAsync(id); if (row == null) return NotFound(); _context.RestaurantReviews.Remove(row); }
+            else if (type == "product") { var row = await _context.ProductReviews.FindAsync(id); if (row == null) return NotFound(); _context.ProductReviews.Remove(row); }
+            else return BadRequest(new { message = "نوع التقييم غير صالح." });
+            await _context.SaveChangesAsync(); return NoContent();
+        }
+
+        private IActionResult? ValidateAdminReview(AdminReviewCreateDto dto)
+        {
+            if (dto.Type is not ("restaurant" or "product") || string.IsNullOrWhiteSpace(dto.CustomerName) || dto.CustomerName.Trim().Length > 150 || dto.Rating < 1 || dto.Rating > 5 || string.IsNullOrWhiteSpace(dto.Comment) || dto.Comment.Trim().Length > 1000 || (dto.PhoneNumber != null && dto.PhoneNumber.Trim().Length > 30))
+                return BadRequest(new { message = "تحقق من نوع التقييم والاسم والتقييم والنص ورقم الهاتف." });
+            return null;
+        }
+
+        private static string? NormalizePhone(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

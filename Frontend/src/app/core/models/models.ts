@@ -264,6 +264,34 @@ export interface ProductReviewCreate {
   customerName: string;
   rating: number;
   comment?: string;
+  phoneNumber?: string;
+}
+
+export interface AdminReview {
+  type: 'restaurant' | 'product';
+  id: number;
+  productId?: number;
+  productName?: string;
+  customerName: string;
+  phoneNumber?: string;
+  rating: number;
+  comment: string;
+  avatarUrl?: string;
+  videoUrl?: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
+export interface AdminReviewCreate {
+  type: 'restaurant' | 'product';
+  productId?: number;
+  customerName: string;
+  phoneNumber?: string;
+  rating: number;
+  comment: string;
+  avatarUrl?: string;
+  videoUrl?: string;
+  isApproved: boolean;
 }
 
 export interface ProductReviewsSummary {

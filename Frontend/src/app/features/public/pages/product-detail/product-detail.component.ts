@@ -175,6 +175,10 @@ import { ProductCardComponent } from '../../components/product-card/product-card
                     [placeholder]="language.t('مثال: أحمد عبد الله', 'e.g. Ahmed Abdullah')" />
                 </div>
               </div>
+              <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">{{ language.t('رقم الهاتف (اختياري)', 'Phone number (optional)') }}</label>
+                <input type="tel" [(ngModel)]="newReviewPhone" name="phoneNumber" autocomplete="tel" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('05xxxxxxxx', 'Phone number')" />
+              </div>
 
               <div class="mb-4">
                 <label class="block text-xs font-semibold text-gray-700 mb-1">
@@ -305,6 +309,7 @@ export class ProductDetailComponent implements OnInit {
   showReviewForm = signal(false);
   newReviewRating = signal(5);
   newReviewName = '';
+  newReviewPhone = '';
   newReviewComment = '';
   submittingReview = signal(false);
   reviewError = signal('');
@@ -333,6 +338,7 @@ export class ProductDetailComponent implements OnInit {
     this.api.createProductReview({
       productId: currentProd.productId,
       customerName: this.newReviewName.trim(),
+      phoneNumber: this.newReviewPhone.trim() || undefined,
       rating: this.newReviewRating(),
       comment: this.newReviewComment.trim() || undefined
     }).subscribe({
@@ -340,6 +346,7 @@ export class ProductDetailComponent implements OnInit {
         this.submittingReview.set(false);
         this.reviewSuccess.set(this.language.t('شكراً لك! تم إضافة تقييمك بنجاح.', 'Thank you! Your review has been added.'));
         this.newReviewName = '';
+        this.newReviewPhone = '';
         this.newReviewComment = '';
         this.loadProductReviews(currentProd.productId);
         setTimeout(() => {

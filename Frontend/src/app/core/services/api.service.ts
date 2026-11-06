@@ -18,7 +18,9 @@ import {
   RestaurantReview,
   ProductReview,
   ProductReviewCreate,
-  ProductReviewsSummary
+  ProductReviewsSummary,
+  AdminReview,
+  AdminReviewCreate
 } from '../models/models';
 
 export interface OrderCreateResponse {
@@ -248,4 +250,11 @@ export class ApiService {
   createProductReview(review: ProductReviewCreate): Observable<ProductReview> {
     return this.http.post<ProductReview>(`${this.apiUrl}/reviews/product`, review);
   }
+
+  getAdminReviews(): Observable<AdminReview[]> { return this.http.get<AdminReview[]>(`${this.apiUrl}/reviews/admin/all`); }
+  createAdminReview(review: AdminReviewCreate): Observable<{ id: number }> { return this.http.post<{ id: number }>(`${this.apiUrl}/reviews/admin`, review); }
+  updateAdminReview(id: number, type: AdminReview['type'], review: AdminReviewCreate): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/reviews/admin/${type}/${id}`, review);
+  }
+  deleteAdminReview(type: AdminReview['type'], id: number): Observable<void> { return this.http.delete<void>(`${this.apiUrl}/reviews/admin/${type}/${id}`); }
 }

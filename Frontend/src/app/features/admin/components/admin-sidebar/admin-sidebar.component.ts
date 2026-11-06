@@ -47,6 +47,7 @@ import { AuthService } from '../../../../core/services/auth.service';
                   @case ('categories') { <path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/> }
                   @case ('addons') { <path d="M12 3v18M3 12h18"/><path d="M19 5v4M17 7h4M5 17v4M3 19h4"/> }
                   @case ('settings') { <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z" transform="translate(0 1) scale(.92) translate(1 0)"/> }
+                  @case ('reviews') { <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/> }
                   @case ('staff') { <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/> }
                 }
               </svg>
@@ -95,6 +96,7 @@ export class AdminSidebarComponent {
     { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', permission:'categories.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', permission:'addons.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/reviews', label:'إدارة التقييمات', labelEn:'Reviews', icon:'reviews', permission:'reviews.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', permission:'users.view', roles:['Admin','SuperAdmin'] },
   ];

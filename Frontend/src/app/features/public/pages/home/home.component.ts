@@ -199,6 +199,10 @@ import { Category, Product, RestaurantReview } from '../../../../core/models/mod
                     [placeholder]="language.t('مثال: سيف المهيري', 'e.g. Saif Al-Muhairi')" />
                 </div>
               </div>
+              <div class="mb-4">
+                <label class="block text-xs font-bold text-gray-700 mb-1.5">{{ language.t('رقم الهاتف (اختياري)', 'Phone number (optional)') }}</label>
+                <input type="tel" [(ngModel)]="newPhoneNumber" name="phoneNumber" autocomplete="tel" class="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('05xxxxxxxx', 'Phone number')" />
+              </div>
 
               <div class="mb-4">
                 <label class="block text-xs font-bold text-gray-700 mb-1.5">
@@ -388,6 +392,7 @@ export class HomeComponent implements OnInit {
   showReviewForm = signal(false);
   newRating = signal(5);
   newCustomerName = '';
+  newPhoneNumber = '';
   newComment = '';
   selectedAvatarFile: File | null = null;
   selectedVideoFile: File | null = null;
@@ -441,6 +446,7 @@ export class HomeComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('customerName', this.newCustomerName.trim());
+    if (this.newPhoneNumber.trim()) formData.append('phoneNumber', this.newPhoneNumber.trim());
     formData.append('comment', this.newComment.trim());
     formData.append('rating', this.newRating().toString());
 
@@ -456,6 +462,7 @@ export class HomeComponent implements OnInit {
         this.isSubmittingReview.set(false);
         this.reviewSubmitSuccess.set(this.language.t('شكراً لك! تم إضافة ونشر تقييمك بنجاح.', 'Thank you! Your review has been submitted successfully.'));
         this.newCustomerName = '';
+        this.newPhoneNumber = '';
         this.newComment = '';
         this.selectedAvatarFile = null;
         this.selectedVideoFile = null;

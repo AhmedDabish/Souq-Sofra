@@ -9,7 +9,8 @@ namespace SouqSofra.Domain.Authorization
             "products.view", "products.create", "products.update", "products.delete",
             "categories.view", "categories.create", "categories.update", "categories.delete",
             "addons.view", "addons.create", "addons.update", "addons.delete",
-            "settings.view", "settings.update", "media.upload",
+            "settings.view", "settings.update",
+            "reviews.view", "reviews.create", "reviews.update", "reviews.delete", "media.upload",
             "branches.view", "branches.create", "branches.update", "branches.delete",
             "users.view", "users.create", "users.update", "users.delete"
         ];

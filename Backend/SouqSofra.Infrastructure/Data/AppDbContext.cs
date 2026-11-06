@@ -220,6 +220,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.ToTable("RestaurantReviews");
                 entity.HasKey(r => r.ReviewId);
                 entity.Property(r => r.CustomerName).IsRequired().HasMaxLength(150);
+                entity.Property(r => r.PhoneNumber).HasMaxLength(30);
                 entity.Property(r => r.Comment).IsRequired().HasMaxLength(1000);
                 entity.Property(r => r.AvatarUrl).HasMaxLength(500);
                 entity.Property(r => r.VideoUrl).HasMaxLength(500);
@@ -232,6 +233,7 @@ namespace SouqSofra.Infrastructure.Data
                 entity.ToTable("ProductReviews");
                 entity.HasKey(pr => pr.ProductReviewId);
                 entity.Property(pr => pr.CustomerName).IsRequired().HasMaxLength(150);
+                entity.Property(pr => pr.PhoneNumber).HasMaxLength(30);
                 entity.Property(pr => pr.Comment).HasMaxLength(1000);
                 entity.Property(pr => pr.Rating).IsRequired();
 

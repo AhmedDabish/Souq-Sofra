@@ -203,7 +203,19 @@ namespace SouqSofra.Application.DTOs
         int ProductId,
         string CustomerName,
         int Rating,
-        string? Comment
+        string? Comment,
+        string? PhoneNumber = null
+    );
+
+    public record AdminReviewCreateDto(
+        string Type, int? ProductId, string CustomerName, string? PhoneNumber, int Rating,
+        string Comment, string? AvatarUrl, string? VideoUrl, bool IsApproved = true
+    );
+
+    public record AdminReviewDto(
+        string Type, int Id, int? ProductId, string? ProductName, string CustomerName,
+        string? PhoneNumber, int Rating, string Comment, string? AvatarUrl, string? VideoUrl,
+        bool IsApproved, DateTime CreatedAt
     );
 
     public record ProductReviewsSummaryDto(

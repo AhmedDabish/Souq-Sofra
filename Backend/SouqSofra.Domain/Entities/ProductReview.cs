@@ -5,6 +5,7 @@ namespace SouqSofra.Domain.Entities
         public int ProductReviewId { get; set; }
         public int ProductId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
         public int Rating { get; set; } = 5;
         public string? Comment { get; set; }
         public bool IsApproved { get; set; } = true;
