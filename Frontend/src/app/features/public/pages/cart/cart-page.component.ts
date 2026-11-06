@@ -7,6 +7,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CartItem, DeliveryZone } from '../../../../core/models/models';
 import { DeliveryMapComponent } from '../../components/delivery-map/delivery-map.component';
 import { LanguageService } from '../../../../core/services/language.service';
+import { LocationService } from '../../../../core/services/location.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -149,15 +150,30 @@ import { LanguageService } from '../../../../core/services/language.service';
                         @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">{{ language.t('لا يوجد توصيل متاح حالياً في هذه الإمارة.', 'Delivery is currently unavailable in this emirate.') }}</span> }
                       </label>
                       @if (selectedZone()) {
-                        <label class="block text-xs font-bold text-gray-700">{{ language.t('تفاصيل العنوان (شارع، مبنى، شقة)', 'Address details (street, building, apartment)') }} *
-                          <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('اكتب تفاصيل الوصول', 'Enter your address details')"></textarea>
-                        </label>
-                        <div class="space-y-2">
-                          <p class="text-xs font-bold text-gray-700">{{ language.t('حدد موقعك على الخريطة', 'Pin your location on the map') }} *</p>
-                          <app-delivery-map [latitude]="latitude()" [longitude]="longitude()" (locationChange)="setMapLocation($event)" />
-                          <p class="text-[11px] text-gray-500">{{ language.t('اضغط على الخريطة أو اسحب الدبوس لمكان التوصيل. رسوم هذه المنطقة:', 'Tap the map or drag the pin to your delivery location. Delivery fee for this area:') }} {{ selectedZone()?.fee }} {{ language.isEnglish() ? 'AED' : 'درهم' }}.</p>
-                          @if (latitude() !== null) { <p class="text-[11px] text-green-700">{{ language.t('تم تحديد الموقع:', 'Location selected:') }} {{ latitude() | number:'1.5-5' }}, {{ longitude() | number:'1.5-5' }}</p> }
+                        <div class="rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
+                          <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="min-w-0">
+                              <p class="text-sm font-extrabold text-gray-800">{{ language.t('عنوان التوصيل', 'Delivery address') }}</p>
+                              @if (locationService.selectedCoordinates(); as savedCoords) {
+                                <p class="mt-1 truncate text-xs text-gray-600">{{ locationService.selectedLocation() }}</p>
+                                <p class="mt-0.5 text-[10px] text-green-700">{{ language.t('تم حفظ موقعك', 'Location saved') }}</p>
+                              } @else {
+                                <p class="mt-1 text-xs text-gray-500">{{ language.t('حدد موقعك على الخريطة قبل إكمال الطلب', 'Choose your location on the map before continuing') }}</p>
+                              }
+                            </div>
+                            <button
+                              type="button"
+                              (click)="openAddressPicker()"
+                              class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition hover:bg-primaryDark">
+                              <span aria-hidden="true">📍</span>
+                              {{ language.t('حدد عنوانك', 'Set your address') }}
+                            </button>
+                          </div>
                         </div>
+                        <label class="block text-xs font-bold text-gray-700">{{ language.t('تفاصيل إضافية للعنوان (شارع، مبنى، شقة)', 'Additional address details (street, building, apartment)') }}
+                          <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('اكتب رقم المبنى أو الشقة أو تفاصيل الوصول', 'Building, apartment, or other delivery details')"></textarea>
+                        </label>
+                        <p class="text-[11px] text-gray-500">{{ language.t('رسوم التوصيل لهذه المنطقة:', 'Delivery fee for this area:') }} {{ selectedZone()?.fee }} {{ language.isEnglish() ? 'AED' : 'درهم' }}.</p>
                       }
                     }
                     <label class="block text-xs font-bold text-gray-700">{{ language.t('ملاحظات إضافية', 'Additional notes') }} <span class="font-normal text-gray-400">({{ language.t('اختياري', 'optional') }})</span>
@@ -184,6 +200,7 @@ export class CartPageComponent implements OnInit {
   cart = inject(CartService);
   private api = inject(ApiService);
   language = inject(LanguageService);
+  locationService = inject(LocationService);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
   zones = signal<DeliveryZone[]>(this.emirates.map((emirate, index) => ({ id: `uae-${index + 1}`, emirate, name: emirate, fee: 10, enabled: true })));
   emirateNameEn(name: string): string { return ({ 'أبوظبي': 'Abu Dhabi', 'دبي': 'Dubai', 'الشارقة': 'Sharjah', 'عجمان': 'Ajman', 'أم القيوين': 'Umm Al Quwain', 'رأس الخيمة': 'Ras Al Khaimah', 'الفجيرة': 'Fujairah' } as Record<string, string>)[name] || name; }
@@ -208,6 +225,14 @@ export class CartPageComponent implements OnInit {
       if (zones.length) this.zones.set(zones);
     }, error: () => {} });
     this.cart.setDeliveryFee(0);
+    if (this.locationService.selectedCoordinates()) {
+      this.latitude.set(this.locationService.selectedCoordinates()!.latitude);
+      this.longitude.set(this.locationService.selectedCoordinates()!.longitude);
+    }
+  }
+
+  openAddressPicker() {
+    this.locationService.openModal();
   }
 
   setDeliveryType(type: 'delivery' | 'pickup') {
@@ -241,11 +266,16 @@ export class CartPageComponent implements OnInit {
     const name = this.customerName.trim();
     const phone = this.customerPhone.trim();
     const zone = this.selectedZone();
+    const savedCoords = this.locationService.selectedCoordinates();
+    if (savedCoords) {
+      this.latitude.set(savedCoords.latitude);
+      this.longitude.set(savedCoords.longitude);
+    }
     if (!deliveryType) { this.errorMessage.set(this.language.t('اختار توصيل أو استلام من الفرع أولاً.', 'Choose delivery or branch pickup first.')); return; }
     if (!name || !phone) { this.errorMessage.set(this.language.t('اكتب اسم العميل ورقم الهاتف أولاً.', 'Enter your name and phone number first.')); return; }
     if (!this.cart.items().length) { this.errorMessage.set(this.language.t('السلة فارغة.', 'Your cart is empty.')); return; }
-    if (deliveryType === 'delivery' && (!zone || !this.addressDetails.trim() || this.latitude() === null || this.longitude() === null)) {
-      this.errorMessage.set(this.language.t('اختر منطقة توصيل متاحة، واكتب تفاصيل العنوان وحدد موقعك على الخريطة.', 'Choose an available delivery area, enter your address, and pin your location on the map.')); return;
+    if (deliveryType === 'delivery' && (!zone || this.latitude() === null || this.longitude() === null)) {
+      this.errorMessage.set(this.language.t('اختر منطقة توصيل متاحة وحدد عنوانك على الخريطة.', 'Choose an available delivery area and set your address on the map.')); return;
     }
 
     const whatsappWindow = window.open('about:blank', '_blank');
@@ -264,7 +294,8 @@ export class CartPageComponent implements OnInit {
       unitPrice: item.unitPrice,
       addonIds: item.selectedAddons.map(addon => addon.addonId!).filter(Boolean)
     }));
-    const address = deliveryType === 'pickup' ? 'استلام من الفرع' : this.addressDetails.trim();
+    const savedLocation = this.locationService.selectedLocation();
+    const address = deliveryType === 'pickup' ? 'استلام من الفرع' : [savedLocation, this.addressDetails.trim()].filter(Boolean).join(' - ');
     this.api.createOrder({
       customerName: name,
       customerPhone: phone,
@@ -289,7 +320,7 @@ export class CartPageComponent implements OnInit {
         });
         const fulfillment = deliveryType === 'pickup'
           ? (english ? 'Fulfillment: Branch pickup' : 'طريقة الاستلام: استلام من الفرع')
-          : `${english ? 'Fulfillment: Delivery' : 'طريقة الاستلام: توصيل'}\n${english ? 'Emirate and area' : 'الإمارة والمنطقة'}: ${english ? this.emirateNameEn(zone!.emirate) : zone!.emirate} - ${this.zoneLabel(zone!)}\n${english ? 'Address' : 'العنوان'}: ${address}\n${english ? 'Map location' : 'الموقع على الخريطة'}: ${this.latitude()}, ${this.longitude()}\n${english ? 'Delivery fee' : 'رسوم التوصيل'}: ${zone!.fee} ${currency}`;
+          : `${english ? 'Fulfillment: Delivery' : 'طريقة الاستلام: توصيل'}\n${english ? 'Emirate and area' : 'الإمارة والمنطقة'}: ${english ? this.emirateNameEn(zone!.emirate) : zone!.emirate} - ${this.zoneLabel(zone!)}\n${english ? 'Address' : 'العنوان'}: ${address}\n${english ? 'Map location' : 'الموقع على الخريطة'}: https://www.google.com/maps?q=${this.latitude()},${this.longitude()}\n${english ? 'Coordinates' : 'الإحداثيات'}: ${this.latitude()}, ${this.longitude()}\n${english ? 'Delivery fee' : 'رسوم التوصيل'}: ${zone!.fee} ${currency}`;
         const message = [
           english ? 'New order from Souq & Sofra' : 'طلب جديد من سوق وسفرة', `${english ? 'Order number' : 'رقم الطلب'}: ${order.orderNumber || order.orderId}`,
           `${english ? 'Customer name' : 'اسم العميل'}: ${name}`, `${english ? 'Phone' : 'رقم الهاتف'}: ${phone}`, fulfillment,

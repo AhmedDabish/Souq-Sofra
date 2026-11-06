@@ -8,6 +8,11 @@ export interface ManualAddress {
   notes: string;
 }
 
+export interface LocationCoords {
+  latitude: number;
+  longitude: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,9 +20,11 @@ export class LocationService {
   private readonly STORAGE_KEY_ORDER_TYPE = 'souq_sofra_order_type';
   private readonly STORAGE_KEY_LOCATION = 'souq_sofra_location';
   private readonly STORAGE_KEY_MANUAL_ADDR = 'souq_sofra_manual_address';
+  private readonly STORAGE_KEY_COORDS = 'souq_sofra_coords';
 
   orderType = signal<'delivery' | 'pickup'>('delivery');
   selectedLocation = signal<string>('اختر الموقع...');
+  selectedCoordinates = signal<LocationCoords | null>(null);
   isModalOpen = signal<boolean>(false);
   
   manualAddress = signal<ManualAddress>({
@@ -45,6 +52,18 @@ export class LocationService {
           this.selectedLocation.set(savedLoc);
         }
 
+        const savedCoords = localStorage.getItem(this.STORAGE_KEY_COORDS);
+        if (savedCoords) {
+          try {
+            const parsed = JSON.parse(savedCoords);
+            if (typeof parsed?.latitude === 'number' && typeof parsed?.longitude === 'number') {
+              this.selectedCoordinates.set(parsed);
+            }
+          } catch {
+            // Ignore parse error
+          }
+        }
+
         const savedAddr = localStorage.getItem(this.STORAGE_KEY_MANUAL_ADDR);
         if (savedAddr) {
           this.manualAddress.set(JSON.parse(savedAddr));
@@ -63,10 +82,18 @@ export class LocationService {
     this.isModalOpen.set(false);
   }
 
-  saveSelection(type: 'delivery' | 'pickup', locationName: string, manual?: ManualAddress) {
+  saveSelection(
+    type: 'delivery' | 'pickup',
+    locationName: string,
+    manual?: ManualAddress,
+    coords?: LocationCoords | null
+  ) {
     this.orderType.set(type);
     this.selectedLocation.set(locationName);
 
+    if (coords) {
+      this.selectedCoordinates.set(coords);
+    }
     if (manual) {
       this.manualAddress.set(manual);
     }
@@ -75,6 +102,9 @@ export class LocationService {
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem(this.STORAGE_KEY_ORDER_TYPE, type);
         localStorage.setItem(this.STORAGE_KEY_LOCATION, locationName);
+        if (coords) {
+          localStorage.setItem(this.STORAGE_KEY_COORDS, JSON.stringify(coords));
+        }
         if (manual) {
           localStorage.setItem(this.STORAGE_KEY_MANUAL_ADDR, JSON.stringify(manual));
         }
@@ -84,5 +114,23 @@ export class LocationService {
     }
 
     this.closeModal();
+  }
+
+  saveCoordinates(latitude: number, longitude: number, locationName?: string) {
+    const coords: LocationCoords = { latitude, longitude };
+    this.selectedCoordinates.set(coords);
+    if (locationName) {
+      this.selectedLocation.set(locationName);
+    }
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(this.STORAGE_KEY_COORDS, JSON.stringify(coords));
+        if (locationName) {
+          localStorage.setItem(this.STORAGE_KEY_LOCATION, locationName);
+        }
+      }
+    } catch {
+      // Ignore storage errors
+    }
   }
 }
