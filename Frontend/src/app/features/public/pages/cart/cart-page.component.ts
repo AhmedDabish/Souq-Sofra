@@ -88,10 +88,11 @@ import { LocationService } from '../../../../core/services/location.service';
               </div>
             </div>
 
-            <aside class="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-white shadow-[0_20px_55px_-35px_rgba(104,55,18,.5)] lg:sticky lg:top-28 lg:col-span-4">
-              <div class="bg-gradient-to-l from-[#fff0dc] via-[#fff8ef] to-white px-5 py-5 sm:px-6">
+            <aside class="overflow-hidden rounded-[1.75rem] border border-orange-100/80 bg-white shadow-[0_24px_65px_-38px_rgba(104,55,18,.65)] lg:sticky lg:top-28 lg:col-span-4">
+              <div class="relative overflow-hidden bg-gradient-to-br from-[#fff0dc] via-[#fff8ef] to-white px-5 py-5 sm:px-6">
+                <div class="pointer-events-none absolute -end-8 -top-12 h-32 w-32 rounded-full bg-orange-200/30 blur-2xl"></div>
                 <div class="flex items-center gap-3">
-                  <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm" aria-hidden="true">🧾</span>
+                  <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-xl shadow-md shadow-orange-900/5" aria-hidden="true">🧾</span>
                   <div>
                     <p class="text-[11px] font-bold tracking-wide text-primary">{{ language.t('راجع طلبك', 'Review your order') }}</p>
                     <h2 class="mt-0.5 font-baloo text-xl font-extrabold text-primaryDark">{{ language.t('ملخص الطلب', 'Order summary') }}</h2>
@@ -99,11 +100,23 @@ import { LocationService } from '../../../../core/services/location.service';
                 </div>
               </div>
               <div class="space-y-5 p-5 sm:p-6">
-                <div class="space-y-3 text-sm">
+                <div class="rounded-2xl border border-orange-100 bg-[#fffaf5] p-4">
+                  <div class="mb-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-lg shadow-sm">🛍️</span>
+                      <div>
+                        <p class="text-xs font-extrabold text-primaryDark">{{ language.t('تفاصيل الفاتورة', 'Bill details') }}</p>
+                        <p class="mt-0.5 text-[10px] text-gray-500">{{ cart.totalCount() }} {{ language.t('منتج', 'items') }}</p>
+                      </div>
+                    </div>
+                    <span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-primary">{{ language.t('مراجعة الطلب', 'Order review') }}</span>
+                  </div>
+                  <div class="space-y-3 text-sm">
                   <div class="flex justify-between text-gray-500"><span>{{ language.t('عدد المنتجات', 'Items') }}</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
                   <div class="flex justify-between text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                   <div class="flex justify-between text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : '—' }}</span></div>
                   <div class="flex items-center justify-between border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  </div>
                 </div>
 
                 <div class="border-t border-orange-100 pt-5">
@@ -150,25 +163,30 @@ import { LocationService } from '../../../../core/services/location.service';
                         @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">{{ language.t('لا يوجد توصيل متاح حالياً في هذه الإمارة.', 'Delivery is currently unavailable in this emirate.') }}</span> }
                       </label>
                       @if (selectedZone()) {
-                        <div class="rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
-                          <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="min-w-0">
-                              <p class="text-sm font-extrabold text-gray-800">{{ language.t('عنوان التوصيل', 'Delivery address') }}</p>
-                              @if (locationService.selectedCoordinates(); as savedCoords) {
-                                <p class="mt-1 truncate text-xs text-gray-600">{{ locationService.selectedLocation() }}</p>
-                                <p class="mt-0.5 text-[10px] text-green-700">{{ language.t('تم حفظ موقعك', 'Location saved') }}</p>
-                              } @else {
-                                <p class="mt-1 text-xs text-gray-500">{{ language.t('حدد موقعك على الخريطة قبل إكمال الطلب', 'Choose your location on the map before continuing') }}</p>
-                              }
+                        <div class="relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4 shadow-sm">
+                          <div class="pointer-events-none absolute -end-7 -top-8 h-24 w-24 rounded-full bg-orange-200/30 blur-xl"></div>
+                          <div class="relative flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex min-w-0 items-start gap-3">
+                              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-xl shadow-sm">📍</span>
+                              <div class="min-w-0 pt-0.5">
+                                <p class="text-sm font-extrabold text-primaryDark">{{ language.t('موقع التوصيل', 'Delivery location') }}</p>
+                                @if (locationService.selectedCoordinates(); as savedCoords) {
+                                  <p class="mt-1 truncate text-xs font-semibold text-gray-700">{{ locationService.selectedLocation() }}</p>
+                                  <p class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{{ language.t('تم حفظ الموقع بنجاح', 'Location saved successfully') }}</p>
+                                } @else {
+                                  <p class="mt-1 text-xs leading-5 text-gray-500">{{ language.t('حدد نقطة التوصيل على الخريطة قبل إرسال الطلب', 'Pin your delivery spot before sending the order') }}</p>
+                                }
+                              </div>
                             </div>
-                            <button
-                              type="button"
-                              (click)="openAddressPicker()"
-                              class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-sm transition hover:bg-primaryDark">
-                              <span aria-hidden="true">📍</span>
-                              {{ language.t('حدد عنوانك', 'Set your address') }}
+                            <button type="button" (click)="openAddressPicker()" class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-extrabold text-white shadow-md shadow-orange-900/10 transition hover:-translate-y-0.5 hover:bg-primaryDark">
+                              <span aria-hidden="true">📍</span>{{ language.t('حدد موقعك', 'Set your location') }}
                             </button>
                           </div>
+                          @if (locationService.selectedCoordinates(); as savedCoords) {
+                            <a [href]="'https://www.google.com/maps?q=' + savedCoords.latitude + ',' + savedCoords.longitude" target="_blank" rel="noopener noreferrer" class="relative mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-primaryDark underline decoration-orange-300 underline-offset-2 transition hover:text-primary">
+                              <span aria-hidden="true">🛰️</span>{{ language.t('عرض الموقع على الخريطة', 'View location on map') }}
+                            </a>
+                          }
                         </div>
                         <label class="block text-xs font-bold text-gray-700">{{ language.t('تفاصيل إضافية للعنوان (شارع، مبنى، شقة)', 'Additional address details (street, building, apartment)') }}
                           <textarea [(ngModel)]="addressDetails" name="deliveryAddressDetails" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3 text-sm outline-none transition focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10" [placeholder]="language.t('اكتب رقم المبنى أو الشقة أو تفاصيل الوصول', 'Building, apartment, or other delivery details')"></textarea>

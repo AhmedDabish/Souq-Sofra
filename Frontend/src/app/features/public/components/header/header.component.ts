@@ -176,240 +176,76 @@ import { DeliveryMapComponent } from '../delivery-map/delivery-map.component';
       </div>
     </header>
 
-    <!-- Location Selection Modal (حدد موقعك) -->
+    <!-- Location Selection Modal -->
     @if (locationService.isModalOpen()) {
-      <!-- Backdrop -->
-      <div
-        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs transition-opacity duration-300"
-        (click)="locationService.closeModal()">
-      </div>
-
-      <!-- Dialog Body -->
-      <div
+      <div class="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm transition-opacity" (click)="locationService.closeModal()"></div>
+      <section
         role="dialog"
         aria-modal="true"
-        data-state="open"
-        class="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] border shadow-2xl duration-200 sm:rounded-3xl max-w-2xl xl:max-w-3xl p-0 overflow-hidden gap-0 bg-theme-bg/50 backdrop-blur-sm border-white/20 max-h-[95vh] animate-in fade-in zoom-in-95"
-        tabindex="-1">
-
-        <!-- Close Button -->
-        <button
-          type="button"
-          [attr.aria-label]="language.t('إغلاق', 'Close')"
-          (click)="locationService.closeModal()"
-          class="absolute top-3.5 end-3.5 z-50 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 shadow-md border border-gray-200 transition-colors cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x w-5 h-5" aria-hidden="true">
-            <path d="M18 6 6 18"></path>
-            <path d="m6 6 12 12"></path>
-          </svg>
-        </button>
-
-        <div class="flex flex-col h-full max-h-[92vh] bg-white relative">
-
-          <!-- Top Header: Title (حدد موقعك) -->
-          <div class="shrink-0 px-5 pt-4 pb-3 border-b border-gray-100 bg-linear-to-b from-orange-50/50 to-white text-center">
-            <div class="inline-flex items-center justify-center gap-2 mb-1">
-              <span class="text-xl">📍</span>
-              <h2 class="tracking-tight text-xl 2xl:text-2xl font-bold text-gray-900 font-baloo">
-                {{ language.t('حدد موقعك', 'Set your location') }}
-              </h2>
-            </div>
-            <p class="text-gray-500 text-xs">
-              {{ language.t('اختر موقع التوصيل بدقة على الخريطة (Google Maps & Satellite)', 'Pin your delivery location on Google Maps & Satellite') }}
-            </p>
-          </div>
-
-          <!-- Middle Content Area -->
-          <div class="flex flex-col flex-1 min-h-0 relative p-4 pb-2 overflow-y-auto">
-            <div class="relative flex flex-col flex-1 min-h-0 gap-3 w-full">
-
-              @if (!isManualMode) {
-                <!-- Interactive Map Container with Google Maps & Satellite -->
-                <div class="relative flex-1 min-h-[300px] sm:min-h-[360px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex flex-col">
-
-                  <!-- Search Input Floating over Map -->
-                  <div class="absolute top-3 start-1/2 -translate-x-1/2 w-[92%] max-w-md z-[1001]">
-                    <div class="relative w-full shadow-lg shadow-black/10">
-                      <div class="relative group">
-                        <div class="absolute start-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors z-10">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search">
-                            <path d="m21 21-4.34-4.34"></path>
-                            <circle cx="11" cy="11" r="8"></circle>
-                          </svg>
-                        </div>
-                        <input
-                          [attr.aria-label]="language.t('ابحث عن موقعك', 'Search for your location')"
-                          [placeholder]="language.t('ابحث عن اسم الشارع أو المنطقة...', 'Search street or area...')"
-                          [(ngModel)]="searchLocationText"
-                          (keyup.enter)="onLocationSearch()"
-                          class="w-full ps-10 pe-20 py-2.5 rounded-full border-0 bg-white/95 backdrop-blur-md text-gray-800 placeholder:text-gray-400 shadow-sm ring-1 ring-gray-200 focus:ring-2 focus:ring-primary transition-all text-xs sm:text-sm font-medium outline-none"
-                          autocomplete="off"
-                          type="text">
-                        <button
-                          type="button"
-                          (click)="onLocationSearch()"
-                          class="absolute end-1.5 top-1/2 -translate-y-1/2 bg-primary hover:bg-primaryDark text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer">
-                          {{ language.t('بحث', 'Search') }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Google Maps & Satellite Interactive Map -->
-                  <app-delivery-map
-                    class="w-full h-full flex-1"
-                    [latitude]="currentLat"
-                    [longitude]="currentLng"
-                    (locationChange)="onModalLocationChange($event)">
-                  </app-delivery-map>
-
-                  <!-- Locate Me Button Floating on Map -->
-                  <button
-                    type="button"
-                    (click)="detectLocation()"
-                    class="absolute bottom-14 end-3 bg-white p-2.5 rounded-full shadow-lg hover:bg-gray-100 transition-colors z-[1000] text-gray-700 cursor-pointer border border-gray-200"
-                    [attr.title]="language.t('تحديد موقعي الحالي', 'Find my current location')"
-                    [attr.aria-label]="language.t('تحديد موقعي الحالي', 'Find my current location')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-crosshair">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="22" x2="18" y1="12" y2="12"></line>
-                      <line x1="6" x2="2" y1="12" y2="12"></line>
-                      <line x1="12" x2="12" y1="6" y2="2"></line>
-                      <line x1="12" x2="12" y1="22" y2="18"></line>
-                    </svg>
-                  </button>
-
-                  <!-- Selected Location Chip on Map -->
-                  <div class="absolute bottom-3 start-3 z-[1000] bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-gray-200 shadow-md text-xs font-bold text-gray-800 flex items-center gap-1.5 max-w-[80%]">
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shrink-0"></span>
-                    <span class="truncate">{{ locationLabel(tempLocationName) }}</span>
-                  </div>
-                </div>
-
-                <!-- Quick Area Selection Pills -->
-                <div class="p-2.5 bg-white border border-gray-100 rounded-xl flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
-                  <span class="text-gray-400 font-bold shrink-0 ml-1">{{ language.t('مناطق سريعة:', 'Quick areas:') }}</span>
-                  @for (area of popularAreas; track area) {
-                    <button
-                      type="button"
-                      (click)="selectArea(area)"
-                      class="px-2.5 py-1 rounded-full border transition-colors shrink-0 font-medium cursor-pointer"
-                      [class.bg-primary]="tempLocationName.includes(area)"
-                      [class.text-white]="tempLocationName.includes(area)"
-                      [class.border-primary]="tempLocationName.includes(area)"
-                      [class.border-gray-200]="!tempLocationName.includes(area)"
-                      [class.text-gray-700]="!tempLocationName.includes(area)">
-                      {{ area }}
-                    </button>
-                  }
-                </div>
-              } @else {
-                <!-- Manual Form Mode -->
-                <div class="flex flex-col gap-4 flex-1 overflow-y-auto pb-4 pr-1">
-                  <div class="bg-white rounded-2xl border border-gray-100 p-4 space-y-3 shadow-sm">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">
-                          {{ language.t('المحافظة / الإمارة', 'City / Emirate') }} <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          [(ngModel)]="manualCity"
-                          class="w-full rounded-xl h-11 text-sm font-medium border bg-orange-50/40 px-3 py-2 border-orange-200 focus:outline-none focus:border-primary text-gray-800">
-                      </div>
-                      <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">
-                          {{ language.t('المنطقة / الحي', 'Area / Neighborhood') }} <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          [(ngModel)]="manualArea"
-                          [placeholder]="language.t('مثال: الكورنيش، الخالدية، المرور', 'e.g. Corniche, Khalidiya, Al Muroor')"
-                          class="w-full rounded-xl h-11 text-sm font-medium border bg-orange-50/40 px-3 py-2 border-orange-200 focus:outline-none focus:border-primary text-gray-800">
-                      </div>
-                    </div>
-
-                    <div>
-                      <label class="block text-xs font-semibold text-gray-600 mb-1.5">
-                        {{ language.t('العنوان بالتفصيل', 'Full address') }}
-                      </label>
-                      <textarea
-                        [(ngModel)]="manualStreet"
-                        rows="3"
-                        [placeholder]="language.t('مثال: شارع الكورنيش، مقابل بنك النيلين، الدور الثاني', 'e.g. Corniche Road, opposite Al Nilein Bank, second floor')"
-                        class="w-full border rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 font-medium text-gray-800 resize-none placeholder:text-gray-400 transition-all border-gray-200 focus:border-primary focus:ring-primary/10">
-                      </textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <label class="block font-semibold text-gray-600 mb-1">{{ language.t('اسم / رقم المبنى والشقة', 'Building and apartment') }}</label>
-                        <input
-                          type="text"
-                          [(ngModel)]="manualBuilding"
-                          [placeholder]="language.t('رقم المبنى، الطابق، الشقة', 'Building, floor, apartment number')"
-                          class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
-                      </div>
-                      <div>
-                        <label class="block font-semibold text-gray-600 mb-1">{{ language.t('ملاحظات للمندوب', 'Delivery notes') }}</label>
-                        <input
-                          type="text"
-                          [(ngModel)]="manualNotes"
-                          [placeholder]="language.t('أي تفاصيل لتسهيل الوصول...', 'Any details to help the driver find you...')"
-                          class="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              }
-
+        [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'"
+        [attr.aria-label]="language.t('حدد موقعك', 'Set your location')"
+        class="fixed inset-0 z-[101] m-auto flex max-h-[min(94dvh,820px)] w-[min(960px,calc(100%-24px))] flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_32px_90px_-28px_rgba(0,0,0,.55)] animate-in fade-in zoom-in-95">
+        <header class="relative z-10 flex shrink-0 items-center justify-between gap-4 border-b border-orange-100 bg-gradient-to-l from-orange-50 via-white to-white px-5 py-4 sm:px-7">
+          <div class="flex min-w-0 items-center gap-3">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl text-white shadow-lg shadow-orange-900/15">📍</span>
+            <div class="min-w-0">
+              <h2 class="font-baloo text-xl font-black tracking-tight text-primaryDark sm:text-2xl">{{ language.t('حدد موقعك', 'Set your location') }}</h2>
+              <p class="mt-0.5 text-xs leading-5 text-gray-500 sm:text-sm">{{ language.t('حرّك الدبوس أو اضغط على الخريطة لاختيار مكان التوصيل بدقة', 'Move the pin or tap the map to set your delivery location') }}</p>
             </div>
           </div>
+          <button type="button" [attr.aria-label]="language.t('إغلاق', 'Close')" (click)="locationService.closeModal()" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </button>
+        </header>
 
-          <!-- Bottom Actions Bar: حفظ المكان / تأكيد + التبديل لليدوي -->
-          <div class="shrink-0 pb-4 pt-2 px-4 flex flex-col gap-2 bg-white border-t border-gray-100">
-            <button
-              type="button"
-              (click)="confirmModalSelection()"
-              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-extrabold transition-all bg-primary text-white shadow-md hover:bg-primaryDark h-11 px-6 w-full cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>{{ language.t('حفظ المكان وتأكيد العنوان', 'Save location & confirm') }}</span>
+        <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto bg-[#fffaf5] p-4 sm:p-6">
+          <div class="relative min-h-[350px] flex-1 overflow-hidden rounded-[22px] border border-gray-200 bg-slate-900 shadow-[0_16px_40px_-20px_rgba(15,23,42,.45)] sm:min-h-[430px]">
+            <div class="absolute inset-x-3 top-3 z-[1001] mx-auto w-full max-w-lg sm:inset-x-5 sm:top-5">
+              <div class="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/95 p-1.5 shadow-xl shadow-black/15 backdrop-blur-md">
+                <span class="ms-2 shrink-0 text-primary" aria-hidden="true">⌕</span>
+                <input [attr.aria-label]="language.t('ابحث عن موقعك', 'Search for your location')" [placeholder]="language.t('ابحث عن شارع أو منطقة...', 'Search street or area...')" [(ngModel)]="searchLocationText" (keyup.enter)="onLocationSearch()" class="min-w-0 flex-1 border-0 bg-transparent px-1 py-2 text-sm text-gray-800 outline-none placeholder:text-gray-400" autocomplete="off" type="text">
+                <button type="button" (click)="onLocationSearch()" class="shrink-0 rounded-xl bg-primary px-4 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-primaryDark">{{ language.t('بحث', 'Search') }}</button>
+              </div>
+            </div>
+
+            <app-delivery-map class="absolute inset-0 block h-full w-full" [latitude]="currentLat" [longitude]="currentLng" [defaultMapType]="'satellite'" (locationChange)="onModalLocationChange($event)"></app-delivery-map>
+
+            <button type="button" (click)="detectLocation()" class="absolute bottom-4 end-4 z-[1001] flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-white text-primaryDark shadow-xl transition hover:-translate-y-0.5 hover:bg-orange-50" [attr.title]="language.t('تحديد موقعي الحالي', 'Find my current location')" [attr.aria-label]="language.t('تحديد موقعي الحالي', 'Find my current location')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" x2="18" y1="12" y2="12"></line><line x1="6" x2="2" y1="12" y2="12"></line><line x1="12" x2="12" y1="6" y2="2"></line><line x1="12" x2="12" y1="22" y2="18"></line></svg>
             </button>
 
-            <div class="flex items-center justify-between text-xs sm:text-sm pt-0.5">
-              <button
-                type="button"
-                (click)="toggleManualMode()"
-                class="text-gray-500 font-medium hover:text-primary hover:underline transition-colors cursor-pointer">
-                {{ isManualMode ? language.t('الرجوع إلى الخريطة', 'Back to map') : language.t('أدخل العنوان يدوياً بدلاً من الخريطة', 'Enter address manually') }}
-              </button>
-
-              <button
-                type="button"
-                (click)="toggleManualMode()"
-                class="text-primary font-bold hover:underline flex items-center gap-1.5 cursor-pointer">
-                @if (isManualMode) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map">
-                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
-                    <line x1="9" x2="9" y1="3" y2="18"></line>
-                    <line x1="15" x2="15" y1="6" y2="21"></line>
-                  </svg>
-                  <span>{{ language.t('تحديد عبر الخريطة', 'Use map') }}</span>
-                } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit-3">
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                  </svg>
-                  <span>{{ language.t('إدخال يدوي', 'Manual entry') }}</span>
-                }
-              </button>
+            <div class="absolute bottom-4 start-4 z-[1001] flex max-w-[calc(100%-88px)] items-center gap-2 rounded-2xl border border-white/70 bg-white/95 px-3 py-2.5 shadow-xl backdrop-blur-md sm:max-w-[70%]">
+              <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></span>
+              <span class="truncate text-xs font-extrabold text-gray-800 sm:text-sm">{{ locationLabel(tempLocationName) }}</span>
             </div>
           </div>
 
+          <div class="flex items-center gap-2 overflow-x-auto rounded-2xl border border-orange-100 bg-white p-3 shadow-sm">
+            <span class="shrink-0 text-[11px] font-extrabold text-gray-400">{{ language.t('مناطق قريبة', 'Popular areas') }}</span>
+            @for (area of popularAreas; track area) {
+              <button type="button" (click)="selectArea(area)" class="shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition" [class.border-primary]="tempLocationName.includes(area)" [class.bg-primary]="tempLocationName.includes(area)" [class.text-white]="tempLocationName.includes(area)" [class.border-gray-200]="!tempLocationName.includes(area)" [class.text-gray-700]="!tempLocationName.includes(area)">{{ area }}</button>
+            }
+          </div>
+
+          @if (isManualMode) {
+            <div class="grid grid-cols-1 gap-3 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm sm:grid-cols-2">
+              <label class="text-xs font-bold text-gray-700">{{ language.t('المحافظة / الإمارة', 'City / Emirate') }}<input type="text" [(ngModel)]="manualCity" class="mt-1.5 h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm outline-none focus:border-primary focus:bg-white"></label>
+              <label class="text-xs font-bold text-gray-700">{{ language.t('المنطقة / الحي', 'Area / Neighborhood') }}<input type="text" [(ngModel)]="manualArea" class="mt-1.5 h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm outline-none focus:border-primary focus:bg-white"></label>
+              <label class="text-xs font-bold text-gray-700 sm:col-span-2">{{ language.t('تفاصيل العنوان', 'Address details') }}<textarea [(ngModel)]="manualStreet" rows="2" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-white"></textarea></label>
+              <label class="text-xs font-bold text-gray-700">{{ language.t('المبنى والشقة', 'Building and apartment') }}<input type="text" [(ngModel)]="manualBuilding" class="mt-1.5 h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm outline-none focus:border-primary focus:bg-white"></label>
+              <label class="text-xs font-bold text-gray-700">{{ language.t('ملاحظات للمندوب', 'Delivery notes') }}<input type="text" [(ngModel)]="manualNotes" class="mt-1.5 h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm outline-none focus:border-primary focus:bg-white"></label>
+            </div>
+          }
         </div>
-      </div>
+
+        <footer class="flex shrink-0 flex-col gap-3 border-t border-orange-100 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <button type="button" (click)="toggleManualMode()" class="order-2 self-center rounded-xl px-3 py-2 text-xs font-bold text-gray-500 transition hover:bg-orange-50 hover:text-primaryDark sm:order-1">{{ isManualMode ? language.t('الرجوع للخريطة', 'Back to map') : language.t('إضافة تفاصيل العنوان يدوياً', 'Add address details manually') }}</button>
+          <button type="button" (click)="confirmModalSelection()" class="order-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-orange-900/15 transition hover:-translate-y-0.5 hover:bg-primaryDark sm:order-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>{{ language.t('حفظ الموقع وتأكيد العنوان', 'Save location & confirm') }}</span>
+          </button>
+        </footer>
+      </section>
     }
   `
 })
