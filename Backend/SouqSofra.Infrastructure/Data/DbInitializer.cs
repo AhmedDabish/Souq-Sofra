@@ -80,6 +80,8 @@ namespace SouqSofra.Infrastructure.Data
             await SeedBootstrapUserAsync(context, configuration, "Admin", "admin@souqsofra.com", "مدير سوق وسفرة", 1);
             await SeedBootstrapUserAsync(context, configuration, "SuperAdmin", "superadmin@souqsofra.com", "مدير النظام", 3);
             await SeedBootstrapUserAsync(context, configuration, "User", "user@souqsofra.com", "مستخدم", 2);
+            // Developer is provisioned as a super administrator; keep the password in server configuration only.
+            await SeedBootstrapUserAsync(context, configuration, "Developer", "developer@souqsofra.com", "Developer", 3);
 
             // 5. Seed Menu Categories
             if (!await context.Categories.AnyAsync())

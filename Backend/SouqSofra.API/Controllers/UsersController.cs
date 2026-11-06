@@ -204,7 +204,8 @@ namespace SouqSofra.API.Controllers
             {
                 _configuration["BootstrapUsers:Admin:Email"] ?? "admin@souqsofra.com",
                 _configuration["BootstrapUsers:SuperAdmin:Email"] ?? "superadmin@souqsofra.com",
-                _configuration["BootstrapUsers:User:Email"] ?? "user@souqsofra.com"
+                _configuration["BootstrapUsers:User:Email"] ?? "user@souqsofra.com",
+                _configuration["BootstrapUsers:Developer:Email"] ?? "developer@souqsofra.com"
             };
             if (!bootstrapEmails.Contains(email, StringComparer.OrdinalIgnoreCase)) return;
 
