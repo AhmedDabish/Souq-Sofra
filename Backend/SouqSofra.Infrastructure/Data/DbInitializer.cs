@@ -10,17 +10,20 @@ namespace SouqSofra.Infrastructure.Data
     {
         public static async Task InitializeAsync(AppDbContext context, IConfiguration configuration)
         {
-            // 1. Auto-apply EF Core Migrations if relational
-            try
+            // 1. Apply EF Core migrations before touching application tables. SQL Server
+            // startup can be slower than normal requests, so allow migrations additional time.
+            if (context.Database.IsRelational())
             {
-                if (context.Database.IsRelational())
+                var previousCommandTimeout = context.Database.GetCommandTimeout();
+                context.Database.SetCommandTimeout(120);
+                try
                 {
                     await context.Database.MigrateAsync();
                 }
-            }
-            catch
-            {
-                // In environments where migration is run manually or permissions are constrained
+                finally
+                {
+                    context.Database.SetCommandTimeout(previousCommandTimeout);
+                }
             }
 
             // 2. Seed Default Site Settings

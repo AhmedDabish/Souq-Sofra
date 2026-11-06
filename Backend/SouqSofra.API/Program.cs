@@ -162,7 +162,8 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating and seeding the database.");
+        logger.LogCritical(ex, "Database migration or initialization failed. The API cannot start until the database is reachable and migrations succeed.");
+        throw;
     }
 }
 
