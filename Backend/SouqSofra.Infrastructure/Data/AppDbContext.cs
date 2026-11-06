@@ -20,6 +20,7 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
         public DbSet<RestaurantReview> RestaurantReviews => Set<RestaurantReview>();
         public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
+        public DbSet<SiteVisit> SiteVisits => Set<SiteVisit>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -212,6 +213,18 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(s => s.SettingKey).HasMaxLength(100);
                 entity.Property(s => s.SettingValue).IsRequired().HasMaxLength(1000);
                 entity.Property(s => s.Description).HasMaxLength(500);
+            });
+
+            // Anonymous first-party page analytics. The client session identifier is hashed by the API.
+            modelBuilder.Entity<SiteVisit>(entity =>
+            {
+                entity.ToTable("SiteVisits");
+                entity.HasKey(visit => visit.SiteVisitId);
+                entity.Property(visit => visit.SessionKeyHash).IsRequired().HasMaxLength(64);
+                entity.Property(visit => visit.PagePath).IsRequired().HasMaxLength(200);
+                entity.HasIndex(visit => visit.VisitedAtUtc);
+                entity.HasIndex(visit => visit.PagePath);
+                entity.HasIndex(visit => new { visit.VisitedAtUtc, visit.SessionKeyHash });
             });
 
             // RestaurantReview configuration

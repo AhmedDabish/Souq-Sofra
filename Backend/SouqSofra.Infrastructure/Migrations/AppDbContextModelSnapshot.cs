@@ -451,6 +451,38 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.ToTable("ProductAddons", (string)null);
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.SiteVisit", b =>
+                {
+                    b.Property<long>("SiteVisitId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SiteVisitId"));
+
+                    b.Property<string>("PagePath")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("SessionKeyHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("VisitedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("SiteVisitId");
+
+                    b.HasIndex("PagePath");
+
+                    b.HasIndex("VisitedAtUtc");
+
+                    b.HasIndex("VisitedAtUtc", "SessionKeyHash");
+
+                    b.ToTable("SiteVisits", (string)null);
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.SiteSetting", b =>
                 {
                     b.Property<string>("SettingKey")

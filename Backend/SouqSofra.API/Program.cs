@@ -7,6 +7,8 @@ using Microsoft.OpenApi.Models;
 using SouqSofra.Infrastructure.Data;
 using SouqSofra.API.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +103,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("pageviews", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 300,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
@@ -163,6 +179,7 @@ if (app.Environment.IsDevelopment())
 
 // 1. CORS Middleware MUST be placed at the very top of request pipeline
 app.UseRouting();
+app.UseRateLimiter();
 app.UseCors("AllowAngular");
 var wwwrootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
 if (!Directory.Exists(wwwrootPath))

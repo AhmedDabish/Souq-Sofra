@@ -32,6 +32,21 @@ export interface OrderCreateResponse {
   message?: string;
 }
 
+export interface SiteAnalytics {
+  periodStart: string;
+  periodEnd: string;
+  visits: number;
+  uniqueVisitors: number;
+  completedOrders: number;
+  completedRevenue: number;
+  averageCompletedOrder: number;
+  ordersFromWebsite: number;
+  ordersFromWhatsApp: number;
+  productSales: Array<{ productId: number; nameAr: string; nameEn: string; unitsSold: number; completedOrders: number; orderSharePercent: number; productPageViews: number }>;
+  dailyVisits: Array<{ date: string; visits: number; uniqueVisitors: number }> ;
+  topPages: Array<{ path: string; visits: number; uniqueVisitors: number }> ;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
@@ -48,6 +63,14 @@ export class ApiService {
   // -------------------------------------------------------------
   // Public Catalog & Storefront Endpoints
   // -------------------------------------------------------------
+
+  recordPageView(sessionKey: string, pagePath: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/analytics/visit`, { sessionKey, pagePath });
+  }
+
+  getAnalytics(): Observable<SiteAnalytics> {
+    return this.http.get<SiteAnalytics>(`${this.apiUrl}/analytics`);
+  }
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`);

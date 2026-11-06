@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router, RouterModule } from '@angular/router';
+import { NavigationEnd, RouterOutlet, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from './features/public/components/header/header.component';
 import { BottomNavComponent } from './features/public/components/bottom-nav/bottom-nav.component';
 import { LanguageService } from './core/services/language.service';
@@ -93,6 +93,10 @@ export class AppComponent implements OnInit {
   announcement = signal('');
   announcementEn = signal('');
   ngOnInit() {
+    this.trackPageView(this.router.url);
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) this.trackPageView(event.urlAfterRedirects);
+    });
     this.api.getSettings().subscribe({ next: settings => {
       const value = settings['StoreLogo'];
       if (value) this.logoUrl.set(/^https?:\/\//i.test(value) || value.startsWith('assets/') ? value : `http://localhost:2811${value.startsWith('/') ? value : `/${value}`}`);
@@ -101,6 +105,19 @@ export class AppComponent implements OnInit {
     }, error: () => {} });
   }
   private router = inject(Router);
+
+  private trackPageView(url: string) {
+    const pagePath = url.split(/[?#]/, 1)[0] || '/';
+    if (pagePath.startsWith('/admin')) return;
+    let sessionKey = localStorage.getItem('souq_site_analytics_session');
+    if (!sessionKey) {
+      sessionKey = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem('souq_site_analytics_session', sessionKey);
+    }
+    this.api.recordPageView(sessionKey, pagePath).subscribe({ error: () => {} });
+  }
 
   isAdminRoute(): boolean {
     return this.router.url.startsWith('/admin');

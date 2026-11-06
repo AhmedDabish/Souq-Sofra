@@ -19,7 +19,7 @@ export const roleGuard: CanActivateFn = (route) => {
   const permissionAllowed = !permission || auth.hasPermission(permission);
   if (rolesAllowed && permissionAllowed) return true;
   const landing = [
-    ['dashboard.view', '/admin'], ['orders.view', '/admin/orders'],
+    ['dashboard.view', '/admin'], ['analytics.view', '/admin/analytics'], ['orders.view', '/admin/orders'],
     ['products.view', '/admin/products'], ['categories.view', '/admin/categories'],
     ['addons.view', '/admin/addons'], ['settings.view', '/admin/settings'], ['users.view', '/admin/staff']
   ].find(([required]) => auth.hasPermission(required))?.[1];

@@ -7,6 +7,7 @@ namespace SouqSofra.API.Authorization
         public static readonly IReadOnlyList<PermissionDefinition> All =
         [
             new("dashboard.view", "لوحة المؤشرات", "Dashboard", "مشاهدة المؤشرات", "View dashboard"),
+            new("analytics.view", "التحليلات", "Analytics", "مشاهدة التحليلات", "View analytics"),
             new("orders.view", "الطلبات", "Orders", "مشاهدة الطلبات", "View orders"),
             new("orders.create", "الطلبات", "Orders", "إنشاء طلب", "Create orders"),
             new("orders.update", "الطلبات", "Orders", "تعديل الحالة والبيانات", "Update status and details"),
