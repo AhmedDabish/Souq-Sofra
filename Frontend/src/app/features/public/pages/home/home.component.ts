@@ -120,7 +120,7 @@ import { Category, Product } from '../../../../core/models/models';
           <a routerLink="/menu" class="bg-gray text-primary px-4 py-2 rounded-full font-medium text-xs cursor-pointer hover:bg-primary hover:text-white transition-colors">{{ language.t('الكل', 'View all') }}</a>
         </div>
         @if (bestSellingProducts().length > 0) {
-          <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 xl:gap-6 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-5">
             @for (prod of bestSellingProducts(); track prod.productId) {
               <app-product-card [product]="prod"></app-product-card>
             }
