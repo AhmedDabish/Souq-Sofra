@@ -4,7 +4,7 @@ namespace SouqSofra.Domain.Authorization
     {
         public static readonly string[] All =
         [
-            "dashboard.view",
+            "dashboard.view", "analytics.view",
             "orders.view", "orders.create", "orders.update", "orders.delete",
             "products.view", "products.create", "products.update", "products.delete",
             "categories.view", "categories.create", "categories.update", "categories.delete",

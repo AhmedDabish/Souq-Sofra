@@ -29,6 +29,8 @@ export const routes: Routes = [
   { path: 'admin/categories', component: AdminCategoriesComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'categories.view' } },
   { path: 'admin/addons', loadComponent: () => import('./features/admin/pages/addons/admin-addons.component').then(m => m.AdminAddonsComponent), canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'addons.view' } },
   { path: 'admin/settings', component: AdminSettingsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'settings.view' } },
+  { path: 'admin/delivery-settings', loadComponent: () => import('./features/admin/pages/delivery-settings/admin-delivery-settings.component').then(m => m.AdminDeliverySettingsComponent), canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'settings.view' } },
+  { path: 'admin/analytics', loadComponent: () => import('./features/admin/pages/analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent), canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'analytics.view' } },
   { path: 'admin/reviews', loadComponent: () => import('./features/admin/pages/reviews/admin-reviews.component').then(m => m.AdminReviewsComponent), canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'reviews.view' } },
   { path: 'admin/staff', loadComponent: () => import('./features/admin/pages/staff/admin-staff.component').then(m => m.AdminStaffComponent), canActivate: [authGuard, roleGuard], data: { roles: ['User', 'Admin', 'SuperAdmin'], permission: 'users.view' } },
 
