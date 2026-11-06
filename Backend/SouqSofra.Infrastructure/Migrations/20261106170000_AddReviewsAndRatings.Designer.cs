@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SouqSofra.Infrastructure.Data;
 
@@ -11,7 +12,8 @@ using SouqSofra.Infrastructure.Data;
 namespace SouqSofra.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261106170000_AddReviewsAndRatings")]
+    partial class AddReviewsAndRatings
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

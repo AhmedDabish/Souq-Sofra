@@ -1,13 +1,9 @@
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using SouqSofra.Infrastructure.Data;
 
 #nullable disable
 
 namespace SouqSofra.Infrastructure.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20261106180000_AddPhoneNumberToReviews")]
     public partial class AddPhoneNumberToReviews : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
