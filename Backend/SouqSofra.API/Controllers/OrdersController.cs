@@ -101,8 +101,14 @@ namespace SouqSofra.API.Controllers
                 if (string.IsNullOrWhiteSpace(dto.DeliveryZoneId))
                     return BadRequest(new { message = "اختر منطقة توصيل متاحة أولاً." });
 
-                var zonesSetting = await _context.SiteSettings.FirstOrDefaultAsync(setting => setting.SettingKey == "DeliveryZones");
-                var zones = ParseDeliveryZones(zonesSetting?.SettingValue);
+                var zoneSettings = await _context.SiteSettings
+                    .Where(setting => setting.SettingKey == "DeliveryZones" || setting.SettingKey == "DeliveryZonesChunkCount" || setting.SettingKey.StartsWith("DeliveryZonesChunk_"))
+                    .ToDictionaryAsync(setting => setting.SettingKey, setting => setting.SettingValue);
+                var zonesJson = zoneSettings.TryGetValue("DeliveryZonesChunkCount", out var countValue) &&
+                    int.TryParse(countValue, out var chunkCount) && chunkCount > 0
+                    ? string.Concat(Enumerable.Range(0, chunkCount).Select(index => zoneSettings.GetValueOrDefault($"DeliveryZonesChunk_{index}", string.Empty)))
+                    : zoneSettings.GetValueOrDefault("DeliveryZones", null);
+                var zones = ParseDeliveryZones(zonesJson);
                 var zone = zones.FirstOrDefault(candidate => candidate.Id == dto.DeliveryZoneId && candidate.Enabled);
                 if (zone == null)
                     return BadRequest(new { message = "منطقة التوصيل المختارة غير متاحة. اختر منطقة أخرى." });

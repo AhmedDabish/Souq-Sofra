@@ -1,5 +1,5 @@
 import { LanguageService } from '../../../../core/services/language.service';
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -8,6 +8,7 @@ import { Branch, SiteSettings, DeliveryZone } from '../../../../core/models/mode
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
+import { chunkDeliveryZones, mergeDeliveryZones, readDeliveryZones } from '../../../../core/utils/delivery-zone-settings';
 
 type HeroSlide = { image: string; title: string; titleEn: string; subtitle: string; subtitleEn: string };
 
@@ -121,8 +122,29 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
                   <div><h3 class="font-bold text-sm text-gray-800">{{ language.t('مناطق ورسوم التوصيل', 'Delivery areas & fees') }}</h3><p class="mt-1 text-[11px] text-gray-500">{{ language.t('ابدأ بالإمارات السبع، وأضف مناطق فرعية وحدد رسوم كل منطقة أو أوقف التوصيل إليها.', 'Start with the seven emirates, add areas, set fees, or disable delivery.') }}</p></div>
                   <button type="button" [hidden]="!auth.hasPermission('settings.update')" (click)="addDeliveryZone()" class="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white">+ {{ language.t('إضافة منطقة', 'Add area') }}</button>
                 </div>
+                <p class="rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-[11px] leading-5 text-sky-800">{{ language.t('تضم القائمة أسماء المناطق والأحياء المتاحة في OpenStreetMap للإمارات السبع. المناطق المضافة تبدأ غير متاحة للتوصيل، فعّل فقط المناطق التي تخدمها. © OpenStreetMap contributors.', 'The list includes named places and neighborhoods available in OpenStreetMap for all seven emirates. New areas start unavailable; enable only the areas you serve. © OpenStreetMap contributors.') }}</p>
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <label class="text-[11px] font-bold text-gray-600">{{ language.t('تصفية حسب الإمارة', 'Filter by emirate') }}
+                    <select [ngModel]="deliveryZoneEmirateFilter()" (ngModelChange)="deliveryZoneEmirateFilter.set($event); deliveryZonePage.set(0)" name="deliveryZoneFilterEmirate" class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs">
+                      <option value="">{{ language.t('كل الإمارات', 'All emirates') }}</option>
+                      @for (emirate of emirates; track emirate) { <option [value]="emirate">{{ language.isEnglish() ? emirateEn(emirate) : emirate }}</option> }
+                    </select>
+                  </label>
+                  <label class="text-[11px] font-bold text-gray-600 sm:col-span-2">{{ language.t('بحث عن منطقة', 'Search areas') }}
+                    <input [ngModel]="deliveryZoneSearch()" (ngModelChange)="deliveryZoneSearch.set($event); deliveryZonePage.set(0)" name="deliveryZoneSearch" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-xs" [placeholder]="language.t('اكتب اسم المنطقة أو الإمارة', 'Type an area or emirate name')">
+                  </label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white p-3 text-xs">
+                  <span class="font-bold text-gray-600">{{ filteredDeliveryZones().length }} {{ language.t('منطقة مطابقة', 'matching areas') }} · {{ deliveryZones().filter(isZoneEnabled).length }} {{ language.t('متاحة', 'enabled') }}</span>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" (click)="setFilteredDeliveryZonesEnabled(true)" class="rounded-lg border border-emerald-200 px-3 py-1.5 font-bold text-emerald-700 hover:bg-emerald-50">{{ language.t('تفعيل نتائج البحث', 'Enable search results') }}</button>
+                    <button type="button" (click)="setFilteredDeliveryZonesEnabled(false)" class="rounded-lg border border-gray-200 px-3 py-1.5 font-bold text-gray-600 hover:bg-gray-50">{{ language.t('إيقاف نتائج البحث', 'Disable search results') }}</button>
+                  </div>
+                </div>
                 <div class="space-y-3">
-                  @for (zone of deliveryZones(); track zone.id; let i = $index) {
+                  @for (entry of visibleDeliveryZones(); track entry.zone.id) {
+                    @let zone = entry.zone;
+                    @let i = entry.index;
                     <div class="grid grid-cols-1 gap-2 rounded-xl border border-gray-100 bg-white p-3 sm:grid-cols-12 sm:items-end">
                       <label class="text-[11px] font-bold text-gray-600 sm:col-span-3">{{ language.t('الإمارة', 'Emirate') }}
                         <select [ngModel]="zone.emirate" (ngModelChange)="updateDeliveryZone(i, 'emirate', $event)" [name]="'emirate' + i" class="mt-1 w-full rounded-lg border border-gray-200 px-2 py-2 text-xs">
@@ -142,6 +164,14 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
                       <button type="button" [hidden]="!auth.hasPermission('settings.update')" (click)="removeDeliveryZone(i)" class="rounded-lg px-2 py-2 text-xs font-bold text-red-600 hover:bg-red-50 sm:col-span-1" [attr.aria-label]="language.t('حذف ', 'Delete ') + (language.isEnglish() ? (zone.nameEn || zone.name) : zone.name)">{{ language.t('حذف', 'Delete') }}</button>
                     </div>
                   }
+                  @if (filteredDeliveryZones().length === 0) {
+                    <p class="rounded-xl bg-white p-5 text-center text-xs text-gray-500">{{ language.t('لا توجد مناطق مطابقة للبحث.', 'No areas match your search.') }}</p>
+                  }
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                  <button type="button" (click)="previousDeliveryZonePage()" [disabled]="deliveryZonePage() === 0" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">{{ language.t('السابق', 'Previous') }}</button>
+                  <span class="text-xs font-bold text-gray-600">{{ deliveryZonePage() + 1 }} / {{ deliveryZonePageCount() }}</span>
+                  <button type="button" (click)="nextDeliveryZonePage()" [disabled]="deliveryZonePage() + 1 >= deliveryZonePageCount()" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">{{ language.t('التالي', 'Next') }}</button>
                 </div>
               </section>
 
@@ -392,9 +422,25 @@ export class AdminSettingsComponent implements OnInit {
   branches = signal<Branch[]>([]);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
   emirateEn(name: string): string { return ({'أبوظبي':'Abu Dhabi','دبي':'Dubai','الشارقة':'Sharjah','عجمان':'Ajman','أم القيوين':'Umm Al Quwain','رأس الخيمة':'Ras Al Khaimah','الفجيرة':'Fujairah'} as Record<string,string>)[name] || name; }
-  deliveryZones = signal<DeliveryZone[]>(this.emirates.map((emirate, index) => ({
-    id: `uae-${index + 1}`, emirate, emirateEn: this.emirateEn(emirate), name: emirate, nameEn: this.emirateEn(emirate), fee: 10, enabled: true
-  })));
+  deliveryZones = signal<DeliveryZone[]>(mergeDeliveryZones([]));
+  deliveryZoneEmirateFilter = signal('');
+  deliveryZoneSearch = signal('');
+  deliveryZonePage = signal(0);
+  readonly deliveryZonesPerPage = 40;
+  filteredDeliveryZones = computed(() => {
+    const search = this.deliveryZoneSearch().trim().toLocaleLowerCase();
+    const emirate = this.deliveryZoneEmirateFilter();
+    return this.deliveryZones().map((zone, index) => ({ zone, index })).filter(({ zone }) => {
+      const matchesEmirate = !emirate || zone.emirate === emirate;
+      const haystack = `${zone.name} ${zone.nameEn || ''} ${zone.emirate} ${zone.emirateEn || ''}`.toLocaleLowerCase();
+      return matchesEmirate && (!search || haystack.includes(search));
+    });
+  });
+  visibleDeliveryZones = computed(() => {
+    const start = this.deliveryZonePage() * this.deliveryZonesPerPage;
+    return this.filteredDeliveryZones().slice(start, start + this.deliveryZonesPerPage);
+  });
+  deliveryZonePageCount = computed(() => Math.max(1, Math.ceil(this.filteredDeliveryZones().length / this.deliveryZonesPerPage)));
 
   isSaving = signal<boolean>(false);
   uploadingBanner = signal<number | null>(null);
@@ -651,7 +697,8 @@ export class AdminSettingsComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         if (res.settings && Object.keys(res.settings).length > 0) {
-          this.settings = { ...this.settings, ...res.settings };
+          const regularSettings = Object.fromEntries(Object.entries(res.settings).filter(([key]) => key !== 'DeliveryZones' && !key.startsWith('DeliveryZonesChunk')));
+          this.settings = { ...this.settings, ...regularSettings };
         }
         const promoCountSetting = res.settings?.['PromoBannerCount'];
         const promoCount = promoCountSetting === undefined ? 2 : Math.max(0, Math.min(20, Number.parseInt(promoCountSetting, 10) || 0));
@@ -676,10 +723,7 @@ export class AdminSettingsComponent implements OnInit {
           })));
         }
         this.branches.set(res.branches || []);
-        try {
-          const savedZones = JSON.parse(res.settings?.['DeliveryZones'] || '[]') as DeliveryZone[];
-          if (savedZones.length) this.deliveryZones.set(savedZones);
-        } catch { /* Keep the seven emirate defaults until corrected in settings. */ }
+        this.deliveryZones.set(mergeDeliveryZones(readDeliveryZones(res.settings)));
       },
       error: () => {
         // Keep defaults on connection error
@@ -691,18 +735,13 @@ export class AdminSettingsComponent implements OnInit {
     this.isSaving.set(true);
 
     this.syncHeroSlidesToSettings();
-    this.settings['DeliveryZones'] = JSON.stringify(this.deliveryZones());
-    const keys = Object.keys(this.settings) as (keyof SiteSettings)[];
-    const updates = keys
-      .filter((k) => this.settings[k] !== undefined)
-      .map((k) => this.api.updateSetting(k as string, this.settings[k] as string));
+    const settingsToSave = Object.fromEntries(
+      Object.entries(this.settings).filter(([key, value]) => key !== 'DeliveryZones' && !key.startsWith('DeliveryZonesChunk') && value !== undefined)
+        .map(([key, value]) => [key, String(value)])
+    );
+    Object.assign(settingsToSave, chunkDeliveryZones(this.deliveryZones()));
 
-    if (updates.length === 0) {
-      this.isSaving.set(false);
-      return;
-    }
-
-    forkJoin(updates).subscribe({
+    this.api.updateSettings(settingsToSave).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.showFeedback(this.language.t('تم حفظ وتحديث إعدادات المتجر بنجاح.', 'Store settings saved successfully.'), 'success');
@@ -712,6 +751,16 @@ export class AdminSettingsComponent implements OnInit {
         this.showFeedback(this.language.t('فشل حفظ بعض الإعدادات على الخادم.', 'Some settings could not be saved to the server.'), 'error');
       }
     });
+  }
+
+  isZoneEnabled(zone: DeliveryZone): boolean { return zone.enabled; }
+
+  previousDeliveryZonePage() { this.deliveryZonePage.update(page => Math.max(0, page - 1)); }
+  nextDeliveryZonePage() { this.deliveryZonePage.update(page => Math.min(this.deliveryZonePageCount() - 1, page + 1)); }
+
+  setFilteredDeliveryZonesEnabled(enabled: boolean) {
+    const ids = new Set(this.filteredDeliveryZones().map(({ zone }) => zone.id));
+    this.deliveryZones.update(zones => zones.map(zone => ids.has(zone.id) ? { ...zone, enabled } : zone));
   }
 
   updateDeliveryZone(index: number, key: 'emirate' | 'name' | 'nameEn' | 'fee' | 'enabled', value: string | number | boolean) {
@@ -727,6 +776,12 @@ export class AdminSettingsComponent implements OnInit {
   }
 
   removeDeliveryZone(index: number) {
+    const zone = this.deliveryZones()[index];
+    if (!zone) return;
+    if (zone.id.startsWith('osm-') || zone.id.startsWith('uae-')) {
+      this.updateDeliveryZone(index, 'enabled', false);
+      return;
+    }
     this.deliveryZones.update(zones => zones.filter((_, i) => i !== index));
   }
 

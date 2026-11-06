@@ -22,6 +22,7 @@ import {
   AdminReview,
   AdminReviewCreate
 } from '../models/models';
+import { mergeDeliveryZones, readDeliveryZones } from '../utils/delivery-zone-settings';
 
 export interface OrderCreateResponse {
   success: boolean;
@@ -79,9 +80,11 @@ export class ApiService {
   }
 
   getDeliveryZones(): Observable<DeliveryZone[]> {
-    return this.getSettings().pipe(map(settings => {
-      try { return JSON.parse(settings['DeliveryZones'] || '[]') as DeliveryZone[]; } catch { return []; }
-    }));
+    return this.getSettings().pipe(map(settings => mergeDeliveryZones(readDeliveryZones(settings))));
+  }
+
+  updateSettings(settings: Record<string, string>): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/settings/bulk`, settings);
   }
 
   getSettings(): Observable<SiteSettings> {

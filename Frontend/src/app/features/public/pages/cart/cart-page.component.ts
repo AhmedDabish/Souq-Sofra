@@ -8,6 +8,7 @@ import { CartItem, DeliveryZone } from '../../../../core/models/models';
 import { DeliveryMapComponent } from '../../components/delivery-map/delivery-map.component';
 import { LanguageService } from '../../../../core/services/language.service';
 import { LocationService } from '../../../../core/services/location.service';
+import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-zones';
 
 @Component({
   selector: 'app-cart-page',
@@ -220,7 +221,7 @@ export class CartPageComponent implements OnInit {
   language = inject(LanguageService);
   locationService = inject(LocationService);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
-  zones = signal<DeliveryZone[]>(this.emirates.map((emirate, index) => ({ id: `uae-${index + 1}`, emirate, name: emirate, fee: 10, enabled: true })));
+  zones = signal<DeliveryZone[]>(DEFAULT_DELIVERY_ZONES);
   emirateNameEn(name: string): string { return ({ 'أبوظبي': 'Abu Dhabi', 'دبي': 'Dubai', 'الشارقة': 'Sharjah', 'عجمان': 'Ajman', 'أم القيوين': 'Umm Al Quwain', 'رأس الخيمة': 'Ras Al Khaimah', 'الفجيرة': 'Fujairah' } as Record<string, string>)[name] || name; }
   zoneLabel(zone: DeliveryZone): string { return this.language.isEnglish() ? (zone.nameEn || this.emirateNameEn(zone.name)) : zone.name; }
   emirateZones = computed(() => this.zones().filter(zone => zone.emirate === this.selectedEmirate));
@@ -262,16 +263,12 @@ export class CartPageComponent implements OnInit {
 
   onEmirateChange() {
     this.selectedZoneId = '';
-    this.latitude.set(null);
-    this.longitude.set(null);
     this.cart.setDeliveryFee(0);
   }
 
   onZoneChange() {
     const zone = this.selectedZone();
     this.cart.setDeliveryFee(zone?.fee ?? 0);
-    this.latitude.set(null);
-    this.longitude.set(null);
   }
 
   setMapLocation(point: { latitude: number; longitude: number }) {

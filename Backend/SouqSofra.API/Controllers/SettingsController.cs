@@ -23,6 +23,44 @@ namespace SouqSofra.API.Controllers
             return Ok(settings);
         }
 
+
+        [Authorize(Policy = "Permission:settings.update")]
+        [HttpPut("bulk")]
+        public async Task<IActionResult> UpdateSettings([FromBody] Dictionary<string, string> updates)
+        {
+            if (updates == null || updates.Count == 0)
+                return BadRequest(new { message = "At least one setting is required." });
+
+            if (updates.Any(item => string.IsNullOrWhiteSpace(item.Key) || item.Key.Length > 100 || item.Value == null || item.Value.Length > 1000))
+                return BadRequest(new { message = "Setting keys must be 1-100 characters and values must not exceed 1000 characters." });
+
+            var keys = updates.Keys.ToList();
+            var existing = await _context.SiteSettings.Where(setting => keys.Contains(setting.SettingKey)).ToListAsync();
+            var existingByKey = existing.ToDictionary(setting => setting.SettingKey);
+            var now = DateTime.UtcNow;
+
+            foreach (var (key, value) in updates)
+            {
+                if (existingByKey.TryGetValue(key, out var setting))
+                {
+                    setting.SettingValue = value;
+                    setting.UpdatedAt = now;
+                }
+                else
+                {
+                    _context.SiteSettings.Add(new SiteSetting
+                    {
+                        SettingKey = key,
+                        SettingValue = value,
+                        UpdatedAt = now
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { updated = updates.Count });
+        }
+
         [Authorize(Policy = "Permission:settings.update")]
         [HttpPut]
         public async Task<IActionResult> UpdateSetting([FromBody] UpdateSiteSettingDto dto)

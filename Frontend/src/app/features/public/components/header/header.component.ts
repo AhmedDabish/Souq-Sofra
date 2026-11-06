@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -257,6 +257,12 @@ export class HeaderComponent implements OnInit {
   private router = inject(Router);
   language = inject(LanguageService);
 
+  constructor() {
+    effect(() => {
+      if (this.locationService.isModalOpen()) this.syncFromService();
+    });
+  }
+
   searchQuery = '';
   searchOpen = false;
 
@@ -306,14 +312,10 @@ export class HeaderComponent implements OnInit {
   private syncFromService() {
     const currentLoc = this.locationService.selectedLocation();
     this.tempLocationName = (currentLoc && currentLoc !== 'اختر الموقع...') ? currentLoc : 'أبوظبي - الكورنيش';
-    if (currentLoc && currentLoc !== 'اختر الموقع...') {
-      this.locationDetected = true;
-    }
+    this.locationDetected = !!currentLoc && currentLoc !== 'اختر الموقع...';
     const coords = this.locationService.selectedCoordinates();
-    if (coords) {
-      this.currentLat = coords.latitude;
-      this.currentLng = coords.longitude;
-    }
+    this.currentLat = coords?.latitude ?? 24.4750;
+    this.currentLng = coords?.longitude ?? 54.3400;
     const manual = this.locationService.manualAddress();
     this.manualCity = manual.city || 'أبوظبي';
     this.manualArea = manual.area || 'الكورنيش';
