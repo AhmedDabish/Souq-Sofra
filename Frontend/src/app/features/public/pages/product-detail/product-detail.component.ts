@@ -112,7 +112,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
         @if (recommendations().length) {
           <section class="mt-8 border-t border-gray-100 pt-7 md:mt-10">
             <div class="mb-4 flex items-end justify-between"><div><p class="text-xs font-bold text-primary">{{ language.t('اختيارات تانية ليك', 'Picked for you') }}</p><h2 class="mt-1 text-xl font-extrabold text-primaryDark">{{ language.t('قد يعجبك أيضاً', 'You may also like') }}</h2></div><a routerLink="/menu" class="text-xs font-bold text-primary hover:underline">{{ language.t('عرض المنيو', 'Browse menu') }}</a></div>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3 md:gap-4">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4">
               @for (suggestion of recommendations(); track suggestion.productId) { <app-product-card [product]="suggestion"></app-product-card> }
             </div>
           </section>
