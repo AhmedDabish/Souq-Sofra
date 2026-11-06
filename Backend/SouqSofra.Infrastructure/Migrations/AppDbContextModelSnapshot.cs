@@ -517,6 +517,83 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("SouqSofra.Domain.Entities.RestaurantReview", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("ReviewId");
+
+                    b.ToTable("RestaurantReviews", (string)null);
+                });
+
+            modelBuilder.Entity("SouqSofra.Domain.Entities.ProductReview", b =>
+                {
+                    b.Property<int>("ProductReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductReviewId"));
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductReviewId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductReviews", (string)null);
+                });
+
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.Order", b =>
                 {
                     b.HasOne("SouqSofra.Domain.Entities.Branch", "Branch")
@@ -594,6 +671,18 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            
+            modelBuilder.Entity("SouqSofra.Domain.Entities.ProductReview", b =>
+                {
+                    b.HasOne("SouqSofra.Domain.Entities.Product", "Product")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.ProductVariant", b =>
                 {
                     b.HasOne("SouqSofra.Domain.Entities.Product", "Product")
@@ -629,6 +718,7 @@ namespace SouqSofra.Infrastructure.Migrations
                 {
                     b.Navigation("Variants");
                     b.Navigation("Addons");
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

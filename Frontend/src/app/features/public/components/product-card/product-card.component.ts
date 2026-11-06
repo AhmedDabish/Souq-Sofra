@@ -23,7 +23,13 @@ import { LanguageService } from '../../../../core/services/language.service';
         </div>
         <div class="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 text-start md:gap-3 md:p-4">
           <div class="min-w-0">
-            <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</h3>
+            <div class="flex items-center justify-between gap-1">
+              <h3 class="pro-title line-clamp-2 font-bold text-[#66637B] transition-colors group-hover:text-primary md:text-sm">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</h3>
+              <div class="flex items-center gap-0.5 text-amber-500 shrink-0 text-[10px] font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>{{ (product.averageRating || 5).toFixed(1) }}</span>
+              </div>
+            </div>
             <p class="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted md:text-xs">{{ language.isEnglish() ? product.descriptionEn : product.descriptionAr }}</p>
             @if (product.variants && product.variants.length > 1) {
               <div class="pointer-events-auto mt-1.5 flex flex-wrap gap-1" (click)="$event.stopPropagation()">
@@ -131,10 +137,17 @@ import { LanguageService } from '../../../../core/services/language.service';
         <!-- Product Card Body -->
         <div class="flex flex-col justify-between flex-1">
           <div class="max-md:p-3 p-4">
-            <div class="flex items-center justify-start gap-2 max-md:mb-1.5 mb-2">
+            <div class="flex items-center justify-between gap-2 max-md:mb-1.5 mb-2">
               <h3 class="theme-text !font-extrabold pro-title">
                 {{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}
               </h3>
+              <div class="flex items-center gap-1 bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md text-[11px] font-bold shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 fill-current text-amber-400" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>{{ (product.averageRating || 5).toFixed(1) }}</span>
+                @if (product.reviewCount) {
+                  <span class="text-[9px] text-gray-400 font-normal">({{ product.reviewCount }})</span>
+                }
+              </div>
             </div>
             <div class="max-md:text-xs text-sm text-muted font-normal max-md:mb-2 mb-2 leading-relaxed text-start line-clamp-2 max-md:min-h-[2.5rem] min-h-[3rem]">
               <p>{{ language.isEnglish() ? (product.descriptionEn || 'Freshly prepared with quality ingredients and traditional recipes.') : (product.descriptionAr || 'محضر طازج يومياً بمكونات نقية ووصفات تقليدية شهية ومذاق لا يُنسى.') }}</p>

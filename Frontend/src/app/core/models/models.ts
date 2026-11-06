@@ -72,6 +72,8 @@ export interface Product {
   completedSalesQuantity?: number;
   variants: ProductVariant[];
   addons: ProductAddon[];
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export interface ProductCreate {
@@ -236,4 +238,37 @@ export interface UserProfile {
   email: string;
   phoneNumber?: string;
   role: string;
+}
+
+export interface RestaurantReview {
+  reviewId: number;
+  customerName: string;
+  rating: number;
+  comment: string;
+  avatarUrl?: string;
+  videoUrl?: string;
+  createdAt: string;
+}
+
+export interface ProductReview {
+  productReviewId: number;
+  productId: number;
+  customerName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export interface ProductReviewCreate {
+  productId: number;
+  customerName: string;
+  rating: number;
+  comment?: string;
+}
+
+export interface ProductReviewsSummary {
+  productId: number;
+  averageRating: number;
+  totalReviews: number;
+  reviews: ProductReview[];
 }

@@ -14,7 +14,11 @@ import {
   PermissionDefinition,
   AddonTemplate,
   AddonTemplateCreate,
-  DeliveryZone
+  DeliveryZone,
+  RestaurantReview,
+  ProductReview,
+  ProductReviewCreate,
+  ProductReviewsSummary
 } from '../models/models';
 
 export interface OrderCreateResponse {
@@ -223,5 +227,25 @@ export class ApiService {
 
   deleteBranch(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/branches/${id}`);
+  }
+
+  // -------------------------------------------------------------
+  // Reviews & Ratings Endpoints
+  // -------------------------------------------------------------
+
+  getRestaurantReviews(): Observable<RestaurantReview[]> {
+    return this.http.get<RestaurantReview[]>(`${this.apiUrl}/reviews/restaurant`);
+  }
+
+  createRestaurantReview(formData: FormData): Observable<RestaurantReview> {
+    return this.http.post<RestaurantReview>(`${this.apiUrl}/reviews/restaurant`, formData);
+  }
+
+  getProductReviews(productId: number): Observable<ProductReviewsSummary> {
+    return this.http.get<ProductReviewsSummary>(`${this.apiUrl}/reviews/product/${productId}`);
+  }
+
+  createProductReview(review: ProductReviewCreate): Observable<ProductReview> {
+    return this.http.post<ProductReview>(`${this.apiUrl}/reviews/product`, review);
   }
 }

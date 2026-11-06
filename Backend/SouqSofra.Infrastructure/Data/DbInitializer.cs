@@ -216,6 +216,43 @@ namespace SouqSofra.Infrastructure.Data
             // Replace the storefront catalog once with the bilingual menu supplied by the owner.
             // The initializer archives old products to keep their historical orders intact.
             await MenuCatalogV2Initializer.ApplyAsync(context);
+
+            // Seed Restaurant Reviews if empty
+            if (!await context.RestaurantReviews.AnyAsync())
+            {
+                var initialReviews = new List<RestaurantReview>
+                {
+                    new()
+                    {
+                        CustomerName = "خالد المنصوري",
+                        Rating = 5,
+                        Comment = "أفضل حواوشي وفطائر وفلافل في أبوظبي بدون منازع! الطعم المصري الأصيل والنظافة ممتازة والتوصيل سريع جداً.",
+                        AvatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=khalid&backgroundColor=b6e3f4",
+                        CreatedAt = DateTime.UtcNow.AddDays(-5),
+                        IsApproved = true
+                    },
+                    new()
+                    {
+                        CustomerName = "سارة النعيمي",
+                        Rating = 5,
+                        Comment = "ساندوتشات بيتي بان رهيبة، التوابل موزونة والمخبوزات طازجة وساخنة. صرت أطلب منهم أسبوعياً!",
+                        AvatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=sara&backgroundColor=ffd5dc",
+                        CreatedAt = DateTime.UtcNow.AddDays(-3),
+                        IsApproved = true
+                    },
+                    new()
+                    {
+                        CustomerName = "محمد عبد الله",
+                        Rating = 5,
+                        Comment = "خدمة راقية وجودة طعام لا يعلى عليها. تجربة طلب ممتازة وأنصح الكل يجرب البوكسات العائلية.",
+                        AvatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=mohamed&backgroundColor=d1d4f9",
+                        CreatedAt = DateTime.UtcNow.AddDays(-1),
+                        IsApproved = true
+                    }
+                };
+                await context.RestaurantReviews.AddRangeAsync(initialReviews);
+                await context.SaveChangesAsync();
+            }
         }
 
         private const string LegacyDefaultAdminPasswordHash = "jm5qtRcShtk8AL+DvQozYQ==:t9jeA8Uawu/5NkZyj3ydmT1h5hF5hQrEisCPxOUX8/Y=";

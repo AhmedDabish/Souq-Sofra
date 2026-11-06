@@ -58,7 +58,9 @@ namespace SouqSofra.Application.DTOs
         List<ProductVariantDto> Variants,
         List<ProductAddonDto> Addons,
         bool IsManuallyBestSelling = false,
-        int CompletedSalesQuantity = 0
+        int CompletedSalesQuantity = 0,
+        double AverageRating = 5.0,
+        int ReviewCount = 0
     );
 
     public record ProductCreateDto(
@@ -176,4 +178,38 @@ namespace SouqSofra.Application.DTOs
     // Settings
     public record SiteSettingDto(string SettingKey, string SettingValue, string? Description);
     public record UpdateSiteSettingDto(string SettingKey, string SettingValue);
+
+    // Reviews
+    public record RestaurantReviewDto(
+        int ReviewId,
+        string CustomerName,
+        int Rating,
+        string Comment,
+        string? AvatarUrl,
+        string? VideoUrl,
+        DateTime CreatedAt
+    );
+
+    public record ProductReviewDto(
+        int ProductReviewId,
+        int ProductId,
+        string CustomerName,
+        int Rating,
+        string? Comment,
+        DateTime CreatedAt
+    );
+
+    public record ProductReviewCreateDto(
+        int ProductId,
+        string CustomerName,
+        int Rating,
+        string? Comment
+    );
+
+    public record ProductReviewsSummaryDto(
+        int ProductId,
+        double AverageRating,
+        int TotalReviews,
+        List<ProductReviewDto> Reviews
+    );
 }

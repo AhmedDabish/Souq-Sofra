@@ -51,7 +51,9 @@ namespace SouqSofra.API.Controllers
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
                     p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                     p.IsManuallyBestSelling,
-                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
+                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0,
+                    _context.ProductReviews.Where(r => r.ProductId == p.ProductId && r.IsApproved).Select(r => (double?)r.Rating).Average() ?? 5.0,
+                    _context.ProductReviews.Count(r => r.ProductId == p.ProductId && r.IsApproved)
                 ))
                 .ToListAsync();
 
@@ -92,7 +94,9 @@ namespace SouqSofra.API.Controllers
                     row.Product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
                     row.Product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
                     row.Product.IsManuallyBestSelling,
-                    row.CompletedQuantity
+                    row.CompletedQuantity,
+                    _context.ProductReviews.Where(r => r.ProductId == row.Product.ProductId && r.IsApproved).Select(r => (double?)r.Rating).Average() ?? 5.0,
+                    _context.ProductReviews.Count(r => r.ProductId == row.Product.ProductId && r.IsApproved)
                 ))
                 .ToListAsync();
 
@@ -122,7 +126,9 @@ namespace SouqSofra.API.Controllers
                     p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
                     p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                     p.IsManuallyBestSelling,
-                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0
+                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0,
+                    _context.ProductReviews.Where(r => r.ProductId == p.ProductId && r.IsApproved).Select(r => (double?)r.Rating).Average() ?? 5.0,
+                    _context.ProductReviews.Count(r => r.ProductId == p.ProductId && r.IsApproved)
                 ))
                 .ToListAsync();
 
@@ -141,7 +147,9 @@ namespace SouqSofra.API.Controllers
                 p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
                 p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
                 p.IsManuallyBestSelling,
-                await _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").SumAsync(item => (int?)item.Quantity) ?? 0
+                await _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").SumAsync(item => (int?)item.Quantity) ?? 0,
+                await _context.ProductReviews.Where(r => r.ProductId == p.ProductId && r.IsApproved).Select(r => (double?)r.Rating).AverageAsync() ?? 5.0,
+                await _context.ProductReviews.CountAsync(r => r.ProductId == p.ProductId && r.IsApproved)
             );
 
             return Ok(dto);

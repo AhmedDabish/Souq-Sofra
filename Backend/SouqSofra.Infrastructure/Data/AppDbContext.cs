@@ -18,6 +18,8 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<User> Users => Set<User>();
         public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+        public DbSet<RestaurantReview> RestaurantReviews => Set<RestaurantReview>();
+        public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -210,6 +212,35 @@ namespace SouqSofra.Infrastructure.Data
                 entity.Property(s => s.SettingKey).HasMaxLength(100);
                 entity.Property(s => s.SettingValue).IsRequired().HasMaxLength(1000);
                 entity.Property(s => s.Description).HasMaxLength(500);
+            });
+
+            // RestaurantReview configuration
+            modelBuilder.Entity<RestaurantReview>(entity =>
+            {
+                entity.ToTable("RestaurantReviews");
+                entity.HasKey(r => r.ReviewId);
+                entity.Property(r => r.CustomerName).IsRequired().HasMaxLength(150);
+                entity.Property(r => r.Comment).IsRequired().HasMaxLength(1000);
+                entity.Property(r => r.AvatarUrl).HasMaxLength(500);
+                entity.Property(r => r.VideoUrl).HasMaxLength(500);
+                entity.Property(r => r.Rating).IsRequired();
+            });
+
+            // ProductReview configuration
+            modelBuilder.Entity<ProductReview>(entity =>
+            {
+                entity.ToTable("ProductReviews");
+                entity.HasKey(pr => pr.ProductReviewId);
+                entity.Property(pr => pr.CustomerName).IsRequired().HasMaxLength(150);
+                entity.Property(pr => pr.Comment).HasMaxLength(1000);
+                entity.Property(pr => pr.Rating).IsRequired();
+
+                entity.HasOne(pr => pr.Product)
+                      .WithMany(p => p.Reviews)
+                      .HasForeignKey(pr => pr.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(pr => pr.ProductId);
             });
         }
     }
