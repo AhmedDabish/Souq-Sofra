@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Data.SqlClient;
 using System.Text.Json;
 using System.Data;
 using System.Globalization;
@@ -15,7 +17,15 @@ namespace SouqSofra.API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public OrdersController(AppDbContext context) => _context = context;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<OrdersController> _logger;
+
+        public OrdersController(AppDbContext context, IMemoryCache cache, ILogger<OrdersController> logger)
+        {
+            _context = context;
+            _cache = cache;
+            _logger = logger;
+        }
 
         [Authorize(Policy = "Permission:orders.view")]
         [HttpGet]
@@ -104,9 +114,31 @@ namespace SouqSofra.API.Controllers
                 if (string.IsNullOrWhiteSpace(dto.DeliveryZoneId))
                     return BadRequest(new { message = "اختر منطقة توصيل متاحة أولاً." });
 
-                var zoneSettings = await _context.SiteSettings
-                    .Where(setting => setting.SettingKey == "DeliveryZones" || setting.SettingKey == "DeliveryZonesChunkCount" || setting.SettingKey.StartsWith("DeliveryZonesChunk_"))
-                    .ToDictionaryAsync(setting => setting.SettingKey, setting => setting.SettingValue);
+                Dictionary<string, string> siteSettings;
+                try
+                {
+                    // Share the already-warmed public settings cache so checkout does not query
+                    // SiteSettings again for every order submission.
+                    siteSettings = await _cache.GetOrCreateAsync(SettingsController.SettingsCacheKey, async entry =>
+                    {
+                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60);
+                        return await _context.SiteSettings
+                            .AsNoTracking()
+                            .ToDictionaryAsync(setting => setting.SettingKey, setting => setting.SettingValue);
+                    }) ?? new Dictionary<string, string>();
+                }
+                catch (SqlException ex)
+                {
+                    _logger.LogError(ex, "Database timed out while loading delivery-zone settings for order creation.");
+                    return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+                    {
+                        message = "خدمة قاعدة البيانات بطيئة حالياً، تعذر التحقق من مناطق التوصيل. حاول مرة أخرى بعد قليل."
+                    });
+                }
+
+                var zoneSettings = siteSettings
+                    .Where(setting => setting.Key == "DeliveryZones" || setting.Key == "DeliveryZonesChunkCount" || setting.Key.StartsWith("DeliveryZonesChunk_", StringComparison.Ordinal))
+                    .ToDictionary(setting => setting.Key, setting => setting.Value);
                 var zonesJson = zoneSettings.TryGetValue("DeliveryZonesChunkCount", out var countValue) &&
                     int.TryParse(countValue, out var chunkCount) && chunkCount > 0
                     ? string.Concat(Enumerable.Range(0, chunkCount).Select(index => zoneSettings.GetValueOrDefault($"DeliveryZonesChunk_{index}", string.Empty)))
@@ -146,7 +178,10 @@ namespace SouqSofra.API.Controllers
                 if (item.Quantity <= 0)
                     return BadRequest(new { message = "كمية المنتج يجب أن تكون أكبر من صفر." });
 
-                var prod = await _context.Products.Include(product => product.Variants).Include(product => product.Addons)
+                var prod = await _context.Products
+                    .AsSplitQuery()
+                    .Include(product => product.Variants)
+                    .Include(product => product.Addons)
                     .FirstOrDefaultAsync(product => product.ProductId == item.ProductId && product.IsAvailable);
                 if (prod == null)
                     return BadRequest(new { message = "أحد المنتجات غير متاح حالياً. حدّث السلة وحاول مرة أخرى." });
