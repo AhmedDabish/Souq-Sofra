@@ -55,16 +55,16 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               <span class="mb-1.5 block text-xs font-bold text-slate-600">{{ language.t('بحث سريع', 'Quick search') }}</span>
               <div class="relative">
                 <svg class="pointer-events-none absolute top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" [class.right-3]="!language.isEnglish()" [class.left-3]="language.isEnglish()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                <input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="language.t('رقم الطلب، الاسم، أو رقم الهاتف', 'Order number, name, or phone')" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-10 text-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
+                <input type="search" [ngModel]="searchQuery()" (ngModelChange)="updateSearch($event)" [placeholder]="language.t('رقم الطلب، الاسم، أو رقم الهاتف', 'Order number, name, or phone')" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-10 text-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
               </div>
             </label>
             <label class="block">
               <span class="mb-1.5 block text-xs font-bold text-slate-600">{{ language.t('من تاريخ', 'From date') }}</span>
-              <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event || '')" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
+              <input type="date" [ngModel]="dateFrom()" (ngModelChange)="updateDateFrom($event || '')" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
             </label>
             <label class="block">
               <span class="mb-1.5 block text-xs font-bold text-slate-600">{{ language.t('إلى تاريخ', 'To date') }}</span>
-              <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event || '')" [min]="dateFrom() || null" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
+              <input type="date" [ngModel]="dateTo()" (ngModelChange)="updateDateTo($event || '')" [min]="dateFrom() || null" class="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100" />
             </label>
           </div>
           @if (dateFrom() && dateTo() && dateFrom() > dateTo()) {
@@ -101,7 +101,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
                 @if (isLoading() && !orders().length) {
                   <tr><td colspan="6" class="px-4 py-16 text-center text-sm text-slate-400"><span class="mb-3 inline-block h-7 w-7 animate-spin rounded-full border-2 border-orange-200 border-t-orange-600 align-middle"></span><br />{{ language.t('نحمّل الطلبات الآن...', 'Loading your orders...') }}</td></tr>
                 } @else {
-                  @for (order of filteredOrders(); track order.orderId) {
+                  @for (order of pagedOrders(); track order.orderId) {
                     <tr class="transition hover:bg-orange-50/40">
                       <td class="px-4 py-4"><span class="font-black text-slate-900">#{{ order.orderNumber }}</span><span class="mt-1 block text-[11px] text-slate-400">{{ formatDate(order.createdAt) }}</span></td>
                       <td class="px-4 py-4"><span class="block font-bold text-slate-800">{{ order.customerName }}</span><span class="mt-1 block text-xs text-slate-500" dir="ltr">{{ order.customerPhone }}</span></td>
@@ -119,6 +119,27 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
               </tbody>
             </table>
           </div>
+          @if (!isLoading() && filteredOrders().length > 0) {
+            <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/60 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <p class="text-xs font-medium text-slate-500">{{ language.t('عرض', 'Showing') }} <span class="font-extrabold text-slate-800">{{ pageStart() }}–{{ pageEnd() }}</span> {{ language.t('من', 'of') }} <span class="font-extrabold text-slate-800">{{ filteredOrders().length }}</span> {{ language.t('طلب', 'orders') }}</p>
+              <div class="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                  <span>{{ language.t('لكل صفحة', 'Per page') }}</span>
+                  <select [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)" class="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100">
+                    <option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option>
+                  </select>
+                </label>
+                <nav class="flex items-center gap-1" [attr.aria-label]="language.t('التنقل بين الصفحات', 'Pagination')">
+                  <button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1" [attr.aria-label]="language.t('الصفحة السابقة', 'Previous page')" class="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-sm font-bold text-slate-600 transition hover:border-orange-200 hover:text-orange-800 disabled:cursor-not-allowed disabled:opacity-40">{{ language.isEnglish() ? '←' : '→' }}</button>
+                  @for (item of paginationItems(); track $index) {
+                    @if (item === 'ellipsis') { <span class="px-1 text-sm text-slate-400">…</span> }
+                    @else { <button type="button" (click)="goToPage(item)" [attr.aria-current]="currentPage() === item ? 'page' : null" [class.border-orange-600]="currentPage() === item" [class.bg-orange-600]="currentPage() === item" [class.text-white]="currentPage() === item" [class.border-slate-200]="currentPage() !== item" [class.bg-white]="currentPage() !== item" [class.text-slate-600]="currentPage() !== item" class="h-9 min-w-9 rounded-lg border px-2 text-xs font-extrabold transition hover:border-orange-300">{{ item }}</button> }
+                  }
+                  <button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()" [attr.aria-label]="language.t('الصفحة التالية', 'Next page')" class="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-sm font-bold text-slate-600 transition hover:border-orange-200 hover:text-orange-800 disabled:cursor-not-allowed disabled:opacity-40">{{ language.isEnglish() ? '→' : '←' }}</button>
+                </nav>
+              </div>
+            </div>
+          }
         </section>
       </main>
 
@@ -156,6 +177,8 @@ export class AdminAllOrdersComponent implements OnInit {
   isLoading = signal(false);
   errorMessage = signal('');
   selectedOrder = signal<AdminOrder | null>(null);
+  currentPage = signal(1);
+  pageSize = signal(10);
 
   hasFilters = computed(() => !!this.searchQuery().trim() || !!this.dateFrom() || !!this.dateTo());
   filteredOrders = computed(() => {
@@ -181,13 +204,38 @@ export class AdminAllOrdersComponent implements OnInit {
     });
   });
 
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredOrders().length / this.pageSize())));
+  pagedOrders = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredOrders().slice(start, start + this.pageSize());
+  });
+  pageStart = computed(() => this.filteredOrders().length ? (this.currentPage() - 1) * this.pageSize() + 1 : 0);
+  pageEnd = computed(() => Math.min(this.currentPage() * this.pageSize(), this.filteredOrders().length));
+  paginationItems = computed((): (number | 'ellipsis')[] => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    if (total <= 5) return Array.from({ length: total }, (_, index) => index + 1);
+    if (current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+    if (current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+    return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+  });
+
   ngOnInit() { this.loadOrders(); }
+
+  updateSearch(value: string) { this.searchQuery.set(value); this.currentPage.set(1); }
+  updateDateFrom(value: string) { this.dateFrom.set(value); this.currentPage.set(1); }
+  updateDateTo(value: string) { this.dateTo.set(value); this.currentPage.set(1); }
+  goToPage(page: number | 'ellipsis') {
+    if (page === 'ellipsis') return;
+    this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages()));
+  }
+  changePageSize(value: number) { this.pageSize.set(Number(value) || 10); this.currentPage.set(1); }
 
   loadOrders() {
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.api.getAdminOrders().subscribe({
-      next: data => { this.orders.set(data || []); this.isLoading.set(false); },
+      next: data => { this.orders.set(data || []); this.currentPage.set(1); this.isLoading.set(false); },
       error: () => {
         this.isLoading.set(false);
         this.errorMessage.set(this.language.t('تعذر تحميل الطلبات. تحقق من الاتصال ثم أعد المحاولة.', 'Could not load orders. Check your connection and try again.'));
@@ -195,7 +243,7 @@ export class AdminAllOrdersComponent implements OnInit {
     });
   }
 
-  resetFilters() { this.searchQuery.set(''); this.dateFrom.set(''); this.dateTo.set(''); }
+  resetFilters() { this.searchQuery.set(''); this.dateFrom.set(''); this.dateTo.set(''); this.currentPage.set(1); }
 
   private normalizeSearch(value: string): string {
     return value.toLocaleLowerCase()
