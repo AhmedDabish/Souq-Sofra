@@ -92,22 +92,38 @@ namespace SouqSofra.API.Controllers
                 })
                 .ToDictionaryAsync(group => group.Date, cancellationToken);
 
-            var completedOrders = await db.Orders.AsNoTracking()
-                .Where(order => order.OrderStatus == "Completed" && order.CreatedAt >= start && order.CreatedAt < endExclusive)
-                .Select(order => new { order.OrderId, order.TotalAmount, order.OrderChannel })
-                .ToListAsync(cancellationToken);
+            var completedOrdersQuery = db.Orders.AsNoTracking()
+                .Where(order => order.OrderStatus == "Completed" && order.CreatedAt >= start && order.CreatedAt < endExclusive);
+            var orderCount = await completedOrdersQuery.CountAsync(cancellationToken);
+            var completedRevenue = orderCount == 0
+                ? 0m
+                : await completedOrdersQuery.SumAsync(order => order.TotalAmount, cancellationToken);
+            var averageCompletedOrder = orderCount == 0
+                ? 0m
+                : Math.Round(await completedOrdersQuery.AverageAsync(order => order.TotalAmount, cancellationToken), 2);
+            var orderChannels = await completedOrdersQuery
+                .GroupBy(order => order.OrderChannel)
+                .Select(group => new { Channel = group.Key, Count = group.Count() })
+                .ToDictionaryAsync(group => group.Channel, group => group.Count, cancellationToken);
 
-            var completedItems = await db.OrderItems.AsNoTracking()
+            // Aggregate product sales and distinct completed orders in SQL rather than
+            // loading every matching order-item row into API memory for every report.
+            var productSales = await db.OrderItems.AsNoTracking()
                 .Where(item => item.Order != null && item.Order.OrderStatus == "Completed" &&
                     item.Order.CreatedAt >= start && item.Order.CreatedAt < endExclusive)
-                .Select(item => new { item.ProductId, item.Quantity, item.OrderId })
-                .ToListAsync(cancellationToken);
+                .GroupBy(item => item.ProductId)
+                .Select(group => new
+                {
+                    ProductId = group.Key,
+                    UnitsSold = group.Sum(item => item.Quantity),
+                    CompletedOrders = group.Select(item => item.OrderId).Distinct().Count()
+                })
+                .ToDictionaryAsync(summary => summary.ProductId, cancellationToken);
 
             var products = await db.Products.AsNoTracking()
                 .Select(product => new { product.ProductId, product.NameAr, product.NameEn })
                 .ToListAsync(cancellationToken);
             var productsById = products.ToDictionary(product => product.ProductId.ToString(), product => product);
-            var orderCount = completedOrders.Count;
 
             var productPageViews = pageStats
                 .Where(page => page.Path.StartsWith("/product/", StringComparison.OrdinalIgnoreCase))
@@ -120,15 +136,15 @@ namespace SouqSofra.API.Controllers
 
             var productStats = products.Select(product =>
                 {
-                    var productItems = completedItems.Where(item => item.ProductId == product.ProductId).ToList();
-                    var uniqueOrderCount = productItems.Select(item => item.OrderId).Distinct().Count();
+                    productSales.TryGetValue(product.ProductId, out var sales);
+                    var uniqueOrderCount = sales?.CompletedOrders ?? 0;
                     var productVisits = productPageViews.GetValueOrDefault(product.ProductId.ToString());
                     return new
                     {
                         productId = product.ProductId,
                         nameAr = product.NameAr,
                         nameEn = product.NameEn,
-                        unitsSold = productItems.Sum(item => item.Quantity),
+                        unitsSold = sales?.UnitsSold ?? 0,
                         completedOrders = uniqueOrderCount,
                         orderSharePercent = orderCount == 0 ? 0 : Math.Round(uniqueOrderCount * 100d / orderCount, 1),
                         productPageViews = productVisits?.Views ?? 0
@@ -177,10 +193,10 @@ namespace SouqSofra.API.Controllers
                 visits = visitTotals?.Visits ?? 0,
                 uniqueVisitors = visitTotals?.UniqueVisitors ?? 0,
                 completedOrders = orderCount,
-                completedRevenue = completedOrders.Sum(order => order.TotalAmount),
-                averageCompletedOrder = orderCount == 0 ? 0 : Math.Round(completedOrders.Average(order => order.TotalAmount), 2),
-                ordersFromWebsite = completedOrders.Count(order => string.Equals(order.OrderChannel, "Website", StringComparison.OrdinalIgnoreCase)),
-                ordersFromWhatsApp = completedOrders.Count(order => string.Equals(order.OrderChannel, "WhatsApp", StringComparison.OrdinalIgnoreCase)),
+                completedRevenue,
+                averageCompletedOrder,
+                ordersFromWebsite = orderChannels.Where(channel => string.Equals(channel.Key, "Website", StringComparison.OrdinalIgnoreCase)).Sum(channel => channel.Value),
+                ordersFromWhatsApp = orderChannels.Where(channel => string.Equals(channel.Key, "WhatsApp", StringComparison.OrdinalIgnoreCase)).Sum(channel => channel.Value),
                 productSales = productStats,
                 dailyVisits,
                 topPages

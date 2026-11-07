@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
       <div class="relative w-full aspect-[4/3] sm:aspect-[2/1] lg:aspect-[1500/390] rounded-2xl lg:rounded-[32px] overflow-hidden bg-[#681c0f] shadow-sm">
         @for (slide of slides; track slide.image; let i = $index) {
           <div class="absolute inset-0 transition-opacity duration-700" [class.opacity-100]="activeIndex() === i" [class.opacity-0]="activeIndex() !== i" [class.pointer-events-none]="activeIndex() !== i">
-            <img [src]="slide.image" [alt]="language.isEnglish() ? slide.titleEn : slide.alt" class="absolute inset-0 w-full h-full object-cover">
+            <img [attr.src]="activeIndex() === i ? slide.image : null" [alt]="language.isEnglish() ? slide.titleEn : slide.alt" [attr.loading]="i === 0 ? 'eager' : 'lazy'" [attr.fetchpriority]="i === 0 ? 'high' : 'auto'" class="absolute inset-0 w-full h-full object-cover">
             <div [class.bg-gradient-to-l]="!language.isEnglish()" [class.bg-gradient-to-r]="language.isEnglish()" class="absolute inset-0 from-[#20130d]/75 via-[#20130d]/20 to-transparent"></div>
             <div [class.right-0]="!language.isEnglish()" [class.left-0]="language.isEnglish()" [class.text-right]="!language.isEnglish()" [class.text-left]="language.isEnglish()" class="absolute inset-y-0 z-10 w-full md:w-[72%] lg:w-[58%] flex flex-col justify-center p-4 sm:p-7 lg:p-12 xl:p-16 text-white">
               @if (badgeText()) { <span class="inline-flex self-start md:self-end rounded-full bg-[#f47621] px-3 py-1 font-bold shadow" [style.fontSize.px]="badgeFontSize()" [style.color]="badgeColor()">{{ badgeText() }}</span> }

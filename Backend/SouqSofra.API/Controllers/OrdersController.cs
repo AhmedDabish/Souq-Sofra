@@ -172,18 +172,24 @@ namespace SouqSofra.API.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
+            // Load every requested product and its options in one bounded set of queries.
+            // The previous per-item lookup made checkout latency grow linearly with cart size.
+            var requestedProductIds = dto.Items.Select(item => item.ProductId).Distinct().ToArray();
+            var productsById = await _context.Products
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(product => product.Variants)
+                .Include(product => product.Addons)
+                .Where(product => requestedProductIds.Contains(product.ProductId) && product.IsAvailable)
+                .ToDictionaryAsync(product => product.ProductId);
+
             decimal subTotal = 0;
             foreach (var item in dto.Items)
             {
                 if (item.Quantity <= 0)
                     return BadRequest(new { message = "كمية المنتج يجب أن تكون أكبر من صفر." });
 
-                var prod = await _context.Products
-                    .AsSplitQuery()
-                    .Include(product => product.Variants)
-                    .Include(product => product.Addons)
-                    .FirstOrDefaultAsync(product => product.ProductId == item.ProductId && product.IsAvailable);
-                if (prod == null)
+                if (!productsById.TryGetValue(item.ProductId, out var prod))
                     return BadRequest(new { message = "أحد المنتجات غير متاح حالياً. حدّث السلة وحاول مرة أخرى." });
 
                 decimal unitPrice;

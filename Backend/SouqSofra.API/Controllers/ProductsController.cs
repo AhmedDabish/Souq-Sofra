@@ -168,31 +168,47 @@ namespace SouqSofra.API.Controllers
         public async Task<IActionResult> GetAllForAdmin()
         {
             var products = await _context.Products
+                .AsNoTracking()
                 .AsSplitQuery()
-                .Include(p => p.Variants).Include(p => p.Addons)
-                .OrderByDescending(p => p.ProductId)
-                .Select(p => new ProductDto(
-                    p.ProductId,
-                    p.CategoryId,
-                    p.NameAr,
-                    p.NameEn,
-                    p.DescriptionAr,
-                    p.DescriptionEn,
-                    p.BasePrice,
-                    p.DiscountPrice,
-                    p.ImageUrl,
-                    p.IsAvailable,
-                    p.IsFeatured,
-                    p.Variants.Select(v => new ProductVariantDto(v.VariantId, v.NameAr, v.NameEn, v.Price, v.IsDefault)).ToList(),
-                    p.Addons.Where(a => a.IsAvailable).Select(a => new ProductAddonDto(a.AddonId, a.NameAr, a.NameEn, a.Price, a.CatalogTemplateId)).ToList(),
-                    p.IsManuallyBestSelling,
-                    _context.OrderItems.Where(item => item.ProductId == p.ProductId && item.Order != null && item.Order.OrderStatus == "Completed").Sum(item => (int?)item.Quantity) ?? 0,
-                    _context.ProductReviews.Where(r => r.ProductId == p.ProductId && r.IsApproved).Select(r => (double?)r.Rating).Average() ?? 5.0,
-                    _context.ProductReviews.Count(r => r.ProductId == p.ProductId && r.IsApproved)
-                ))
+                .Include(product => product.Variants)
+                .Include(product => product.Addons)
+                .OrderByDescending(product => product.ProductId)
                 .ToListAsync();
 
-            return Ok(products);
+            if (products.Count == 0)
+                return Ok(Array.Empty<ProductDto>());
+
+            var productIds = products.Select(product => product.ProductId).ToArray();
+            var completedSales = await _context.OrderItems
+                .AsNoTracking()
+                .Where(item => productIds.Contains(item.ProductId) && item.Order != null && item.Order.OrderStatus == "Completed")
+                .GroupBy(item => item.ProductId)
+                .Select(group => new { ProductId = group.Key, Quantity = group.Sum(item => item.Quantity) })
+                .ToDictionaryAsync(summary => summary.ProductId, summary => summary.Quantity);
+
+            var reviewSummaries = await _context.ProductReviews
+                .AsNoTracking()
+                .Where(review => productIds.Contains(review.ProductId) && review.IsApproved)
+                .GroupBy(review => review.ProductId)
+                .Select(group => new { ProductId = group.Key, Average = group.Average(review => (double)review.Rating), Count = group.Count() })
+                .ToDictionaryAsync(summary => summary.ProductId);
+
+            var result = products.Select(product =>
+            {
+                reviewSummaries.TryGetValue(product.ProductId, out var review);
+                return new ProductDto(
+                    product.ProductId, product.CategoryId, product.NameAr, product.NameEn,
+                    product.DescriptionAr, product.DescriptionEn, product.BasePrice, product.DiscountPrice,
+                    product.ImageUrl, product.IsAvailable, product.IsFeatured,
+                    product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
+                    product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
+                    product.IsManuallyBestSelling,
+                    completedSales.GetValueOrDefault(product.ProductId),
+                    review?.Average ?? 5.0,
+                    review?.Count ?? 0);
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
