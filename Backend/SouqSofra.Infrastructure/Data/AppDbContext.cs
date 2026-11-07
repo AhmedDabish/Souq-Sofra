@@ -234,7 +234,8 @@ namespace SouqSofra.Infrastructure.Data
                 entity.HasKey(visit => visit.SiteVisitId);
                 entity.Property(visit => visit.SessionKeyHash).IsRequired().HasMaxLength(64);
                 entity.Property(visit => visit.PagePath).IsRequired().HasMaxLength(200);
-                entity.HasIndex(visit => visit.VisitedAtUtc);
+                entity.HasIndex(visit => new { visit.VisitedAtUtc, visit.PagePath })
+                    .IncludeProperties(visit => visit.SessionKeyHash);
                 entity.HasIndex(visit => visit.PagePath);
                 entity.HasIndex(visit => new { visit.VisitedAtUtc, visit.SessionKeyHash });
             });
