@@ -14,7 +14,7 @@ namespace SouqSofra.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMemoryCache _cache;
-        private static readonly string SettingsCacheKey = "public-site-settings";
+        public const string SettingsCacheKey = "public-site-settings";
 
         public SettingsController(AppDbContext context, IMemoryCache cache)
         {
