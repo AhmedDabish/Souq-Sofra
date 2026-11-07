@@ -52,6 +52,7 @@ export class DeliveryMapComponent implements AfterViewInit, OnChanges, OnDestroy
   @Input() latitude: number | null = null;
   @Input() longitude: number | null = null;
   @Input() defaultMapType: "roadmap" | "satellite" = "satellite";
+  @Input() readOnly = false;
   @Output() locationChange = new EventEmitter<{ latitude: number; longitude: number }>();
   @ViewChild("mapHost", { static: true }) mapHost!: ElementRef<HTMLDivElement>;
 
@@ -69,15 +70,21 @@ export class DeliveryMapComponent implements AfterViewInit, OnChanges, OnDestroy
       ? [this.latitude, this.longitude] : [24.4539, 54.3773];
     this.map = L.map(this.mapHost.nativeElement, {
       scrollWheelZoom: false,
-      zoomControl: true
+      dragging: true,
+      zoomControl: true,
+      doubleClickZoom: true,
+      touchZoom: true,
+      keyboard: true
     }).setView(initial, this.latitude !== null ? 16 : 13);
 
     this.applyTileLayer();
 
-    this.map.on("click", (event: L.LeafletMouseEvent) => {
-      this.setMarker(event.latlng);
-      this.locationChange.emit({ latitude: event.latlng.lat, longitude: event.latlng.lng });
-    });
+    if (!this.readOnly) {
+      this.map.on("click", (event: L.LeafletMouseEvent) => {
+        this.setMarker(event.latlng);
+        this.locationChange.emit({ latitude: event.latlng.lat, longitude: event.latlng.lng });
+      });
+    }
 
     if (this.latitude !== null && this.longitude !== null) {
       this.setMarker(L.latLng(this.latitude, this.longitude));
@@ -126,11 +133,12 @@ export class DeliveryMapComponent implements AfterViewInit, OnChanges, OnDestroy
       iconAnchor: [14, 34]
     });
     if (!this.marker) {
-      this.marker = L.marker(point, { icon, draggable: true }).addTo(this.map);
+      this.marker = L.marker(point, { icon, draggable: !this.readOnly, keyboard: !this.readOnly }).addTo(this.map);
     } else {
       this.marker.setLatLng(point);
     }
     this.marker.off("dragend");
+    if (this.readOnly) return;
     this.marker.on("dragend", () => {
       const position = this.marker!.getLatLng();
       this.locationChange.emit({ latitude: position.lat, longitude: position.lng });

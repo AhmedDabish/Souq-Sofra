@@ -9,13 +9,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { DeliveryMapComponent } from '../../../public/components/delivery-map/delivery-map.component';
 
 type HeroSlide = { image: string; title: string; titleEn: string; subtitle: string; subtitleEn: string };
 
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent, DeliveryMapComponent],
   template: `
     <div class="admin-shell min-h-screen bg-gray-50 flex font-cairo" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
 
@@ -254,8 +255,21 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
 
                   <div class="text-[11px] text-gray-500">
                     <div>{{ language.isEnglish() ? (branch.addressEn || branch.addressAr) : branch.addressAr }}</div>
-
                   </div>
+
+                  @if (branch.latitude != null && branch.longitude != null) {
+                    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+                      <app-delivery-map class="block h-[210px]" [latitude]="branch.latitude" [longitude]="branch.longitude" [defaultMapType]="'satellite'" [readOnly]="true"></app-delivery-map>
+                      <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-[10px] text-gray-500">
+                        <span dir="ltr">{{ branch.latitude | number:'1.4-6' }}, {{ branch.longitude | number:'1.4-6' }}</span>
+                        <a [href]="branchMapLink(branch)" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">{{ language.t('فتح الموقع على Google Maps ↗', 'Open in Google Maps ↗') }}</a>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="flex items-center gap-3 rounded-2xl border border-dashed border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-800">
+                      <span>🗺️</span><span>{{ language.t('لم يتم تحديد موقع هذا الفرع بعد.', 'This branch has no map location yet.') }}</span>
+                    </div>
+                  }
 
                   <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-2">
                     <div class="flex flex-wrap items-center gap-4 text-[11px] text-primary font-medium"><div>📞 {{ branch.phone }}</div><div>💬 {{ branch.whatsApp }}</div></div>
@@ -277,7 +291,7 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
       <!-- Add Branch Modal -->
       @if (showBranchModal()) {
         <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl">
+          <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto border border-gray-100 shadow-2xl">
             <div class="flex items-center justify-between pb-4 border-b border-gray-100">
               <h2 class="text-base font-bold font-baloo text-gray-800">{{ editingBranchId() ? language.t('تعديل الفرع', 'Edit branch') : language.t('إضافة فرع جديد', 'Add branch') }}</h2>
               <button (click)="showBranchModal.set(false)" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm font-bold">✕</button>
@@ -308,6 +322,21 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary dir-ltr text-right">
               </div>
 
+              <section class="space-y-3 rounded-2xl border border-orange-100 bg-orange-50/50 p-3 sm:p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 class="font-bold text-gray-800">{{ language.t('حدد موقع الفرع على الخريطة', 'Set branch location on the map') }}</h3>
+                    <p class="mt-1 text-[10px] leading-5 text-gray-500">{{ language.t('اضغط على موقع الفرع في الخريطة أو حرّك العلامة، ثم احفظ التغييرات.', 'Click the branch location or drag the marker, then save your changes.') }}</p>
+                  </div>
+                  @if (newBranch.latitude != null && newBranch.longitude != null) {
+                    <span class="rounded-full bg-white px-3 py-1.5 text-[10px] font-bold text-emerald-700 shadow-sm" dir="ltr">{{ newBranch.latitude | number:'1.4-6' }}, {{ newBranch.longitude | number:'1.4-6' }}</span>
+                  } @else {
+                    <span class="rounded-full bg-white px-3 py-1.5 text-[10px] font-bold text-amber-700 shadow-sm">{{ language.t('لم يتم الاختيار', 'Not selected') }}</span>
+                  }
+                </div>
+                <app-delivery-map class="block h-[280px] overflow-hidden rounded-xl" [latitude]="newBranch.latitude ?? null" [longitude]="newBranch.longitude ?? null" [defaultMapType]="'satellite'" (locationChange)="setBranchLocation($event)"></app-delivery-map>
+              </section>
+
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block font-bold text-gray-700 mb-1">{{ language.t('رقم الهاتف', 'Phone number') }}</label>
@@ -325,7 +354,7 @@ type HeroSlide = { image: string; title: string; titleEn: string; subtitle: stri
                 <button type="button" (click)="showBranchModal.set(false)" class="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200">
                   {{ language.t('إلغاء', 'Cancel') }}
                 </button>
-                <button type="submit" [disabled]="isSavingBranch() || !auth.hasPermission('branches.create')" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
+                <button type="submit" [disabled]="isSavingBranch() || (editingBranchId() ? !auth.hasPermission('branches.update') : !auth.hasPermission('branches.create'))" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primaryHover text-white font-bold shadow-md">
                   {{ editingBranchId() ? language.t('حفظ التعديلات', 'Save changes') : language.t('إضافة الفرع', 'Add branch') }}
                 </button>
               </div>
@@ -674,6 +703,14 @@ export class AdminSettingsComponent implements OnInit {
     this.editingBranchId.set(branch.branchId);
     this.newBranch = { nameAr: branch.nameAr, nameEn: branch.nameEn, addressAr: branch.addressAr, addressEn: branch.addressEn, phone: branch.phone, whatsApp: branch.whatsApp, latitude: branch.latitude, longitude: branch.longitude, isActive: branch.isActive };
     this.showBranchModal.set(true);
+  }
+
+  setBranchLocation(location: { latitude: number; longitude: number }) {
+    this.newBranch = { ...this.newBranch, latitude: location.latitude, longitude: location.longitude };
+  }
+
+  branchMapLink(branch: Branch): string {
+    return `https://www.google.com/maps/search/?api=1&query=${branch.latitude},${branch.longitude}`;
   }
 
   async deleteBranch(branch: Branch) {
