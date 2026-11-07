@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SouqSofra.Infrastructure.Data;
 
@@ -497,7 +496,8 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasIndex("PagePath");
 
-                    b.HasIndex("VisitedAtUtc");
+                    b.HasIndex("VisitedAtUtc", "PagePath")
+                        .IncludeProperties("SessionKeyHash");
 
                     b.HasIndex("VisitedAtUtc", "SessionKeyHash");
 
@@ -739,7 +739,7 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
-
+            
             modelBuilder.Entity("SouqSofra.Domain.Entities.ProductReview", b =>
                 {
                     b.HasOne("SouqSofra.Domain.Entities.Product", "Product")
