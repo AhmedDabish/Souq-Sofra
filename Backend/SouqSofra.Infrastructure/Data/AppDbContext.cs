@@ -15,6 +15,7 @@ namespace SouqSofra.Infrastructure.Data
         public DbSet<OrderItemAddon> OrderItemAddons => Set<OrderItemAddon>();
         public DbSet<Branch> Branches => Set<Branch>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderNumberSequence> OrderNumberSequences => Set<OrderNumberSequence>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<User> Users => Set<User>();
         public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
@@ -58,6 +59,7 @@ namespace SouqSofra.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(p => p.CategoryId);
+                entity.HasIndex(p => new { p.IsAvailable, p.IsFeatured, p.ProductId });
             });
 
             // ProductVariant configuration
@@ -146,7 +148,15 @@ namespace SouqSofra.Infrastructure.Data
                       .HasForeignKey(o => o.BranchId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(o => o.OrderNumber).IsUnique();
+                entity.HasIndex(o => o.OrderNumber);
+                entity.HasIndex(o => o.CreatedAt);
+                entity.HasIndex(o => o.OrderStatus);
+            });
+
+            modelBuilder.Entity<OrderNumberSequence>(entity =>
+            {
+                entity.ToTable("OrderNumberSequences");
+                entity.HasKey(sequence => sequence.WindowId);
             });
 
             // OrderItem configuration
@@ -175,6 +185,8 @@ namespace SouqSofra.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(oi => oi.VariantId)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(oi => new { oi.ProductId, oi.OrderId });
             });
 
             modelBuilder.Entity<OrderItemAddon>(entity =>

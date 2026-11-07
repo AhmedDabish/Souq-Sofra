@@ -200,10 +200,26 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.HasIndex("OrderStatus");
 
                     b.ToTable("Orders", (string)null);
+                });
+
+            modelBuilder.Entity("SouqSofra.Domain.Entities.OrderNumberSequence", b =>
+                {
+                    b.Property<long>("WindowId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("LastNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("WindowId");
+
+                    b.ToTable("OrderNumberSequences", (string)null);
                 });
 
             modelBuilder.Entity("SouqSofra.Domain.Entities.OrderItem", b =>
@@ -255,6 +271,8 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.HasKey("OrderItemId");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId", "OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -356,6 +374,8 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.HasKey("ProductId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("IsAvailable", "IsFeatured", "ProductId");
 
                     b.ToTable("Products", (string)null);
                 });

@@ -175,14 +175,21 @@ import { AuthService } from '../../../../core/services/auth.service';
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                   @for (order of recentOrders(); track order.orderId) {
-                    <tr class="hover:bg-gray-50/60 transition-colors">
-                      <td class="p-4 font-bold text-gray-900">{{ order.orderNumber }}</td>
+                    <tr (click)="viewOrderDetails(order)" (keydown.enter)="viewOrderDetails(order)" tabindex="0" role="button" [attr.aria-label]="language.t('عرض تفاصيل الطلب', 'View order details') + ' ' + order.orderNumber" class="cursor-pointer hover:bg-orange-50/60 focus:bg-orange-50/60 transition-colors">
+                      <td class="p-4 font-bold text-gray-900"><button type="button" (click)="$event.stopPropagation(); viewOrderDetails(order)" class="rounded-lg px-2 py-1 text-primary hover:bg-primary/10">{{ order.orderNumber }}</button></td>
                       <td class="p-4">
                         <div class="font-bold text-gray-800">{{ order.customerName }}</div>
                         <div class="text-[10px] text-gray-400 dir-ltr text-right">{{ order.customerPhone }}</div>
                       </td>
                       <td class="p-4"><span [class]="order.orderChannel === 'WhatsApp' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ language.t(order.orderChannel === 'WhatsApp' ? 'واتساب' : 'الموقع', order.orderChannel === 'WhatsApp' ? 'WhatsApp' : 'Website') }}</span></td>
-                      <td class="p-4 text-gray-500 max-w-xs truncate">{{ order.deliveryAddress }}</td>
+                      <td class="p-4 text-gray-500 max-w-xs" (click)="$event.stopPropagation()">
+                        <span class="block truncate" [title]="order.deliveryAddress">{{ order.deliveryAddress }}</span>
+                        @if (getAddressMapUrl(order.deliveryAddress); as mapUrl) {
+                          <a [href]="mapUrl" target="_blank" rel="noopener noreferrer" class="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:underline" (click)="$event.stopPropagation()">
+                            📍 {{ language.t('فتح الموقع', 'Open map') }}
+                          </a>
+                        }
+                      </td>
                       <td class="p-4 font-black text-primary">{{ order.totalAmount }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</td>
                       <td class="p-4">
                         <span [class]="getStatusClass(order.orderStatus)" class="text-[10px] px-2.5 py-1 rounded-full font-bold">
@@ -205,6 +212,66 @@ import { AuthService } from '../../../../core/services/auth.service';
         </div>
 
       </main>
+
+      @if (selectedOrder(); as order) {
+        <div class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-6" (click)="selectedOrder.set(null)" (keydown.escape)="selectedOrder.set(null)">
+          <section role="dialog" aria-modal="true" [attr.aria-label]="language.t('تفاصيل الطلب', 'Order details')" class="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/70 bg-white shadow-2xl" (click)="$event.stopPropagation()">
+            <header class="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50 px-5 py-5 sm:px-7">
+              <div class="pointer-events-none absolute -end-10 -top-16 h-40 w-40 rounded-full bg-orange-200/40 blur-3xl"></div>
+              <div class="relative flex items-start justify-between gap-4">
+                <div>
+                  <span class="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold text-primary shadow-sm">{{ language.t('تفاصيل الطلب', 'Order details') }}</span>
+                  <h2 class="mt-2 font-baloo text-2xl font-black text-primaryDark">#{{ order.orderNumber }}</h2>
+                  <p class="mt-1 text-xs text-gray-500">{{ formatDate(order.createdAt) }}</p>
+                </div>
+                <button type="button" (click)="selectedOrder.set(null)" [attr.aria-label]="language.t('إغلاق', 'Close')" class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm transition hover:bg-orange-100 hover:text-primary">✕</button>
+              </div>
+            </header>
+            <div class="max-h-[70vh] space-y-5 overflow-y-auto p-5 sm:p-7">
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                  <p class="text-[11px] font-bold text-gray-400">{{ language.t('العميل', 'Customer') }}</p>
+                  <p class="mt-1 font-extrabold text-gray-800">{{ order.customerName }}</p>
+                  <a [href]="'tel:' + order.customerPhone" dir="ltr" class="mt-1 inline-block text-sm font-semibold text-primary">{{ order.customerPhone }}</a>
+                </div>
+                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                  <p class="text-[11px] font-bold text-gray-400">{{ language.t('حالة الطلب', 'Order status') }}</p>
+                  <span [class]="getStatusClass(order.orderStatus)" class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-extrabold">{{ getStatusLabel(order.orderStatus) }}</span>
+                  <p class="mt-2 text-[11px] text-gray-500">{{ language.t(order.orderChannel === 'WhatsApp' ? 'طلب واتساب' : 'طلب من الموقع', order.orderChannel === 'WhatsApp' ? 'WhatsApp order' : 'Website order') }}</p>
+                </div>
+              </div>
+              <div class="rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
+                <p class="text-[11px] font-bold text-gray-400">{{ language.t('عنوان التوصيل', 'Delivery address') }}</p>
+                <p class="mt-1 text-sm font-bold leading-6 text-gray-800">{{ order.deliveryAddress }}</p>
+                @if (getAddressMapUrl(order.deliveryAddress); as mapUrl) {
+                  <a [href]="mapUrl" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-extrabold text-white shadow-sm transition hover:bg-primaryDark">📍 {{ language.t('فتح الموقع على الخريطة', 'Open location in map') }}</a>
+                }
+              </div>
+              @if (order.notes) { <div class="rounded-2xl border border-blue-100 bg-blue-50/70 p-4"><p class="text-[11px] font-bold text-blue-500">{{ language.t('ملاحظات', 'Notes') }}</p><p class="mt-1 text-sm leading-6 text-gray-700">{{ order.notes }}</p></div> }
+              <div>
+                <div class="mb-2 flex items-center justify-between"><h3 class="font-extrabold text-gray-800">{{ language.t('الأصناف المطلوبة', 'Items ordered') }}</h3><span class="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-500">{{ order.items.length || 0 }} {{ language.t('صنف', 'items') }}</span></div>
+                <div class="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100">
+                  @for (item of order.items || []; track item.orderItemId) {
+                    <div class="flex items-center justify-between gap-4 p-3.5">
+                      <div class="min-w-0"><p class="font-bold text-gray-800">{{ language.isEnglish() ? (item.productNameEn || item.productNameAr) : item.productNameAr }}</p>
+                        @if (item.variantNameAr) { <p class="mt-0.5 text-[11px] text-primary">{{ language.isEnglish() ? (item.variantNameEn || item.variantNameAr) : item.variantNameAr }}</p> }
+                        @if (item.addons?.length) { <p class="mt-0.5 text-[11px] text-gray-500">{{ language.t('إضافات: ', 'Extras: ') }}{{ formatAddonNames(item.addons) }}</p> }
+                      </div>
+                      <div class="shrink-0 text-left"><p class="text-xs text-gray-500">{{ item.quantity }} × {{ item.unitPrice }}</p><p class="font-black text-primary">{{ item.totalPrice }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</p></div>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="space-y-2 rounded-2xl bg-gray-50 p-4 text-sm">
+                <div class="flex justify-between text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-bold text-gray-800">{{ order.subTotal }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                <div class="flex justify-between text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-bold text-gray-800">{{ order.deliveryFee }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                <div class="flex justify-between border-t border-dashed border-gray-200 pt-3 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span class="text-primary">{{ order.totalAmount }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+              </div>
+            </div>
+            <footer class="border-t border-gray-100 bg-white px-5 py-4 text-end sm:px-7"><button type="button" (click)="selectedOrder.set(null)" class="rounded-xl bg-gray-100 px-5 py-2.5 text-xs font-bold text-gray-700 transition hover:bg-gray-200">{{ language.t('إغلاق', 'Close') }}</button></footer>
+          </section>
+        </div>
+      }
     </div>
   `
 })
@@ -224,6 +291,7 @@ export class DashboardComponent implements OnInit {
   pendingOrdersCount = signal<number>(0);
   activeProductsCount = signal<number>(0);
   recentOrders = signal<AdminOrder[]>([]);
+  selectedOrder = signal<AdminOrder | null>(null);
 
   ngOnInit() {
     this.loadData();
@@ -264,6 +332,30 @@ export class DashboardComponent implements OnInit {
     this.activeProductsCount.set(activeProds);
 
     this.recentOrders.set(orders.slice(0, 5));
+  }
+
+  viewOrderDetails(order: AdminOrder) {
+    this.selectedOrder.set(order);
+  }
+
+  formatDate(value: string): string {
+    if (!value) return '';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString(this.language.isEnglish() ? 'en-AE' : 'ar-AE', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  getAddressMapUrl(address?: string): string | null {
+    if (!address) return null;
+    const match = address.match(/(?:الموقع:\s*)?(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);
+    if (!match) return null;
+    const latitude = Number(match[1]);
+    const longitude = Number(match[2]);
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+    return `https://www.google.com/maps?q=${latitude},${longitude}`;
+  }
+
+  formatAddonNames(addons?: Array<{ nameAr: string; nameEn?: string }>): string {
+    return (addons || []).map(addon => this.language.isEnglish() ? (addon.nameEn || addon.nameAr) : addon.nameAr).join(this.language.isEnglish() ? ', ' : '، ');
   }
 
   getCountByStatus(status: string): number {

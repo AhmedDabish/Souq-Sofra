@@ -60,6 +60,18 @@ import { Category } from '../../../../core/models/models';
               </div>
             </div>
 
+            <!-- Keep the category rail visible while the API is loading. -->
+            @if (isLoading && categories.length === 0) {
+              @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+                <div class="w-[135px] shrink-0 snap-start sm:w-[150px]" aria-hidden="true">
+                  <div class="flex h-full min-h-[132px] flex-col items-center justify-center gap-3 rounded-2xl bg-gray-50 px-3 py-4 animate-pulse">
+                    <span class="h-20 w-20 rounded-full bg-gray-200"></span>
+                    <span class="h-3 w-16 rounded-full bg-gray-200"></span>
+                  </div>
+                </div>
+              }
+            }
+
             <!-- Dynamic Category Cards from Backend -->
             @for (cat of categories; track cat.categoryId) {
               <div [attr.dir]="isEnglish ? 'ltr' : 'rtl'" class="w-[135px] shrink-0 snap-start sm:w-[150px] h-auto">
@@ -126,6 +138,7 @@ export class CategorySliderComponent implements AfterViewInit, OnChanges {
   @Input() showViewAll: boolean = true;
   @Input() title: string = 'أقسام منيو سوق وسفرة';
   @Input() isEnglish = false;
+  @Input() isLoading = false;
   @Output() categorySelected = new EventEmitter<number>();
 
   @ViewChild('sliderRef') sliderRef?: ElementRef<HTMLDivElement>;

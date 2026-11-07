@@ -20,9 +20,6 @@ namespace SouqSofra.API.Controllers
         {
             var query = _context.Products
                 .AsNoTracking()
-                .Include(product => product.Variants)
-                .Include(product => product.Addons)
-                .AsSplitQuery()
                 .AsQueryable();
 
             if (categoryId.HasValue)
@@ -37,6 +34,9 @@ namespace SouqSofra.API.Controllers
                 query = query.Where(product => product.NameAr.ToLower().Contains(term) || product.NameEn.ToLower().Contains(term));
             }
 
+            // Load just the product rows first, then fetch variants and available add-ons
+            // in bounded queries. This avoids EF split-include joins timing out or multiplying
+            // product rows when the catalog has many variants/add-ons.
             var products = await query
                 .Where(product => product.IsAvailable)
                 .OrderByDescending(product => product.IsFeatured)
@@ -62,6 +62,16 @@ namespace SouqSofra.API.Controllers
                 .GroupBy(review => review.ProductId)
                 .Select(group => new { ProductId = group.Key, Average = group.Average(review => (double)review.Rating), Count = group.Count() })
                 .ToDictionaryAsync(summary => summary.ProductId, summary => new { summary.Average, summary.Count });
+            var variants = await _context.ProductVariants
+                .AsNoTracking()
+                .Where(variant => productIds.Contains(variant.ProductId))
+                .ToListAsync();
+            var addons = await _context.ProductAddons
+                .AsNoTracking()
+                .Where(addon => productIds.Contains(addon.ProductId) && addon.IsAvailable)
+                .ToListAsync();
+            var variantsByProduct = variants.GroupBy(variant => variant.ProductId).ToDictionary(group => group.Key, group => group.ToList());
+            var addonsByProduct = addons.GroupBy(addon => addon.ProductId).ToDictionary(group => group.Key, group => group.ToList());
 
             var result = products.Select(product => new ProductDto(
                 product.ProductId,
@@ -75,8 +85,8 @@ namespace SouqSofra.API.Controllers
                 product.ImageUrl,
                 product.IsAvailable,
                 product.IsFeatured,
-                product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
-                product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
+                variantsByProduct.GetValueOrDefault(product.ProductId, new List<ProductVariant>()).Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
+                addonsByProduct.GetValueOrDefault(product.ProductId, new List<ProductAddon>()).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
                 product.IsManuallyBestSelling,
                 completedSales.GetValueOrDefault(product.ProductId),
                 reviewSummaries.TryGetValue(product.ProductId, out var review) ? review.Average : 5.0,
@@ -90,43 +100,66 @@ namespace SouqSofra.API.Controllers
         [HttpGet("best-selling")]
         public async Task<IActionResult> GetBestSelling()
         {
-            var products = await _context.Products
-                .Include(product => product.Variants).Include(product => product.Addons)
+            // Aggregate completed sales once, rather than emitting repeated correlated
+            // subqueries for every product (which timed out on larger SQL Server datasets).
+            var availableProducts = await _context.Products
+                .AsNoTracking()
                 .Where(product => product.IsAvailable)
-                .Select(product => new
-                {
-                    Product = product,
-                    CompletedQuantity = _context.OrderItems
-                        .Where(item => item.ProductId == product.ProductId && item.Order != null && item.Order.OrderStatus == "Completed")
-                        .Sum(item => (int?)item.Quantity) ?? 0
-                })
-                .Where(row => row.Product.IsManuallyBestSelling || row.CompletedQuantity > 0)
-                .OrderByDescending(row => row.Product.IsManuallyBestSelling)
-                .ThenByDescending(row => row.CompletedQuantity)
-                .ThenBy(row => row.Product.ProductId)
-                .Take(10)
-                .Select(row => new ProductDto(
-                    row.Product.ProductId,
-                    row.Product.CategoryId,
-                    row.Product.NameAr,
-                    row.Product.NameEn,
-                    row.Product.DescriptionAr,
-                    row.Product.DescriptionEn,
-                    row.Product.BasePrice,
-                    row.Product.DiscountPrice,
-                    row.Product.ImageUrl,
-                    row.Product.IsAvailable,
-                    row.Product.IsFeatured,
-                    row.Product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
-                    row.Product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
-                    row.Product.IsManuallyBestSelling,
-                    row.CompletedQuantity,
-                    _context.ProductReviews.Where(r => r.ProductId == row.Product.ProductId && r.IsApproved).Select(r => (double?)r.Rating).Average() ?? 5.0,
-                    _context.ProductReviews.Count(r => r.ProductId == row.Product.ProductId && r.IsApproved)
-                ))
+                .Select(product => new { product.ProductId, product.IsManuallyBestSelling })
                 .ToListAsync();
 
-            return Ok(products);
+            if (availableProducts.Count == 0)
+                return Ok(Array.Empty<ProductDto>());
+
+            var productIds = availableProducts.Select(product => product.ProductId).ToArray();
+            var sales = await _context.OrderItems
+                .AsNoTracking()
+                .Where(item => productIds.Contains(item.ProductId) && item.Order != null && item.Order.OrderStatus == "Completed")
+                .GroupBy(item => item.ProductId)
+                .Select(group => new { ProductId = group.Key, Quantity = group.Sum(item => item.Quantity) })
+                .ToDictionaryAsync(summary => summary.ProductId, summary => summary.Quantity);
+
+            var selectedIds = availableProducts
+                .Where(product => product.IsManuallyBestSelling || sales.GetValueOrDefault(product.ProductId) > 0)
+                .OrderByDescending(product => product.IsManuallyBestSelling)
+                .ThenByDescending(product => sales.GetValueOrDefault(product.ProductId))
+                .ThenBy(product => product.ProductId)
+                .Take(10)
+                .Select(product => product.ProductId)
+                .ToArray();
+
+            if (selectedIds.Length == 0)
+                return Ok(Array.Empty<ProductDto>());
+
+            var products = await _context.Products
+                .AsNoTracking()
+                .Where(product => selectedIds.Contains(product.ProductId))
+                .Include(product => product.Variants)
+                .Include(product => product.Addons)
+                .AsSplitQuery()
+                .ToListAsync();
+            var reviews = await _context.ProductReviews
+                .AsNoTracking()
+                .Where(review => selectedIds.Contains(review.ProductId) && review.IsApproved)
+                .GroupBy(review => review.ProductId)
+                .Select(group => new { ProductId = group.Key, Average = group.Average(review => (double)review.Rating), Count = group.Count() })
+                .ToDictionaryAsync(summary => summary.ProductId);
+
+            var byId = products.ToDictionary(product => product.ProductId);
+            var result = selectedIds.Where(byId.ContainsKey).Select(id =>
+            {
+                var product = byId[id];
+                reviews.TryGetValue(id, out var review);
+                return new ProductDto(
+                    product.ProductId, product.CategoryId, product.NameAr, product.NameEn,
+                    product.DescriptionAr, product.DescriptionEn, product.BasePrice, product.DiscountPrice,
+                    product.ImageUrl, product.IsAvailable, product.IsFeatured,
+                    product.Variants.Select(variant => new ProductVariantDto(variant.VariantId, variant.NameAr, variant.NameEn, variant.Price, variant.IsDefault)).ToList(),
+                    product.Addons.Where(addon => addon.IsAvailable).Select(addon => new ProductAddonDto(addon.AddonId, addon.NameAr, addon.NameEn, addon.Price, addon.CatalogTemplateId)).ToList(),
+                    product.IsManuallyBestSelling, sales.GetValueOrDefault(id), review?.Average ?? 5.0, review?.Count ?? 0);
+            }).ToList();
+
+            return Ok(result);
         }
 
         // Admin endpoint (returns all products including hidden/unavailable)

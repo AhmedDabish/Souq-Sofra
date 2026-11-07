@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Data;
+using System.Globalization;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Domain.Entities;
 using SouqSofra.Infrastructure.Data;
@@ -211,8 +213,27 @@ namespace SouqSofra.API.Controllers
             order.SubTotal = subTotal;
             order.TotalAmount = subTotal + order.DeliveryFee;
 
+            // Persist a sequential order number that restarts every fixed 48-hour UTC window.
+            // Serializable isolation ensures concurrent checkouts receive distinct numbers.
+            var windowId = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / (48 * 60 * 60);
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            var lockResource = $"SouqSofra.OrderNumber.{windowId}";
+            await _context.Database.ExecuteSqlInterpolatedAsync($"DECLARE @lockResult int; EXEC @lockResult = sp_getapplock @Resource = {lockResource}, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 15000; IF @lockResult < 0 THROW 51000, 'Could not reserve an order number.', 1;");
+            var sequence = await _context.OrderNumberSequences.SingleOrDefaultAsync(item => item.WindowId == windowId);
+            if (sequence == null)
+            {
+                sequence = new OrderNumberSequence { WindowId = windowId, LastNumber = 1 };
+                _context.OrderNumberSequences.Add(sequence);
+            }
+            else
+            {
+                sequence.LastNumber++;
+            }
+
+            order.OrderNumber = sequence.LastNumber.ToString(CultureInfo.InvariantCulture);
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return Ok(new
             {

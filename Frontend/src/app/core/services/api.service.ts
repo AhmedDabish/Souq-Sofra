@@ -55,6 +55,9 @@ export class ApiService {
   private productsCache$: Observable<Product[]> | null = null;
   private productsCacheExpiresAt = 0;
   private readonly productsStorageKey = 'souq-sofra-products-cache-v1';
+  private categoriesCache$: Observable<Category[]> | null = null;
+  private categoriesCacheExpiresAt = 0;
+  private readonly categoriesStorageKey = 'souq-sofra-categories-cache-v1';
 
   private invalidateProductsCache(): void {
     this.productsCache$ = null;
@@ -82,7 +85,39 @@ export class ApiService {
   }
 
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories`);
+    if (this.categoriesCache$ && this.categoriesCacheExpiresAt > Date.now()) return this.categoriesCache$;
+
+    let staleCategories: Category[] | null = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(this.categoriesStorageKey);
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+          if (Array.isArray(parsed)) staleCategories = parsed as Category[];
+        }
+      }
+    } catch { /* ignore malformed or unavailable browser storage */ }
+
+    this.categoriesCacheExpiresAt = Date.now() + 5 * 60_000;
+    this.categoriesCache$ = this.http.get<Category[]>(`${this.apiUrl}/categories`).pipe(
+      tap(categories => {
+        try { if (typeof localStorage !== 'undefined') localStorage.setItem(this.categoriesStorageKey, JSON.stringify(categories)); } catch { /* storage quota or privacy mode */ }
+      }),
+      catchError(error => {
+        this.categoriesCache$ = null;
+        this.categoriesCacheExpiresAt = 0;
+        return staleCategories ? of(staleCategories) : throwError(() => error);
+      }),
+      startWith(...(staleCategories ? [staleCategories] : [])),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+    return this.categoriesCache$;
+  }
+
+  private invalidateCategoriesCache(): void {
+    this.categoriesCache$ = null;
+    this.categoriesCacheExpiresAt = 0;
+    try { if (typeof localStorage !== 'undefined') localStorage.removeItem(this.categoriesStorageKey); } catch { /* storage may be unavailable */ }
   }
 
 
@@ -241,15 +276,15 @@ export class ApiService {
   }
 
   createCategory(category: CategoryCreate): Observable<Category> {
-    return this.http.post<Category>(`${this.apiUrl}/categories`, category);
+    return this.http.post<Category>(`${this.apiUrl}/categories`, category).pipe(tap(() => this.invalidateCategoriesCache()));
   }
 
   updateCategory(id: number, category: CategoryCreate): Observable<Category> {
-    return this.http.put<Category>(`${this.apiUrl}/categories/${id}`, category);
+    return this.http.put<Category>(`${this.apiUrl}/categories/${id}`, category).pipe(tap(() => this.invalidateCategoriesCache()));
   }
 
   deleteCategory(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/categories/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/categories/${id}`).pipe(tap(() => this.invalidateCategoriesCache()));
   }
 
   // -------------------------------------------------------------

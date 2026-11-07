@@ -41,6 +41,7 @@ import { CategorySliderComponent } from '../../components/category-slider/catego
         <app-category-slider
           [isEnglish]="language.isEnglish()"
           [categories]="categories()"
+          [isLoading]="categoriesLoading()"
           [selectedId]="selectedCategoryId() ?? 0"
           [showViewAll]="false"
           [title]="language.isEnglish() ? 'Browse menu categories' : 'تصفح حسب أقسام المنيو'"
@@ -110,6 +111,7 @@ export class MenuComponent implements OnInit {
   private router = inject(Router);
 
   categories = signal<Category[]>([]);
+  categoriesLoading = signal(true);
   products = signal<Product[]>([]);
   selectedCategoryId = signal<number | null>(null);
   language = inject(LanguageService);
@@ -188,7 +190,10 @@ export class MenuComponent implements OnInit {
       this.selectedCategoryId.set(Number.isSafeInteger(requestedCategoryId) && requestedCategoryId > 0 ? requestedCategoryId : null);
       this.showAllProducts.set(false);
     });
-    this.api.getCategories().subscribe(c => this.categories.set(c));
+    this.api.getCategories().subscribe({
+      next: categories => { this.categories.set(categories); this.categoriesLoading.set(false); },
+      error: () => this.categoriesLoading.set(false)
+    });
     this.api.getProducts().subscribe(p => this.products.set(p));
   }
 

@@ -15,7 +15,7 @@ import { Category, Product, RestaurantReview } from '../../../../core/models/mod
   imports: [CommonModule, FormsModule, RouterLink, HeroSliderComponent, CategorySliderComponent, ProductCardComponent],
   template: `
     <app-hero-slider></app-hero-slider>
-    <app-category-slider [isEnglish]="language.isEnglish()" [categories]="categories()" [selectedId]="selectedCategoryId()" (categorySelected)="onCategorySelect($event)"></app-category-slider>
+    <app-category-slider [isEnglish]="language.isEnglish()" [categories]="categories()" [isLoading]="categoriesLoading()" [selectedId]="selectedCategoryId()" (categorySelected)="onCategorySelect($event)"></app-category-slider>
 
     <section class="widget-container" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'">
       <div class="container-wide widget-spacing">
@@ -342,6 +342,7 @@ export class HomeComponent implements OnInit {
   language = inject(LanguageService);
 
   categories = signal<Category[]>([]);
+  categoriesLoading = signal(true);
   selectedCategoryId = signal(0);
   products = signal<Product[]>([]);
   productsLoaded = signal(false);
@@ -501,7 +502,10 @@ export class HomeComponent implements OnInit {
         return /^https?:\/\//i.test(url) || url.startsWith('assets/') ? url : `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`;
       }).filter(Boolean);
     }, error: () => {} });
-    this.api.getCategories().subscribe(categories => this.categories.set(categories));
+    this.api.getCategories().subscribe({
+      next: categories => { this.categories.set(categories); this.categoriesLoading.set(false); },
+      error: () => this.categoriesLoading.set(false)
+    });
     this.api.getProducts().subscribe({
       next: products => { this.products.set(products); this.productsLoaded.set(true); },
       error: () => { this.products.set([]); this.productsLoaded.set(true); }
