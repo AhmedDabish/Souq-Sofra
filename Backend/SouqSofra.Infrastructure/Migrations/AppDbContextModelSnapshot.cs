@@ -2,8 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SouqSofra.Infrastructure.Data;
 
@@ -12,10 +12,9 @@ using SouqSofra.Infrastructure.Data;
 namespace SouqSofra.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261107024000_AddProductReviewSummaryIndex")]
-    partial class AddProductReviewSummaryIndex
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -498,8 +497,7 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasIndex("PagePath");
 
-                    b.HasIndex("VisitedAtUtc", "PagePath")
-                        .IncludeProperties("SessionKeyHash");
+                    b.HasIndex("VisitedAtUtc");
 
                     b.HasIndex("VisitedAtUtc", "SessionKeyHash");
 
