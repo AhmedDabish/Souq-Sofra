@@ -196,6 +196,13 @@ import { NotificationService } from '../../../../core/services/notification.serv
               <div>
                 <span class="text-gray-400 block mb-0.5">{{ language.t('عنوان التوصيل:', 'Delivery address:') }}</span>
                 <strong class="text-gray-800">{{ selectedOrder()!.deliveryAddress }}</strong>
+                @if (getAddressMapUrl(selectedOrder()!.deliveryAddress); as mapUrl) {
+                  <a [href]="mapUrl" target="_blank" rel="noopener noreferrer"
+                    class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-[11px] font-extrabold text-primary transition hover:bg-primary/15 hover:underline">
+                    <span aria-hidden="true">📍</span>
+                    {{ language.t('فتح موقع التوصيل على الخريطة', 'Open delivery location in map') }}
+                  </a>
+                }
                 @if (selectedOrder()!.notes) {
                   <div class="text-primary text-[11px] mt-1 font-medium">{{ language.t('ملاحظات:', 'Notes:') }} {{ selectedOrder()!.notes }}</div>
                 }
@@ -351,6 +358,17 @@ export class AdminOrdersComponent implements OnInit {
 
   viewOrderDetails(order: AdminOrder) {
     this.selectedOrder.set(order);
+  }
+
+  getAddressMapUrl(address?: string): string | null {
+    if (!address) return null;
+    const match = address.match(/(?:الموقع:\s*)?(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);
+    if (!match) return null;
+    const latitude = Number(match[1]);
+    const longitude = Number(match[2]);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+        latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+    return `https://www.google.com/maps?q=${latitude},${longitude}`;
   }
 
   formatAddonNames(addons?: OrderItemAddon[]): string {
