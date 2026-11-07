@@ -31,16 +31,33 @@ type Row = Record<string, string | number>;
         @if (loaded()) { <section class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
           <div class="border-b border-slate-100 p-5 sm:p-6"><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h2 class="font-black text-slate-900">{{ entityLabel() }}</h2><p class="mt-1 text-xs text-slate-500">{{ language.t('حدّد البيانات المطلوبة ثم اختر صيغة الملف.', 'Choose the data you need, then select a file format.') }}</p></div><div class="rounded-xl bg-orange-50 px-3 py-2 text-xs font-bold text-orange-800">{{ filteredRows().length }} {{ language.t('سجل جاهز للتصدير', 'records ready to export') }}</div></div>
             <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <label class="text-xs font-bold text-slate-600">{{ entity() === 'orders' ? language.t('بحث سريع', 'Search') : language.t('بحث بالاسم', 'Search by name') }}<input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" [placeholder]="entity() === 'orders' ? language.t('رقم الطلب أو الاسم أو الهاتف', 'Order number, name, or phone') : language.t('اكتب الاسم…', 'Type a name…')" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-normal outline-none focus:border-orange-400 focus:bg-white" /></label>
-              @if (entity() === 'products') { <label class="text-xs font-bold text-slate-600">{{ language.t('القسم', 'Category') }}<select [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('كل الأقسام', 'All categories') }}</option>@for (c of categories(); track c.categoryId) { <option [value]="c.categoryId">{{ categoryName(c) }}</option> }</select></label> }
-              @if (entity() !== 'orders') { <label class="text-xs font-bold text-slate-600">{{ language.t('حالة الظهور', 'Visibility') }}<select [ngModel]="activeFilter()" (ngModelChange)="activeFilter.set($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('الكل', 'All') }}</option><option value="active">{{ language.t('المفعّل فقط', 'Active only') }}</option><option value="inactive">{{ language.t('غير المفعّل فقط', 'Inactive only') }}</option></select></label> }
+              <label class="text-xs font-bold text-slate-600">{{ entity() === 'orders' ? language.t('بحث سريع', 'Search') : language.t('بحث بالاسم', 'Search by name') }}<input type="search" [ngModel]="search()" (ngModelChange)="updateSearch($event)" [placeholder]="entity() === 'orders' ? language.t('رقم الطلب أو الاسم أو الهاتف', 'Order number, name, or phone') : language.t('اكتب الاسم…', 'Type a name…')" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-normal outline-none focus:border-orange-400 focus:bg-white" /></label>
+              @if (entity() === 'products') { <label class="text-xs font-bold text-slate-600">{{ language.t('القسم', 'Category') }}<select [ngModel]="categoryFilter()" (ngModelChange)="updateCategoryFilter($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('كل الأقسام', 'All categories') }}</option>@for (c of categories(); track c.categoryId) { <option [value]="c.categoryId">{{ categoryName(c) }}</option> }</select></label> }
+              @if (entity() !== 'orders') { <label class="text-xs font-bold text-slate-600">{{ language.t('حالة الظهور', 'Visibility') }}<select [ngModel]="activeFilter()" (ngModelChange)="updateActiveFilter($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('الكل', 'All') }}</option><option value="active">{{ language.t('المفعّل فقط', 'Active only') }}</option><option value="inactive">{{ language.t('غير المفعّل فقط', 'Inactive only') }}</option></select></label> }
               @if (entity() === 'orders') { <label class="text-xs font-bold text-slate-600">{{ language.t('الحالة', 'Status') }}<select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('كل الحالات', 'All statuses') }}</option><option value="Pending">{{ language.t('قيد المراجعة', 'Pending') }}</option><option value="Preparing">{{ language.t('قيد التجهيز', 'Preparing') }}</option><option value="OutForDelivery">{{ language.t('جاري التوصيل', 'Out for delivery') }}</option><option value="Completed">{{ language.t('تم التسليم', 'Completed') }}</option><option value="Cancelled">{{ language.t('ملغي', 'Cancelled') }}</option></select></label><label class="text-xs font-bold text-slate-600">{{ language.t('قناة الطلب', 'Channel') }}<select [ngModel]="channelFilter()" (ngModelChange)="channelFilter.set($event)" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-orange-400"><option value="all">{{ language.t('كل القنوات', 'All channels') }}</option><option value="Website">{{ language.t('الموقع', 'Website') }}</option><option value="WhatsApp">WhatsApp</option></select></label><div class="grid grid-cols-2 gap-2"><label class="text-xs font-bold text-slate-600">{{ language.t('من تاريخ', 'From') }}<input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event || '')" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-2 text-xs outline-none focus:border-orange-400" /></label><label class="text-xs font-bold text-slate-600">{{ language.t('إلى تاريخ', 'To') }}<input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event || '')" [min]="dateFrom() || null" class="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-white px-2 text-xs outline-none focus:border-orange-400" /></label></div> }
             </div>
             @if (entity() === 'orders' && dateFrom() && dateTo() && dateFrom() > dateTo()) { <p class="mt-3 text-xs font-bold text-rose-600">{{ language.t('تاريخ البداية يجب أن يكون قبل تاريخ النهاية.', 'Start date must not be after end date.') }}</p> }
             @if (entity() === 'orders') { <div class="mt-4 grid gap-2 sm:grid-cols-3"><div class="rounded-xl bg-slate-50 p-3"><span class="text-[10px] font-bold text-slate-500">{{ language.t('عدد الطلبات المطابقة','Matching orders') }}</span><b class="mt-1 block text-lg text-slate-900">{{ filteredRows().length }}</b></div><div class="rounded-xl bg-orange-50 p-3"><span class="text-[10px] font-bold text-orange-700">{{ language.t('إجمالي قيمة الطلبات','Total order value') }}</span><b class="mt-1 block text-lg text-orange-900">{{ orderTotals().amount.toLocaleString(language.isEnglish() ? 'en-AE' : 'ar-AE', { maximumFractionDigits: 2 }) }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</b></div><div class="rounded-xl bg-emerald-50 p-3"><span class="text-[10px] font-bold text-emerald-700">{{ language.t('رسوم التوصيل','Delivery fees') }}</span><b class="mt-1 block text-lg text-emerald-900">{{ orderTotals().delivery.toLocaleString(language.isEnglish() ? 'en-AE' : 'ar-AE', { maximumFractionDigits: 2 }) }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</b></div></div> }
-            <div class="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs text-slate-500">{{ language.t('يشمل التصدير', 'Export includes') }} <b class="font-extrabold text-slate-800">{{ filteredRows().length }}</b> {{ language.t('سجلًا. يمكن معاينة أول 8 سجلات أدناه.', 'records. Preview the first 8 records below.') }}</p><div class="flex flex-wrap gap-2"><button type="button" (click)="exportFile('xlsx')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-extrabold text-white hover:bg-emerald-700 disabled:opacity-50">▦ {{ busy() === 'xlsx' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'Excel' }}</button><button type="button" (click)="exportFile('docx')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-blue-700 px-4 text-xs font-extrabold text-white hover:bg-blue-800 disabled:opacity-50">W {{ busy() === 'docx' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'Word' }}</button><button type="button" (click)="exportFile('pdf')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-rose-600 px-4 text-xs font-extrabold text-white hover:bg-rose-700 disabled:opacity-50">▤ {{ busy() === 'pdf' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'PDF' }}</button></div></div>
+            <div class="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs text-slate-500">{{ language.t('يشمل التصدير', 'Export includes') }} <b class="font-extrabold text-slate-800">{{ filteredRows().length }}</b> {{ language.t('سجلًا.', 'records.') }} {{ entity() === 'products' ? language.t('المعاينة تعرض', 'Previewing') + ' ' + productPageStart() + '–' + productPageEnd() + ' ' + language.t('من', 'of') + ' ' + filteredRows().length : language.t('يمكن معاينة أول 8 سجلات أدناه.', 'Previewing the first 8 records below.') }}</p><div class="flex flex-wrap gap-2"><button type="button" (click)="exportFile('xlsx')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-xs font-extrabold text-white hover:bg-emerald-700 disabled:opacity-50">▦ {{ busy() === 'xlsx' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'Excel' }}</button><button type="button" (click)="exportFile('docx')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-blue-700 px-4 text-xs font-extrabold text-white hover:bg-blue-800 disabled:opacity-50">W {{ busy() === 'docx' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'Word' }}</button><button type="button" (click)="exportFile('pdf')" [disabled]="busy() || !filteredRows().length" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-rose-600 px-4 text-xs font-extrabold text-white hover:bg-rose-700 disabled:opacity-50">▤ {{ busy() === 'pdf' ? language.t('جارٍ التجهيز…', 'Preparing…') : 'PDF' }}</button></div></div>
             @if (exportError()) { <p class="mt-3 rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">{{ exportError() }}</p> }
           </div>
+          @if (entity() === 'products' && filteredRows().length > 0) {
+            <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <label class="flex items-center gap-2 text-xs font-bold text-slate-600">{{ language.t('عدد المنتجات في الصفحة', 'Products per page') }}
+                <select [ngModel]="productPageSize()" (ngModelChange)="setProductPageSize($event)" class="min-h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs outline-none focus:border-orange-400">
+                  <option value="all">{{ language.t('كل المنتجات', 'All products') }}</option><option value="10">10</option><option value="25">25</option><option value="50">50</option>
+                </select>
+              </label>
+              <div class="flex items-center justify-between gap-3 sm:justify-end">
+                <span class="text-[11px] text-slate-500">{{ productPageStart() }}–{{ productPageEnd() }} {{ language.t('من', 'of') }} {{ filteredRows().length }}</span>
+                <nav class="flex items-center gap-1" [attr.aria-label]="language.t('صفحات المنتجات', 'Product pages')">
+                  <button type="button" (click)="goToProductPage(productPage() - 1)" [disabled]="productPage() <= 1" class="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 disabled:opacity-40">{{ language.isEnglish() ? 'Previous' : 'السابق' }}</button>
+                  <span class="min-w-16 text-center text-xs font-bold text-slate-600">{{ productPage() }} / {{ productTotalPages() }}</span>
+                  <button type="button" (click)="goToProductPage(productPage() + 1)" [disabled]="productPage() >= productTotalPages()" class="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 disabled:opacity-40">{{ language.isEnglish() ? 'Next' : 'التالي' }}</button>
+                </nav>
+              </div>
+            </div>
+          }
           <div class="overflow-x-auto"><table class="w-full min-w-[620px] text-right text-xs"><thead class="bg-slate-50 text-slate-500"><tr>@for (column of columns(); track column) { <th class="px-4 py-3 font-extrabold">{{ column }}</th> }</tr></thead><tbody class="divide-y divide-slate-100 text-slate-700">@for (row of previewRows(); track $index) { <tr class="hover:bg-orange-50/40">@for (column of columns(); track column) { <td class="max-w-[280px] px-4 py-3">{{ row[column] }}</td> }</tr> } @if (!filteredRows().length) { <tr><td [attr.colspan]="columns().length" class="px-4 py-10 text-center text-slate-400">{{ language.t('لا توجد سجلات تطابق الفلاتر.', 'No records match these filters.') }}</td></tr> }</tbody></table></div>
           <div class="border-t border-slate-100 bg-slate-50/60 px-5 py-3 text-[11px] leading-5 text-slate-500">{{ language.t('الملفات تُنشأ وتُنزّل مباشرة إلى جهازك ولا تُحفظ على الخادم. يتضمن تصدير الطلبات بيانات العملاء، فاحفظها بأمان.', 'Files are generated and downloaded directly to your device, not stored on the server. Order exports contain customer data, so store them securely.') }}</div>
         </section> }
@@ -54,7 +71,7 @@ export class AdminExportComponent implements OnInit {
   private auth = inject(AuthService);
   products = signal<Product[]>([]); categories = signal<Category[]>([]); orders = signal<AdminOrder[]>([]);
   loaded = signal(false); loading = signal(false); error = signal(''); exportError = signal(''); busy = signal<ExportFormat | ''>('');
-  entity = signal<ExportEntity>('products'); search = signal(''); activeFilter = signal<ActiveFilter>('all'); categoryFilter = signal('all');
+  entity = signal<ExportEntity>('products'); search = signal(''); productPageSize = signal<number | 'all'>('all'); productPage = signal(1); activeFilter = signal<ActiveFilter>('all'); categoryFilter = signal('all');
   statusFilter = signal('all'); channelFilter = signal('all'); dateFrom = signal(''); dateTo = signal('');
   canProducts = computed(() => this.auth.hasPermission('products.view'));
   canCategories = computed(() => this.auth.hasPermission('categories.view'));
@@ -70,11 +87,40 @@ export class AdminExportComponent implements OnInit {
     return this.orders().filter(o => (!query || this.normalize(`${o.orderNumber} ${o.orderId} ${o.customerName} ${o.customerPhone} ${o.customerEmail || ''}`).includes(query)) && (this.statusFilter() === 'all' || o.orderStatus === this.statusFilter()) && (this.channelFilter() === 'all' || o.orderChannel === this.channelFilter()) && (fromTime === null || new Date(o.createdAt).getTime() >= fromTime) && (toTime === null || new Date(o.createdAt).getTime() <= toTime));
   });
   private exportRows = computed(() => this.rowsFor(this.entity(), this.filteredRows()));
-  previewRows = computed(() => this.exportRows().slice(0, 8));
+  productTotalPages = computed(() => {
+    const total = (this.filteredRows() as Product[]).length;
+    const pageSize = this.productPageSize();
+    const size = pageSize === 'all' ? Math.max(total, 1) : pageSize;
+    return Math.max(1, Math.ceil(total / size));
+  });
+  productPageStart = computed(() => {
+    const total = (this.filteredRows() as Product[]).length;
+    const pageSize = this.productPageSize();
+    if (!total) return 0;
+    return pageSize === 'all' ? 1 : (this.productPage() - 1) * pageSize + 1;
+  });
+  productPageEnd = computed(() => {
+    const total = (this.filteredRows() as Product[]).length;
+    const pageSize = this.productPageSize();
+    return pageSize === 'all' ? total : Math.min(this.productPage() * pageSize, total);
+  });
+  previewRows = computed(() => {
+    if (this.entity() !== 'products') return this.exportRows().slice(0, 8);
+    const rows = this.exportRows();
+    const pageSize = this.productPageSize();
+    if (pageSize === 'all') return rows;
+    const start = (this.productPage() - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  });
   orderTotals = computed(() => { const rows = this.filteredRows() as AdminOrder[]; return { amount: rows.reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0), delivery: rows.reduce((sum, order) => sum + (Number(order.deliveryFee) || 0), 0) }; });
 
   ngOnInit() { if (!this.canProducts() && !this.canCategories() && !this.canOrders()) { this.error.set(this.language.t('لا تملك صلاحية لتصدير البيانات.', 'You do not have permission to export data.')); return; } this.selectFirstAllowedEntity(); this.loadData(); }
-  selectEntity(entity: ExportEntity) { if ((entity === 'products' && this.canProducts()) || (entity === 'categories' && this.canCategories()) || (entity === 'orders' && this.canOrders())) { this.entity.set(entity); this.search.set(''); } }
+  selectEntity(entity: ExportEntity) { if ((entity === 'products' && this.canProducts()) || (entity === 'categories' && this.canCategories()) || (entity === 'orders' && this.canOrders())) { this.entity.set(entity); this.search.set(''); this.productPage.set(1); } }
+  updateSearch(value: string) { this.search.set(value); this.productPage.set(1); }
+  updateCategoryFilter(value: string) { this.categoryFilter.set(value); this.productPage.set(1); }
+  updateActiveFilter(value: ActiveFilter) { this.activeFilter.set(value); this.productPage.set(1); }
+  setProductPageSize(value: string | number) { this.productPageSize.set(value === 'all' ? 'all' : Number(value)); this.productPage.set(1); }
+  goToProductPage(page: number) { this.productPage.set(Math.max(1, Math.min(page, this.productTotalPages()))); }
   private selectFirstAllowedEntity() { if (this.canProducts()) this.entity.set('products'); else if (this.canCategories()) this.entity.set('categories'); else if (this.canOrders()) this.entity.set('orders'); }
   loadData() {
     this.loading.set(true); this.error.set('');
@@ -85,7 +131,7 @@ export class AdminExportComponent implements OnInit {
       orders: this.canOrders() ? this.api.getAdminOrders().pipe(catchError(() => { failed.orders = true; return of([] as AdminOrder[]); })) : of([] as AdminOrder[])
     }).subscribe({
       next: data => {
-        this.products.set(data.products || []); this.categories.set(data.categories || []); this.orders.set(data.orders || []); this.loaded.set(true); this.loading.set(false);
+        this.products.set(data.products || []); this.categories.set(data.categories || []); this.orders.set(data.orders || []); this.productPage.set(1); this.loaded.set(true); this.loading.set(false);
         const unavailable = [failed.products && this.language.t('المنتجات','products'), failed.categories && this.language.t('الأقسام','categories'), failed.orders && this.language.t('الطلبات','orders')].filter(Boolean);
         if (unavailable.length) this.error.set(this.language.t(`تعذر تحميل: ${unavailable.join('، ')}. تحقق من الاتصال والصلاحيات.`, `Could not load: ${unavailable.join(', ')}. Check your connection and permissions.`));
       },

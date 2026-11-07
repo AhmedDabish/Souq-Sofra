@@ -97,16 +97,16 @@ export class AdminSidebarComponent {
   mobileOpen = signal(false);
   private items = [
     { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', permission:'dashboard.view', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/analytics', label:'التحليلات', labelEn:'Analytics', icon:'analytics', permission:'analytics.view', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/export', label:'التصدير', labelEn:'Export', icon:'export', permission:'export', roles:['Admin','SuperAdmin'] },
     { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
     { path:'/admin/all-orders', label:'كل الطلبات', labelEn:'All orders', icon:'all-orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
-    { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', permission:'categories.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', permission:'addons.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/reviews', label:'إدارة التقييمات', labelEn:'Reviews', icon:'reviews', permission:'reviews.view', roles:['Admin','SuperAdmin'] },
-    { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/delivery-settings', label:'مناطق ورسوم التوصيل', labelEn:'Delivery areas & fees', icon:'delivery', permission:'settings.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/analytics', label:'التحليلات', labelEn:'Analytics', icon:'analytics', permission:'analytics.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/export', label:'التصدير', labelEn:'Export', icon:'export', permission:'export', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', permission:'users.view', roles:['Admin','SuperAdmin'] },
   ];
   visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.permission === 'export' ? ['Admin','SuperAdmin'].includes(role) && ['products.view','categories.view','orders.view'].some(permission => this.auth.hasPermission(permission)) : this.auth.hasPermission(item.permission)); }
