@@ -51,6 +51,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
                   @case ('settings') { <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z" transform="translate(0 1) scale(.92) translate(1 0)"/> }
                   @case ('delivery') { <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="17.5" cy="19" r="1.5"/><path d="M6 10h5M6 13h4"/> }
                   @case ('analytics') { <path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/><path d="M17 6h3v3"/> }
+                  @case ('export') { <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 17v3h14v-3"/> }
                   @case ('reviews') { <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/> }
                   @case ('staff') { <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/> }
                 }
@@ -97,6 +98,7 @@ export class AdminSidebarComponent {
   private items = [
     { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', permission:'dashboard.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/analytics', label:'التحليلات', labelEn:'Analytics', icon:'analytics', permission:'analytics.view', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/export', label:'التصدير', labelEn:'Export', icon:'export', permission:'export', roles:['Admin','SuperAdmin'] },
     { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
     { path:'/admin/all-orders', label:'كل الطلبات', labelEn:'All orders', icon:'all-orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
     { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
@@ -107,7 +109,7 @@ export class AdminSidebarComponent {
     { path:'/admin/delivery-settings', label:'مناطق ورسوم التوصيل', labelEn:'Delivery areas & fees', icon:'delivery', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', permission:'users.view', roles:['Admin','SuperAdmin'] },
   ];
-  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => this.auth.hasPermission(item.permission)); }
+  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.permission === 'export' ? ['Admin','SuperAdmin'].includes(role) && ['products.view','categories.view','orders.view'].some(permission => this.auth.hasPermission(permission)) : this.auth.hasPermission(item.permission)); }
   roleLabel() { const labels: Record<string,[string,string]> = { User:['موظف الطلبات','Orders staff'], Admin:['مدير','Admin'], SuperAdmin:['مدير عام','Super Admin'] }; const pair=labels[this.auth.currentUser()?.role || '']; return pair ? this.language.t(pair[0],pair[1]) : this.language.t('حساب','Account'); }
   initials() { return (this.auth.currentUser()?.fullName || 'م').trim().slice(0,1); }
   isCollapsed() { return this.collapsed() && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches; }

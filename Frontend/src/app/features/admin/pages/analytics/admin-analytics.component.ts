@@ -58,14 +58,27 @@ type ProductSort = 'unitsSold' | 'completedOrders' | 'orderSharePercent' | 'prod
             <div class="flex flex-col gap-4 border-b border-gray-100 p-5 lg:flex-row lg:items-end lg:justify-between">
               <div><h2 class="font-black text-gray-800">{{ language.t('أداء كل منتج', 'Product performance') }}</h2><p class="mt-1 text-[11px] text-gray-400">{{ language.t('المبيعات محسوبة من الطلبات المكتملة. حصة الطلبات = الطلبات المكتملة التي تضمنت المنتج ÷ كل الطلبات المكتملة.', 'Sales use completed orders. Order share = completed orders containing the product ÷ all completed orders.') }}</p></div>
               <div class="grid gap-2 sm:grid-cols-2 lg:min-w-[420px]">
-                <label class="text-[11px] font-bold text-gray-500">{{ language.t('ابحث عن منتج', 'Search products') }}<input type="search" [value]="productSearch()" (input)="productSearch.set($any($event.target).value)" [placeholder]="language.t('اكتب اسم المنتج…', 'Type a product name…')" class="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs outline-none focus:border-primary" /></label>
+                <label class="text-[11px] font-bold text-gray-500">{{ language.t('ابحث عن منتج', 'Search products') }}<input type="search" [value]="productSearch()" (input)="updateProductSearch($any($event.target).value)" [placeholder]="language.t('اكتب اسم المنتج…', 'Type a product name…')" class="mt-1 w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs outline-none focus:border-primary" /></label>
                 <label class="text-[11px] font-bold text-gray-500">{{ language.t('ترتيب من الأعلى', 'Sort highest first') }}<select [value]="sortBy()" (change)="setSortBy($any($event.target).value)" class="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs outline-none focus:border-primary"><option value="unitsSold">{{ language.t('الكمية المباعة', 'Units sold') }}</option><option value="completedOrders">{{ language.t('طلبات المنتج', 'Product orders') }}</option><option value="orderSharePercent">{{ language.t('حصة الطلبات', 'Order share') }}</option><option value="productPageViews">{{ language.t('مشاهدات المنتج', 'Product views') }}</option></select></label>
               </div>
             </div>
             <div class="overflow-x-auto"><table class="w-full min-w-[760px] text-right text-xs"><thead class="bg-gray-50 text-gray-500"><tr><th class="p-4">{{ language.t('المنتج', 'Product') }}</th><th class="p-4">{{ language.t('الكمية المباعة', 'Units sold') }}</th><th class="p-4">{{ language.t('طلبات المنتج', 'Product orders') }}</th><th class="p-4">{{ language.t('حصة الطلبات', 'Order share') }}</th><th class="p-4">{{ language.t('مشاهدات الصفحة', 'Page views') }}</th></tr></thead><tbody class="divide-y divide-gray-100">
-              @for (product of visibleProducts(); track product.productId) { <tr><td class="p-4 font-bold text-gray-800">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</td><td class="p-4">{{ product.unitsSold }}</td><td class="p-4">{{ product.completedOrders }}</td><td class="p-4"><span class="rounded-full bg-orange-50 px-2.5 py-1 font-bold text-orange-700">{{ product.orderSharePercent }}%</span></td><td class="p-4">{{ product.productPageViews }}</td></tr> }
+              @for (product of pagedProducts(); track product.productId) { <tr><td class="p-4 font-bold text-gray-800">{{ language.isEnglish() ? (product.nameEn || product.nameAr) : product.nameAr }}</td><td class="p-4">{{ product.unitsSold }}</td><td class="p-4">{{ product.completedOrders }}</td><td class="p-4"><span class="rounded-full bg-orange-50 px-2.5 py-1 font-bold text-orange-700">{{ product.orderSharePercent }}%</span></td><td class="p-4">{{ product.productPageViews }}</td></tr> }
               @if (!visibleProducts().length) { <tr><td colspan="5" class="p-8 text-center text-gray-400">{{ language.t('لا توجد منتجات تطابق البحث في الفترة المحددة.', 'No products match your search in this period.') }}</td></tr> }
             </tbody></table></div>
+            @if (visibleProducts().length > 0) {
+              <div class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                <p class="text-[11px] font-medium text-gray-500">{{ language.t('عرض', 'Showing') }} <b class="text-gray-800">{{ productPageStart() }}–{{ productPageEnd() }}</b> {{ language.t('من', 'of') }} <b class="text-gray-800">{{ visibleProducts().length }}</b> {{ language.t('منتج', 'products') }}</p>
+                <nav class="flex items-center justify-end gap-1" [attr.aria-label]="language.t('التنقل بين صفحات المنتجات', 'Product pages')">
+                  <button type="button" (click)="goToProductPage(productPage() - 1)" [disabled]="productPage() <= 1" class="grid h-9 min-w-9 place-items-center rounded-lg border border-gray-200 bg-white px-2 text-xs font-bold text-gray-600 transition hover:border-orange-300 disabled:cursor-not-allowed disabled:opacity-40" [attr.aria-label]="language.t('الصفحة السابقة', 'Previous page')">{{ language.isEnglish() ? '←' : '→' }}</button>
+                  @for (item of productPageItems(); track $index) {
+                    @if (item === 'ellipsis') { <span class="px-1 text-xs text-gray-400">…</span> }
+                    @else { <button type="button" (click)="goToProductPage(item)" [attr.aria-current]="productPage() === item ? 'page' : null" [class.bg-orange-600]="productPage() === item" [class.text-white]="productPage() === item" [class.border-orange-600]="productPage() === item" [class.bg-white]="productPage() !== item" [class.text-gray-600]="productPage() !== item" [class.border-gray-200]="productPage() !== item" class="h-9 min-w-9 rounded-lg border px-2 text-[11px] font-extrabold transition hover:border-orange-300">{{ item }}</button> }
+                  }
+                  <button type="button" (click)="goToProductPage(productPage() + 1)" [disabled]="productPage() >= productTotalPages()" class="grid h-9 min-w-9 place-items-center rounded-lg border border-gray-200 bg-white px-2 text-xs font-bold text-gray-600 transition hover:border-orange-300 disabled:cursor-not-allowed disabled:opacity-40" [attr.aria-label]="language.t('الصفحة التالية', 'Next page')">{{ language.isEnglish() ? '→' : '←' }}</button>
+                </nav>
+              </div>
+            }
             <p class="border-t border-gray-100 px-5 py-3 text-[10px] leading-5 text-gray-400">{{ language.t('ملاحظة: لا يتوفر سجل زيارات تاريخي قبل نشر هذه النسخة؛ لذلك قد تكون مشاهدات المنتجات والتحويل صفراً في البداية. قياس الزائر يعتمد على معرّف مجهول في المتصفح وقد لا يساوي شخصاً واحداً.', 'Note: historical visits cannot be backfilled, so product views and conversion may initially be zero. Visitor counts use an anonymous browser identifier and are not guaranteed to represent individual people.') }}</p>
           </section>
         }
@@ -84,6 +97,8 @@ export class AdminAnalyticsComponent implements OnInit {
   toDate = signal(this.defaultToDate());
   productSearch = signal('');
   sortBy = signal<ProductSort>('unitsSold');
+  productPage = signal(1);
+  readonly productPageSize = 10;
   visibleProducts = computed(() => {
     const analytics = this.data();
     if (!analytics) return [];
@@ -94,7 +109,24 @@ export class AdminAnalyticsComponent implements OnInit {
       .sort((a, b) => b[this.sortBy()] - a[this.sortBy()] || a.nameAr.localeCompare(b.nameAr));
   });
 
+  productTotalPages = computed(() => Math.max(1, Math.ceil(this.visibleProducts().length / this.productPageSize)));
+  pagedProducts = computed(() => this.visibleProducts().slice((this.productPage() - 1) * this.productPageSize, this.productPage() * this.productPageSize));
+  productPageStart = computed(() => this.visibleProducts().length ? (this.productPage() - 1) * this.productPageSize + 1 : 0);
+  productPageEnd = computed(() => Math.min(this.productPage() * this.productPageSize, this.visibleProducts().length));
+  productPageItems = computed((): (number | 'ellipsis')[] => {
+    const total = this.productTotalPages(), current = this.productPage();
+    if (total <= 5) return Array.from({ length: total }, (_, index) => index + 1);
+    if (current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+    if (current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+    return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+  });
+
   ngOnInit() { this.load(); }
+  updateProductSearch(value: string) { this.productSearch.set(value); this.productPage.set(1); }
+  goToProductPage(page: number | 'ellipsis') {
+    if (page === 'ellipsis') return;
+    this.productPage.set(Math.max(1, Math.min(page, this.productTotalPages())));
+  }
   load() {
     if (!this.auth.hasPermission('analytics.view')) { this.error.set(this.language.t('ليس لديك صلاحية عرض التحليلات.', 'You do not have permission to view analytics.')); return; }
     if (!this.fromDate() || !this.toDate() || this.fromDate() > this.toDate()) {
@@ -109,7 +141,7 @@ export class AdminAnalyticsComponent implements OnInit {
   }
 
   setSortBy(value: string) {
-    if (['unitsSold', 'completedOrders', 'orderSharePercent', 'productPageViews'].includes(value)) this.sortBy.set(value as ProductSort);
+    if (['unitsSold', 'completedOrders', 'orderSharePercent', 'productPageViews'].includes(value)) { this.sortBy.set(value as ProductSort); this.productPage.set(1); }
   }
 
   isProductPage(path: string): boolean { return path.startsWith('/product/'); }
