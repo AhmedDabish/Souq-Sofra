@@ -1,13 +1,9 @@
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using SouqSofra.Infrastructure.Data;
 
 #nullable disable
 
 namespace SouqSofra.Infrastructure.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20261107130900_AddSiteVisitPageAnalyticsIndex")]
     public partial class AddSiteVisitPageAnalyticsIndex : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
