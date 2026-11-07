@@ -22,6 +22,7 @@ namespace SouqSofra.API.Controllers
                 .AsNoTracking()
                 .Include(product => product.Variants)
                 .Include(product => product.Addons)
+                .AsSplitQuery()
                 .AsQueryable();
 
             if (categoryId.HasValue)

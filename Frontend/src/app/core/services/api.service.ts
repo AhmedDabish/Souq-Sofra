@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, startWith, tap, throwError } from 'rxjs';
 import {
   Category,
   CategoryCreate,
@@ -52,6 +52,15 @@ export class ApiService {
   private readonly http = inject(HttpClient);
   // Matches Backend/SouqSofra.API/Properties/launchSettings.json
   private readonly apiUrl = 'http://localhost:2811/api';
+  private productsCache$: Observable<Product[]> | null = null;
+  private productsCacheExpiresAt = 0;
+  private readonly productsStorageKey = 'souq-sofra-products-cache-v1';
+
+  private invalidateProductsCache(): void {
+    this.productsCache$ = null;
+    this.productsCacheExpiresAt = 0;
+    try { if (typeof localStorage !== 'undefined') localStorage.removeItem(this.productsStorageKey); } catch { /* storage may be unavailable */ }
+  }
 
   // Upload an image to the API's wwwroot/uploads directory.
   uploadImage(file: File, folder: 'products' | 'categories' | 'banners' | 'logo' = 'products'): Observable<{ url: string; fullUrl: string; fileName: string; folder: string }> {
@@ -86,7 +95,40 @@ export class ApiService {
     if (categoryId !== undefined) params = params.set('categoryId', categoryId);
     if (featured !== undefined) params = params.set('featured', featured);
     if (search?.trim()) params = params.set('search', search.trim());
-    return this.http.get<Product[]>(`${this.apiUrl}/products`, { params });
+
+    const isFullCatalog = categoryId === undefined && featured === undefined && !search?.trim();
+    if (isFullCatalog && this.productsCache$ && this.productsCacheExpiresAt > Date.now()) {
+      return this.productsCache$;
+    }
+
+    const request$ = this.http.get<Product[]>(`${this.apiUrl}/products`, { params });
+    if (!isFullCatalog) return request$;
+
+    let staleProducts: Product[] | null = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(this.productsStorageKey);
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+          if (Array.isArray(parsed)) staleProducts = parsed as Product[];
+        }
+      }
+    } catch { /* ignore malformed or unavailable browser storage */ }
+
+    this.productsCacheExpiresAt = Date.now() + 30_000;
+    this.productsCache$ = request$.pipe(
+      tap(products => {
+        try { if (typeof localStorage !== 'undefined') localStorage.setItem(this.productsStorageKey, JSON.stringify(products)); } catch { /* storage quota or privacy mode */ }
+      }),
+      catchError(error => {
+        this.productsCache$ = null;
+        this.productsCacheExpiresAt = 0;
+        return staleProducts ? of(staleProducts) : throwError(() => error);
+      }),
+      startWith(...(staleProducts ? [staleProducts] : [])),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+    return this.productsCache$;
   }
 
   getBestSellingProducts(): Observable<Product[]> {
@@ -149,23 +191,23 @@ export class ApiService {
   }
 
   createProduct(product: ProductCreate): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/products`, product);
+    return this.http.post<Product>(`${this.apiUrl}/products`, product).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   updateProduct(id: number, product: ProductCreate): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, product);
+    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, product).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   toggleProductAvailability(id: number): Observable<{ productId: number; isAvailable: boolean }> {
-    return this.http.patch<{ productId: number; isAvailable: boolean }>(`${this.apiUrl}/products/${id}/availability`, {});
+    return this.http.patch<{ productId: number; isAvailable: boolean }>(`${this.apiUrl}/products/${id}/availability`, {}).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   toggleProductFeatured(id: number): Observable<{ productId: number; isFeatured: boolean }> {
-    return this.http.patch<{ productId: number; isFeatured: boolean }>(`${this.apiUrl}/products/${id}/featured`, {});
+    return this.http.patch<{ productId: number; isFeatured: boolean }>(`${this.apiUrl}/products/${id}/featured`, {}).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   toggleProductBestSelling(id: number): Observable<{ productId: number; isManuallyBestSelling: boolean }> {
-    return this.http.patch<{ productId: number; isManuallyBestSelling: boolean }>(`${this.apiUrl}/products/${id}/best-selling`, {});
+    return this.http.patch<{ productId: number; isManuallyBestSelling: boolean }>(`${this.apiUrl}/products/${id}/best-selling`, {}).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   bootstrapSuperAdmin(currentPassword: string, newPassword: string): Observable<{ success: boolean; message: string }> {
@@ -191,11 +233,11 @@ export class ApiService {
 
 
   updateProductDiscount(id: number, discountPrice: number | null): Observable<{ productId: number; discountPrice: number | null }> {
-    return this.http.patch<{ productId: number; discountPrice: number | null }>(`${this.apiUrl}/products/${id}/discount`, { discountPrice });
+    return this.http.patch<{ productId: number; discountPrice: number | null }>(`${this.apiUrl}/products/${id}/discount`, { discountPrice }).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/products/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(tap(() => this.invalidateProductsCache()));
   }
 
   createCategory(category: CategoryCreate): Observable<Category> {
