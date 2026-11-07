@@ -232,7 +232,17 @@ namespace SouqSofra.API.Controllers
                 {
                     var configured = JsonSerializer.Deserialize<List<DeliveryZoneSetting>>(json,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (configured != null) return configured;
+                    if (configured != null)
+                    {
+                        if (!configured.Any(zone => zone.Enabled))
+                        {
+                            var emirates = new[] { "أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة" };
+                            var defaults = emirates.Select((name, index) => new DeliveryZoneSetting($"uae-{index + 1}", name, name, 10m, true));
+                            return configured.Where(zone => !zone.Id.StartsWith("uae-", StringComparison.OrdinalIgnoreCase))
+                                .Concat(defaults).ToList();
+                        }
+                        return configured;
+                    }
                 }
                 catch (JsonException) { }
             }

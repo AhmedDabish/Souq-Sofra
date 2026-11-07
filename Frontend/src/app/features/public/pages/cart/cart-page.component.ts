@@ -9,6 +9,7 @@ import { DeliveryMapComponent } from '../../components/delivery-map/delivery-map
 import { LanguageService } from '../../../../core/services/language.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-zones';
+import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-settings';
 
 @Component({
   selector: 'app-cart-page',
@@ -100,8 +101,8 @@ import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-z
                   </div>
                 </div>
               </div>
-              <div class="space-y-5 p-5 sm:p-6">
-                <div class="rounded-2xl border border-orange-100 bg-[#fffaf5] p-4">
+              <div class="space-y-5 p-4 sm:p-6">
+                <div class="rounded-2xl border border-orange-100 bg-gradient-to-b from-[#fffaf5] to-white p-4 sm:p-5">
                   <div class="mb-3 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2.5">
                       <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-lg shadow-sm">🛍️</span>
@@ -112,11 +113,11 @@ import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-z
                     </div>
                     <span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-primary">{{ language.t('مراجعة الطلب', 'Order review') }}</span>
                   </div>
-                  <div class="space-y-3 text-sm">
-                  <div class="flex justify-between text-gray-500"><span>{{ language.t('عدد المنتجات', 'Items') }}</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
-                  <div class="flex justify-between text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
-                  <div class="flex justify-between text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : '—' }}</span></div>
-                  <div class="flex items-center justify-between border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="space-y-3.5 text-sm">
+                  <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('عدد المنتجات', 'Items') }}</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
+                  <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : '—' }}</span></div>
+                  <div class="flex items-center justify-between gap-3 rounded-xl border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                   </div>
                 </div>
 
@@ -125,13 +126,13 @@ import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-z
                     <h3 class="text-sm font-extrabold text-primaryDark">{{ language.t('طريقة الاستلام', 'Fulfillment method') }}</h3>
                     @if (!deliveryType()) { <span class="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">{{ language.t('مطلوب الاختيار', 'Required') }}</span> }
                   </div>
-                  <div class="grid grid-cols-2 gap-2">
-                    <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🚚</span>
                       <span class="block text-xs font-extrabold">{{ language.t('توصيل للعنوان', 'Delivery') }}</span>
                       <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('حسب المنطقة', 'By area') }}</span>
                     </button>
-                    <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-right transition hover:border-orange-200 hover:bg-orange-50/60">
+                    <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🏪</span>
                       <span class="block text-xs font-extrabold">{{ language.t('استلام من الفرع', 'Pickup at branch') }}</span>
                       <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('بدون رسوم توصيل', 'No delivery fee') }}</span>
@@ -182,11 +183,6 @@ import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-z
                             <span aria-hidden="true">📍</span>{{ language.t('حدد موقعك', 'Set your location') }}
                           </button>
                         </div>
-                        @if (locationService.selectedCoordinates(); as savedCoords) {
-                          <a [href]="'https://www.google.com/maps?q=' + savedCoords.latitude + ',' + savedCoords.longitude" target="_blank" rel="noopener noreferrer" class="relative mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-primaryDark underline decoration-orange-300 underline-offset-2 transition hover:text-primary">
-                            <span aria-hidden="true">🛰️</span>{{ language.t('عرض الموقع على الخريطة', 'View location on map') }}
-                          </a>
-                        }
                       </div>
                       @if (selectedZone()) {
                         <label class="block text-xs font-bold text-gray-700">{{ language.t('تفاصيل إضافية للعنوان (شارع، مبنى، شقة)', 'Additional address details (street, building, apartment)') }}
@@ -241,7 +237,7 @@ export class CartPageComponent implements OnInit {
 
   ngOnInit() {
     this.api.getDeliveryZones().subscribe({ next: zones => {
-      if (zones.length) this.zones.set(zones);
+      this.zones.set(mergeDeliveryZones(zones));
     }, error: () => {} });
     this.cart.setDeliveryFee(0);
     if (this.locationService.selectedCoordinates()) {

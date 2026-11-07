@@ -22,6 +22,14 @@ export function readDeliveryZones(settings: Record<string, string | undefined> |
 export function mergeDeliveryZones(saved: DeliveryZone[] | null | undefined): DeliveryZone[] {
   const overrides = new Map((saved || []).filter(zone => zone && zone.id).map(zone => [zone.id, zone]));
   const defaults = DEFAULT_DELIVERY_ZONES.map(zone => ({ ...zone, ...(overrides.get(zone.id) || {}) }));
+  // Old saved settings can contain every default zone as disabled, leaving the whole
+  // checkout without a selectable area. Keep a safe emirate-wide option available
+  // until the merchant explicitly enables at least one delivery area.
+  const hasEnabledZone = [...defaults, ...(saved || []).filter(zone => zone?.id && !DEFAULT_DELIVERY_ZONES.some(item => item.id === zone.id))]
+    .some(zone => zone.enabled);
+  if (!hasEnabledZone) {
+    for (const zone of defaults) zone.enabled = true;
+  }
   const defaultIds = new Set(DEFAULT_DELIVERY_ZONES.map(zone => zone.id));
   return [...defaults, ...(saved || []).filter(zone => zone?.id && !defaultIds.has(zone.id))];
 }
