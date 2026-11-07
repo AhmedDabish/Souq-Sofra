@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SouqSofra.Application.DTOs;
 using SouqSofra.Domain.Entities;
 using SouqSofra.Infrastructure.Data;
@@ -12,15 +13,27 @@ namespace SouqSofra.API.Controllers
     public class SettingsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public SettingsController(AppDbContext context) => _context = context;
+        private readonly IMemoryCache _cache;
+        private static readonly string SettingsCacheKey = "public-site-settings";
+
+        public SettingsController(AppDbContext context, IMemoryCache cache)
+        {
+            _context = context;
+            _cache = cache;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetSettings()
         {
-            var settings = await _context.SiteSettings
-                .ToDictionaryAsync(s => s.SettingKey, s => s.SettingValue);
+            var settings = await _cache.GetOrCreateAsync(SettingsCacheKey, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60);
+                return await _context.SiteSettings
+                    .AsNoTracking()
+                    .ToDictionaryAsync(setting => setting.SettingKey, setting => setting.SettingValue);
+            });
 
-            return Ok(settings);
+            return Ok(settings ?? new Dictionary<string, string>());
         }
 
 
@@ -58,6 +71,7 @@ namespace SouqSofra.API.Controllers
             }
 
             await _context.SaveChangesAsync();
+            _cache.Remove(SettingsCacheKey);
             return Ok(new { updated = updates.Count });
         }
 
@@ -83,6 +97,7 @@ namespace SouqSofra.API.Controllers
             }
 
             await _context.SaveChangesAsync();
+            _cache.Remove(SettingsCacheKey);
             return Ok(setting);
         }
     }

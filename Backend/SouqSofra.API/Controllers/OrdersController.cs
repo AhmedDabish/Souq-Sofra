@@ -22,6 +22,7 @@ namespace SouqSofra.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var orders = await _context.Orders
+                .AsSplitQuery()
                 .Include(o => o.Items).ThenInclude(item => item.Addons)
                 .OrderByDescending(o => o.CreatedAt)
                 .Select(o => new OrderDto(
@@ -63,7 +64,7 @@ namespace SouqSofra.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var o = await _context.Orders.Include(x => x.Items).ThenInclude(item => item.Addons).FirstOrDefaultAsync(x => x.OrderId == id);
+            var o = await _context.Orders.AsSplitQuery().Include(x => x.Items).ThenInclude(item => item.Addons).FirstOrDefaultAsync(x => x.OrderId == id);
             if (o == null) return NotFound(new { message = "الطلب غير موجود." });
 
             var dto = new OrderDto(

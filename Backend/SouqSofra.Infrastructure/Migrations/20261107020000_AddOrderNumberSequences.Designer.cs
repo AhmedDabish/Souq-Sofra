@@ -656,6 +656,9 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductId", "IsApproved")
+                        .IncludeProperties("Rating");
+
                     b.ToTable("ProductReviews", (string)null);
                 });
 

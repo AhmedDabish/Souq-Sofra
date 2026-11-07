@@ -2,6 +2,7 @@ using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SouqSofra.Infrastructure.Data;
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger with JWT Authorization Support
@@ -94,10 +96,20 @@ builder.Services.AddAuthentication(options =>
                 return;
             }
 
-            var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
-            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(candidate => candidate.UserId == userId && candidate.IsActive);
-            var currentRole = user?.RoleId switch { 1 => "Admin", 2 => "User", 3 => "SuperAdmin", _ => null };
-            if (currentRole == null || !string.Equals(currentRole, roleClaim, StringComparison.Ordinal))
+            var cache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
+            var cacheKey = $"auth-user-role:{userId}";
+            if (!cache.TryGetValue(cacheKey, out string? currentRole))
+            {
+                var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var user = await db.Users.AsNoTracking()
+                    .Where(candidate => candidate.UserId == userId && candidate.IsActive)
+                    .Select(candidate => new { candidate.RoleId })
+                    .FirstOrDefaultAsync();
+                currentRole = user?.RoleId switch { 1 => "Admin", 2 => "User", 3 => "SuperAdmin", _ => "__inactive" };
+                cache.Set(cacheKey, currentRole, TimeSpan.FromSeconds(20));
+            }
+
+            if (currentRole == "__inactive" || !string.Equals(currentRole, roleClaim, StringComparison.Ordinal))
                 context.Fail("The account is inactive or its role has changed. Please sign in again.");
         }
     };

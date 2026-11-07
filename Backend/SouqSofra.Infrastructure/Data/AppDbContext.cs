@@ -268,6 +268,9 @@ namespace SouqSofra.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(pr => pr.ProductId);
+                // Cover public catalog rating summaries without scanning the full review table.
+                entity.HasIndex(pr => new { pr.ProductId, pr.IsApproved })
+                    .IncludeProperties(pr => pr.Rating);
             });
         }
     }

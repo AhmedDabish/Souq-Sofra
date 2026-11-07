@@ -168,6 +168,7 @@ namespace SouqSofra.API.Controllers
         public async Task<IActionResult> GetAllForAdmin()
         {
             var products = await _context.Products
+                .AsSplitQuery()
                 .Include(p => p.Variants).Include(p => p.Addons)
                 .OrderByDescending(p => p.ProductId)
                 .Select(p => new ProductDto(
@@ -197,7 +198,7 @@ namespace SouqSofra.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var p = await _context.Products.Include(x => x.Variants).Include(x => x.Addons).FirstOrDefaultAsync(x => x.ProductId == id);
+            var p = await _context.Products.AsSplitQuery().Include(x => x.Variants).Include(x => x.Addons).FirstOrDefaultAsync(x => x.ProductId == id);
             if (p == null) return NotFound(new { message = "المنتج غير موجود." });
 
             var dto = new ProductDto(
@@ -281,7 +282,7 @@ namespace SouqSofra.API.Controllers
             var addonValidation = ValidateAddons(dto.Addons);
             if (addonValidation != null) return addonValidation;
 
-            var product = await _context.Products.Include(p => p.Variants).Include(p => p.Addons).FirstOrDefaultAsync(p => p.ProductId == id);
+            var product = await _context.Products.AsSplitQuery().Include(p => p.Variants).Include(p => p.Addons).FirstOrDefaultAsync(p => p.ProductId == id);
             if (product == null) return NotFound(new { message = "المنتج غير موجود." });
             var catalogValidation = await ValidateCatalogAddonSelection(dto.CategoryId, dto.CatalogAddonIds, id);
             if (catalogValidation != null) return catalogValidation;

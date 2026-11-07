@@ -58,6 +58,9 @@ export class ApiService {
   private categoriesCache$: Observable<Category[]> | null = null;
   private categoriesCacheExpiresAt = 0;
   private readonly categoriesStorageKey = 'souq-sofra-categories-cache-v1';
+  private settingsCache$: Observable<SiteSettings> | null = null;
+  private settingsCacheExpiresAt = 0;
+  private readonly settingsStorageKey = 'souq-sofra-settings-cache-v1';
 
   private invalidateProductsCache(): void {
     this.productsCache$ = null;
@@ -184,11 +187,43 @@ export class ApiService {
   }
 
   updateSettings(settings: Record<string, string>): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/settings/bulk`, settings);
+    return this.http.put<void>(`${this.apiUrl}/settings/bulk`, settings).pipe(tap(() => this.invalidateSettingsCache()));
   }
 
   getSettings(): Observable<SiteSettings> {
-    return this.http.get<SiteSettings>(`${this.apiUrl}/settings`);
+    if (this.settingsCache$ && this.settingsCacheExpiresAt > Date.now()) return this.settingsCache$;
+
+    let staleSettings: SiteSettings | null = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const saved = localStorage.getItem(this.settingsStorageKey);
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) staleSettings = parsed as SiteSettings;
+        }
+      }
+    } catch { /* ignore malformed or unavailable browser storage */ }
+
+    this.settingsCacheExpiresAt = Date.now() + 60_000;
+    this.settingsCache$ = this.http.get<SiteSettings>(`${this.apiUrl}/settings`).pipe(
+      tap(settings => {
+        try { if (typeof localStorage !== 'undefined') localStorage.setItem(this.settingsStorageKey, JSON.stringify(settings)); } catch { /* storage may be unavailable */ }
+      }),
+      catchError(error => {
+        this.settingsCache$ = null;
+        this.settingsCacheExpiresAt = 0;
+        return staleSettings ? of(staleSettings) : throwError(() => error);
+      }),
+      startWith(...(staleSettings ? [staleSettings] : [])),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+    return this.settingsCache$;
+  }
+
+  private invalidateSettingsCache(): void {
+    this.settingsCache$ = null;
+    this.settingsCacheExpiresAt = 0;
+    try { if (typeof localStorage !== 'undefined') localStorage.removeItem(this.settingsStorageKey); } catch { /* storage may be unavailable */ }
   }
 
   // -------------------------------------------------------------
@@ -315,7 +350,7 @@ export class ApiService {
     return this.http.put<{ settingKey: string; settingValue: string }>(`${this.apiUrl}/settings`, {
       settingKey: key,
       settingValue: value
-    });
+    }).pipe(tap(() => this.invalidateSettingsCache()));
   }
 
   getAdminBranches(): Observable<Branch[]> {
