@@ -44,6 +44,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
                 @switch (item.icon) {
                   @case ('dashboard') { <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/> }
                   @case ('orders') { <path d="M8 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m8 13 2.2 2.2L16 9.5"/> }
+                  @case ('all-orders') { <path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/> }
                   @case ('products') { <path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="M3 8v8l9 5 9-5V8M12 13v8M7.5 5.5l9 5"/> }
                   @case ('categories') { <path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/> }
                   @case ('addons') { <path d="M12 3v18M3 12h18"/><path d="M19 5v4M17 7h4M5 17v4M3 19h4"/> }
@@ -97,6 +98,7 @@ export class AdminSidebarComponent {
     { path:'/admin', label:'لوحة المؤشرات', labelEn:'Dashboard', icon:'dashboard', permission:'dashboard.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/analytics', label:'التحليلات', labelEn:'Analytics', icon:'analytics', permission:'analytics.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/orders', label:'إدارة الطلبات', labelEn:'Orders', icon:'orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
+    { path:'/admin/all-orders', label:'كل الطلبات', labelEn:'All orders', icon:'all-orders', permission:'orders.view', roles:['User','Admin','SuperAdmin'] },
     { path:'/admin/products', label:'المنتجات والمنيو', labelEn:'Products & menu', icon:'products', permission:'products.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/categories', label:'أقسام المنيو', labelEn:'Categories', icon:'categories', permission:'categories.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/addons', label:'المنتجات الإضافية', labelEn:'Product extras', icon:'addons', permission:'addons.view', roles:['Admin','SuperAdmin'] },
