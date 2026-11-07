@@ -1,5 +1,5 @@
 import { LanguageService } from '../../../../core/services/language.service';
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../core/services/api.service';
@@ -21,7 +21,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
         </header>
         @if (message()) { <p class="mb-5 rounded-xl border p-3 text-sm" [class.border-green-200]="!error()" [class.text-green-700]="!error()" [class.border-red-200]="error()" [class.text-red-700]="error()">{{ message() }}</p> }
         <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          @for (category of categories(); track category.categoryId) {
+          @for (category of pagedCategories(); track category.categoryId) {
             <article class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
               <img [src]="imageUrl(category.imageUrl || category.iconUrl)" [alt]="category.nameAr" class="h-40 w-full bg-orange-50 object-cover">
               <div class="space-y-2 p-4"><h2 class="font-bold text-gray-900">{{ language.isEnglish() ? (category.nameEn || category.nameAr) : category.nameAr }}</h2><p class="text-xs text-gray-400">{{ language.t('ترتيب العرض:', 'Display order:') }} {{ category.displayOrder }}</p>
@@ -30,6 +30,14 @@ import { NotificationService } from '../../../../core/services/notification.serv
             </article>
           } @empty { <div class="col-span-full rounded-2xl bg-white p-10 text-center text-gray-500">{{ language.t('لا توجد أقسام نشطة.', 'No active categories.') }}</div> }
         </section>
+        @if (categories().length > 0) {
+          <div class="mt-4 flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <label class="flex items-center gap-2 text-xs font-bold text-gray-600">{{ language.t('عدد الأقسام في الصفحة', 'Categories per page') }}
+              <select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)" class="rounded-lg border border-gray-200 bg-white px-2 py-1.5"><option [ngValue]="9">9</option><option [ngValue]="18">18</option><option [ngValue]="36">36</option></select>
+            </label>
+            <div class="flex items-center justify-between gap-3 sm:justify-end"><span class="text-xs text-gray-500">{{ pageStart() }}–{{ pageEnd() }} {{ language.t('من', 'of') }} {{ categories().length }}</span><nav class="flex items-center gap-1" [attr.aria-label]="language.t('صفحات الأقسام', 'Category pages')"><button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1" class="rounded-lg border px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('السابق', 'Previous') }}</button><span class="min-w-16 text-center text-xs font-bold">{{ currentPage() }} / {{ totalPages() }}</span><button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()" class="rounded-lg border px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('التالي', 'Next') }}</button></nav></div>
+          </div>
+        }
         @if (showForm()) {
           <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" (click)="showForm.set(false)">
             <form (ngSubmit)="save()" (click)="$event.stopPropagation()" class="max-h-[90vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
@@ -55,10 +63,18 @@ export class AdminCategoriesComponent implements OnInit {
   private api = inject(ApiService);
   private notifications = inject(NotificationService);
   categories = signal<Category[]>([]); message = signal(''); error = signal(false); showForm = signal(false); saving = signal(false); uploading = signal(false); editingId = signal<number | null>(null);
+  pageSize = signal(9); page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.categories().length / this.pageSize())));
+  currentPage = computed(() => Math.min(this.page(), this.totalPages()));
+  pageStart = computed(() => this.categories().length ? (this.currentPage() - 1) * this.pageSize() + 1 : 0);
+  pageEnd = computed(() => Math.min(this.currentPage() * this.pageSize(), this.categories().length));
+  pagedCategories = computed(() => { const start = (this.currentPage() - 1) * this.pageSize(); return this.categories().slice(start, start + this.pageSize()); });
   form: CategoryCreate = this.emptyForm();
   ngOnInit() { this.load(); }
   emptyForm(): CategoryCreate { return { nameAr: '', nameEn: '', slug: '', iconUrl: '', imageUrl: '', displayOrder: 0, isActive: true }; }
-  load() { this.api.getAdminCategories().subscribe({ next: rows => this.categories.set(rows), error: () => this.notify(this.language.t('تعذر تحميل الأقسام من الخادم.', 'Could not load categories from the server.'), true) }); }
+  setPageSize(value: number | string) { this.pageSize.set(Number(value) || 9); this.page.set(1); }
+  goToPage(value: number) { this.page.set(Math.max(1, Math.min(value, this.totalPages()))); }
+  load() { this.api.getAdminCategories().subscribe({ next: rows => { this.categories.set(rows); }, error: () => this.notify(this.language.t('تعذر تحميل الأقسام من الخادم.', 'Could not load categories from the server.'), true) }); }
   openNew() { this.editingId.set(null); this.form = this.emptyForm(); this.showForm.set(true); }
   edit(category: Category) { this.editingId.set(category.categoryId); this.form = { nameAr: category.nameAr, nameEn: category.nameEn, slug: category.slug, iconUrl: category.iconUrl || '', imageUrl: category.imageUrl || '', displayOrder: category.displayOrder, isActive: category.isActive !== false }; this.showForm.set(true); }
   save() { if (!this.form.nameAr.trim() || !this.form.nameEn.trim()) return; this.saving.set(true); const id = this.editingId(); const request = id ? this.api.updateCategory(id, this.form) : this.api.createCategory(this.form); request.subscribe({ next: () => { this.saving.set(false); this.showForm.set(false); this.notify(this.language.t('تم حفظ القسم على الخادم.', 'Category saved.')); this.load(); }, error: () => { this.saving.set(false); this.notify(this.language.t('تعذر حفظ القسم. تحقق من تسجيل دخول المدير والاتصال بالخادم.', 'Could not save the category. Check your admin sign-in and server connection.'), true); } }); }

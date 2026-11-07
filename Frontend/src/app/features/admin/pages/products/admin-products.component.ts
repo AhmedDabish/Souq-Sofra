@@ -51,7 +51,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
             <span class="text-xs font-bold text-gray-500">{{ language.t('التصنيف:', 'Category:') }}</span>
             <select
               [ngModel]="selectedCategory()"
-              (ngModelChange)="selectedCategory.set($event)"
+              (ngModelChange)="setSelectedCategory($event)"
               class="text-xs px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary">
               <option [ngValue]="null">{{ language.t('كافة التصنيفات', 'All categories') }} ({{ products().length }})</option>
               @for (cat of categories(); track cat.categoryId) {
@@ -75,7 +75,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
             <input
               type="text"
               [ngModel]="searchQuery()"
-              (ngModelChange)="searchQuery.set($event)"
+              (ngModelChange)="setSearchQuery($event)"
               [placeholder]="language.t('ابحث بالاسم العربي أو الإنجليزي...', 'Search Arabic or English names...')"
               class="w-full text-xs px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-primary">
           </div>
@@ -98,7 +98,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                @for (prod of filteredProducts(); track prod.productId) {
+                @for (prod of pagedProducts(); track prod.productId) {
                   <tr class="hover:bg-gray-50/50 transition-colors">
                     <td class="p-4">
                       <div class="flex items-center gap-3">
@@ -197,6 +197,23 @@ import { NotificationService } from '../../../../core/services/notification.serv
               </tbody>
             </table>
           </div>
+          @if (filteredProducts().length > 0) {
+            <div class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <label class="flex items-center gap-2 text-xs font-bold text-gray-600">{{ language.t('عدد المنتجات في الصفحة', 'Products per page') }}
+                <select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)" class="rounded-lg border border-gray-200 bg-white px-2 py-1.5">
+                  <option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option>
+                </select>
+              </label>
+              <div class="flex items-center justify-between gap-3 sm:justify-end">
+                <span class="text-xs text-gray-500">{{ pageStart() }}–{{ pageEnd() }} {{ language.t('من', 'of') }} {{ filteredProducts().length }}</span>
+                <nav class="flex items-center gap-1" [attr.aria-label]="language.t('صفحات المنتجات', 'Product pages')">
+                  <button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1" class="rounded-lg border bg-white px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('السابق', 'Previous') }}</button>
+                  <span class="min-w-16 text-center text-xs font-bold text-gray-600">{{ currentPage() }} / {{ totalPages() }}</span>
+                  <button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()" class="rounded-lg border bg-white px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('التالي', 'Next') }}</button>
+                </nav>
+              </div>
+            </div>
+          }
         </div>
 
       </main>
@@ -467,6 +484,13 @@ export class AdminProductsComponent implements OnInit {
   selectedCategory = signal<number | null>(null);
   onlyDiscounted = signal<boolean>(false);
   searchQuery = signal<string>('');
+  pageSize = signal(10);
+  page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize())));
+  currentPage = computed(() => Math.min(this.page(), this.totalPages()));
+  pageStart = computed(() => this.filteredProducts().length ? (this.currentPage() - 1) * this.pageSize() + 1 : 0);
+  pageEnd = computed(() => Math.min(this.currentPage() * this.pageSize(), this.filteredProducts().length));
+  pagedProducts = computed(() => { const start = (this.currentPage() - 1) * this.pageSize(); return this.filteredProducts().slice(start, start + this.pageSize()); });
   isUpdatingId = signal<number | null>(null);
 
   feedbackMessage = signal<string>('');
@@ -556,8 +580,14 @@ export class AdminProductsComponent implements OnInit {
     return Math.round((diff / prod.basePrice) * 100);
   }
 
+  setSelectedCategory(value: number | null) { this.selectedCategory.set(value); this.page.set(1); }
+  setSearchQuery(value: string) { this.searchQuery.set(value); this.page.set(1); }
+  setPageSize(value: number | string) { this.pageSize.set(Number(value) || 10); this.page.set(1); }
+  goToPage(value: number) { this.page.set(Math.max(1, Math.min(value, this.totalPages()))); }
+
   toggleDiscountFilter() {
     this.onlyDiscounted.update(v => !v);
+    this.page.set(1);
   }
 
   openQuickDiscountModal(prod: Product) {

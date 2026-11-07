@@ -1,5 +1,5 @@
 import { LanguageService } from '../../../../core/services/language.service';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
@@ -42,10 +42,16 @@ import { NotificationService } from '../../../../core/services/notification.serv
           @else if (!templates().length) { <div class="p-12 text-center"><div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-2xl">✦</div><p class="font-bold text-slate-800">{{ language.t('لا توجد إضافات بعد', 'No extras yet') }}</p><p class="mt-1 text-sm text-slate-500">{{ language.t('ابدأ بإضافة خيارات مثل الجبن الإضافي أو البطاطس.', 'Add choices such as extra cheese or fries.') }}</p><button [hidden]="!auth.hasPermission('addons.create')" (click)="openNew()" class="mt-4 rounded-xl bg-orange-600 px-4 py-2 text-sm font-bold text-white">{{ language.t('إضافة أول منتج إضافي', 'Add your first extra') }}</button></div> }
           @else {
             <div class="overflow-x-auto"><table class="w-full min-w-[760px] text-right text-sm"><thead class="bg-slate-50 text-xs font-bold text-slate-500"><tr><th class="px-5 py-3">{{ language.t('الإضافة', 'Extra') }}</th><th class="px-5 py-3">{{ language.t('السعر', 'Price') }}</th><th class="px-5 py-3">{{ language.t('تُطبّق على', 'Applies to') }}</th><th class="px-5 py-3">{{ language.t('الحالة', 'Status') }}</th><th class="px-5 py-3">{{ language.t('إجراءات', 'Actions') }}</th></tr></thead><tbody class="divide-y divide-slate-100">
-              @for (item of templates(); track item.addonTemplateId) {
+              @for (item of pagedTemplates(); track item.addonTemplateId) {
                 <tr class="transition hover:bg-orange-50/30"><td class="px-5 py-4"><div class="font-bold text-slate-900">{{ language.isEnglish() ? (item.nameEn || item.nameAr) : item.nameAr }}</div></td><td class="px-5 py-4 font-black text-slate-800">{{item.price}} <span class="text-xs font-semibold text-slate-400">{{ language.isEnglish() ? 'AED' : 'درهم' }}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-orange-100]="item.scopeType === 'All'" [class.text-orange-800]="item.scopeType === 'All'" [class.bg-sky-100]="item.scopeType === 'Category'" [class.text-sky-800]="item.scopeType === 'Category'" [class.bg-violet-100]="item.scopeType === 'Product'" [class.text-violet-800]="item.scopeType === 'Product'">{{scopeLabel(item)}}</span></td><td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-bold" [class.bg-emerald-50]="item.isAvailable" [class.text-emerald-700]="item.isAvailable" [class.bg-slate-100]="!item.isAvailable" [class.text-slate-500]="!item.isAvailable">{{ language.t(item.isAvailable ? 'مفعّلة' : 'موقوفة', item.isAvailable ? 'Active' : 'Disabled') }}</span></td><td class="px-5 py-4"><div class="flex gap-2"><button [hidden]="!auth.hasPermission('addons.update')" (click)="openEdit(item)" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-200">{{ language.t('تعديل', 'Edit') }}</button><button [hidden]="!auth.hasPermission('addons.delete')" (click)="remove(item)" class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100">{{ language.t('حذف', 'Delete') }}</button></div></td></tr>
               }
             </tbody></table></div>
+            @if (templates().length > 0) {
+              <div class="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-600">{{ language.t('عدد الإضافات في الصفحة', 'Extras per page') }}<select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5"><option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option></select></label>
+                <div class="flex items-center justify-between gap-3 sm:justify-end"><span class="text-xs text-slate-500">{{ pageStart() }}–{{ pageEnd() }} {{ language.t('من', 'of') }} {{ templates().length }}</span><nav class="flex items-center gap-1" [attr.aria-label]="language.t('صفحات الإضافات', 'Extras pages')"><button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('السابق', 'Previous') }}</button><span class="min-w-16 text-center text-xs font-bold text-slate-600">{{ currentPage() }} / {{ totalPages() }}</span><button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold disabled:opacity-40">{{ language.t('التالي', 'Next') }}</button></nav></div>
+              </div>
+            }
           }
         </section>
 
@@ -77,6 +83,12 @@ export class AdminAddonsComponent implements OnInit {
   categories = signal<Category[]>([]);
   products = signal<Product[]>([]);
   loading = signal(true);
+  pageSize = signal(10); page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.templates().length / this.pageSize())));
+  currentPage = computed(() => Math.min(this.page(), this.totalPages()));
+  pageStart = computed(() => this.templates().length ? (this.currentPage() - 1) * this.pageSize() + 1 : 0);
+  pageEnd = computed(() => Math.min(this.currentPage() * this.pageSize(), this.templates().length));
+  pagedTemplates = computed(() => { const start = (this.currentPage() - 1) * this.pageSize(); return this.templates().slice(start, start + this.pageSize()); });
   saving = signal(false);
   formOpen = signal(false);
   editingId = signal<number | null>(null);
@@ -91,6 +103,8 @@ export class AdminAddonsComponent implements OnInit {
     this.api.getAllAdminProducts().subscribe({ next: rows => this.products.set(rows) });
     this.load();
   }
+  setPageSize(value: number | string) { this.pageSize.set(Number(value) || 10); this.page.set(1); }
+  goToPage(value: number) { this.page.set(Math.max(1, Math.min(value, this.totalPages()))); }
   private emptyForm(): AddonTemplateCreate { return { nameAr: '', nameEn: '', price: 0, isAvailable: true, scopeType: 'All' }; }
   load() { this.loading.set(true); this.api.getAddonTemplates().subscribe({ next: rows => { this.templates.set(rows); this.loading.set(false); }, error: () => { this.loading.set(false); this.notify(this.language.t('تعذر تحميل الإضافات. تأكد من تطبيق تحديث قاعدة البيانات ثم أعد المحاولة.', 'Could not load extras. Apply the database update and try again.'), true); } }); }
   openNew() { this.editingId.set(null); this.form = this.emptyForm(); this.formOpen.set(true); }

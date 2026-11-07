@@ -58,3 +58,6 @@ pnpm-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Runtime API diagnostics (daily JSONL files)
+/Backend/SouqSofra.API/Logs/

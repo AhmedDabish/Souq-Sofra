@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SouqSofra.Infrastructure.Data;
 using SouqSofra.API.Authorization;
+using SouqSofra.API.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
@@ -15,6 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+builder.Services.AddSingleton<RequestDiagnosticsLogWriter>();
+builder.Services.AddHostedService(services => services.GetRequiredService<RequestDiagnosticsLogWriter>());
+builder.Services.AddSingleton<SqlDiagnosticsInterceptor>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -55,9 +60,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // SQL Server Connection
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>((services, options) =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlServerOptions => sqlServerOptions.MigrationsAssembly("SouqSofra.Infrastructure")));
+        sqlServerOptions => sqlServerOptions.MigrationsAssembly("SouqSofra.Infrastructure"));
+    options.AddInterceptors(services.GetRequiredService<SqlDiagnosticsInterceptor>());
+});
 
 // JWT Authentication Configuration
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SouqSofra_SuperSecret_Jwt_SecurityKey_2026_AbuDhabi_Dubai_UAE_123456789!";
@@ -192,6 +200,7 @@ if (app.Environment.IsDevelopment())
 
 // 1. CORS Middleware MUST be placed at the very top of request pipeline
 app.UseRouting();
+app.UseMiddleware<RequestDiagnosticsMiddleware>();
 app.UseRateLimiter();
 app.UseCors("AllowAngular");
 var wwwrootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
