@@ -236,8 +236,8 @@ namespace SouqSofra.API.Controllers
                     {
                         if (!configured.Any(zone => zone.Enabled))
                         {
-                            var emirates = new[] { "أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة" };
-                            var defaults = emirates.Select((name, index) => new DeliveryZoneSetting($"uae-{index + 1}", name, name, 10m, true));
+                            var defaultEmirates = new[] { "أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة" };
+                            var defaults = defaultEmirates.Select((name, index) => new DeliveryZoneSetting($"uae-{index + 1}", name, name, 10m, true));
                             return configured.Where(zone => !zone.Id.StartsWith("uae-", StringComparison.OrdinalIgnoreCase))
                                 .Concat(defaults).ToList();
                         }
