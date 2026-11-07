@@ -44,7 +44,7 @@ export interface SiteAnalytics {
   ordersFromWhatsApp: number;
   productSales: Array<{ productId: number; nameAr: string; nameEn: string; unitsSold: number; completedOrders: number; orderSharePercent: number; productPageViews: number }>;
   dailyVisits: Array<{ date: string; visits: number; uniqueVisitors: number }> ;
-  topPages: Array<{ path: string; visits: number; uniqueVisitors: number }> ;
+  topPages: Array<{ path: string; displayNameAr?: string | null; displayNameEn?: string | null; visits: number; uniqueVisitors: number }> ;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -83,8 +83,11 @@ export class ApiService {
     return this.http.post<void>(`${this.apiUrl}/analytics/visit`, { sessionKey, pagePath });
   }
 
-  getAnalytics(): Observable<SiteAnalytics> {
-    return this.http.get<SiteAnalytics>(`${this.apiUrl}/analytics`);
+  getAnalytics(fromDate?: string, toDate?: string): Observable<SiteAnalytics> {
+    let params = new HttpParams();
+    if (fromDate) params = params.set('from', fromDate);
+    if (toDate) params = params.set('to', toDate);
+    return this.http.get<SiteAnalytics>(`${this.apiUrl}/analytics`, { params });
   }
 
   getCategories(): Observable<Category[]> {
