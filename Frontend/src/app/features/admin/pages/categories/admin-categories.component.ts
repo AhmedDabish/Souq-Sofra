@@ -6,6 +6,7 @@ import { ApiService } from '../../../../core/services/api.service';
 import { Category, CategoryCreate } from '../../../../core/models/models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-categories', standalone: true,
@@ -52,6 +53,7 @@ export class AdminCategoriesComponent implements OnInit {
   language = inject(LanguageService);
   auth = inject(AuthService);
   private api = inject(ApiService);
+  private notifications = inject(NotificationService);
   categories = signal<Category[]>([]); message = signal(''); error = signal(false); showForm = signal(false); saving = signal(false); uploading = signal(false); editingId = signal<number | null>(null);
   form: CategoryCreate = this.emptyForm();
   ngOnInit() { this.load(); }
@@ -60,8 +62,8 @@ export class AdminCategoriesComponent implements OnInit {
   openNew() { this.editingId.set(null); this.form = this.emptyForm(); this.showForm.set(true); }
   edit(category: Category) { this.editingId.set(category.categoryId); this.form = { nameAr: category.nameAr, nameEn: category.nameEn, slug: category.slug, iconUrl: category.iconUrl || '', imageUrl: category.imageUrl || '', displayOrder: category.displayOrder, isActive: category.isActive !== false }; this.showForm.set(true); }
   save() { if (!this.form.nameAr.trim() || !this.form.nameEn.trim()) return; this.saving.set(true); const id = this.editingId(); const request = id ? this.api.updateCategory(id, this.form) : this.api.createCategory(this.form); request.subscribe({ next: () => { this.saving.set(false); this.showForm.set(false); this.notify(this.language.t('تم حفظ القسم على الخادم.', 'Category saved.')); this.load(); }, error: () => { this.saving.set(false); this.notify(this.language.t('تعذر حفظ القسم. تحقق من تسجيل دخول المدير والاتصال بالخادم.', 'Could not save the category. Check your admin sign-in and server connection.'), true); } }); }
-  remove(category: Category) { if (!confirm(this.language.t(`تعطيل القسم «${category.nameAr}»؟`, `Disable category “${this.language.isEnglish() ? category.nameEn : category.nameAr}”?`))) return; this.api.deleteCategory(category.categoryId).subscribe({ next: () => { this.notify(this.language.t('تم تعطيل القسم.', 'Category disabled.')); this.load(); }, error: () => this.notify(this.language.t('تعذر تعطيل القسم.', 'Could not disable the category.'), true) }); }
+  async remove(category: Category) { if (!(await this.notifications.confirm(this.language.t(`تعطيل القسم «${category.nameAr}»؟`, `Disable category “${this.language.isEnglish() ? category.nameEn : category.nameAr}”?`)))) return; this.api.deleteCategory(category.categoryId).subscribe({ next: () => { this.notify(this.language.t('تم تعطيل القسم.', 'Category disabled.')); this.load(); }, error: () => this.notify(this.language.t('تعذر تعطيل القسم.', 'Could not disable the category.'), true) }); }
   upload(event: Event, field: 'imageUrl' | 'iconUrl') { const input = event.target as HTMLInputElement; const file = input.files?.[0]; if (!file) return; if (file.size > 10 * 1024 * 1024) { this.notify(this.language.t('حجم الصورة يجب ألا يتجاوز 10 ميجابايت.', 'Image must be 10 MB or smaller.'), true); input.value = ''; return; } this.uploading.set(true); this.api.uploadImage(file, 'categories').subscribe({ next: result => { this.form[field] = result.url; this.uploading.set(false); }, error: () => { this.uploading.set(false); this.notify(this.language.t('تعذر رفع الصورة إلى الخادم.', 'Could not upload the image to the server.'), true); } }); input.value = ''; }
   imageUrl(url?: string) { if (!url) return 'assets/MAIN.jpg'; if (/^https?:\/\//i.test(url) || url.startsWith('assets/')) return url; return `http://localhost:2811${url.startsWith('/') ? url : `/${url}`}`; }
-  private notify(text: string, isError = false) { this.message.set(text); this.error.set(isError); setTimeout(() => { if (this.message() === text) this.message.set(''); }, 4000); }
+  private notify(text: string, isError = false) { this.message.set(text); this.error.set(isError); this.notifications.show(text, isError ? 'error' : 'success'); setTimeout(() => { if (this.message() === text) this.message.set(''); }, 4000); }
 }

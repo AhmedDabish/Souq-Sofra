@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { LanguageService } from '../../../../core/services/language.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-sidebar', standalone: true, imports: [CommonModule, RouterModule],
@@ -89,7 +90,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AdminSidebarComponent {
   language = inject(LanguageService);
-  auth = inject(AuthService); private router = inject(Router);
+  auth = inject(AuthService); private router = inject(Router); private notifications = inject(NotificationService);
   collapsed = signal(localStorage.getItem('souq_admin_sidebar_collapsed') === 'true');
   mobileOpen = signal(false);
   private items = [
@@ -110,5 +111,5 @@ export class AdminSidebarComponent {
   isCollapsed() { return this.collapsed() && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches; }
   toggleCollapsed() { this.collapsed.update(value => !value); localStorage.setItem('souq_admin_sidebar_collapsed',String(this.collapsed())); }
   toggleMobile() { this.mobileOpen.update(value => !value); }
-  logout() { if (confirm(this.language.t('هل أنت متأكد من تسجيل الخروج؟','Are you sure you want to log out?'))) this.auth.logout(); }
+  async logout() { if (await this.notifications.confirm(this.language.t('هل أنت متأكد من تسجيل الخروج؟','Are you sure you want to log out?'))) this.auth.logout(); }
 }

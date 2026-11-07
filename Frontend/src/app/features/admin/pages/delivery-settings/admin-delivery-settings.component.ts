@@ -7,6 +7,7 @@ import { LanguageService } from '../../../../core/services/language.service';
 import { DeliveryZone } from '../../../../core/models/models';
 import { chunkDeliveryZones, mergeDeliveryZones, readDeliveryZones } from '../../../../core/utils/delivery-zone-settings';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-delivery-settings',
@@ -92,6 +93,7 @@ export class AdminDeliverySettingsComponent implements OnInit {
   language = inject(LanguageService);
   auth = inject(AuthService);
   private api = inject(ApiService);
+  private notifications = inject(NotificationService);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
   emirateEn(name: string): string { return ({'أبوظبي':'Abu Dhabi','دبي':'Dubai','الشارقة':'Sharjah','عجمان':'Ajman','أم القيوين':'Umm Al Quwain','رأس الخيمة':'Ras Al Khaimah','الفجيرة':'Fujairah'} as Record<string,string>)[name] || name; }
   deliveryZones = signal<DeliveryZone[]>(mergeDeliveryZones([]));
@@ -149,11 +151,13 @@ export class AdminDeliverySettingsComponent implements OnInit {
     const id = `zone-${Date.now()}`;
     this.deliveryZones.update(zones => [...zones, { id, emirate: 'أبوظبي', emirateEn: 'Abu Dhabi', name: '', nameEn: '', fee: 10, enabled: false }]);
   }
-  removeDeliveryZone(index: number) {
+  async removeDeliveryZone(index: number) {
     if (!this.auth.hasPermission('settings.update')) return;
     const zone = this.deliveryZones()[index]; if (!zone) return;
+    const label = this.language.isEnglish() ? (zone.nameEn || zone.name) : zone.name;
+    if (!(await this.notifications.confirm(this.language.t(`حذف أو إيقاف منطقة «${label}»؟`, `Remove or disable “${label}”?`)))) return;
     if (zone.id.startsWith('osm-') || zone.id.startsWith('uae-')) { this.updateDeliveryZone(index, 'enabled', false); return; }
     this.deliveryZones.update(zones => zones.filter((_, i) => i !== index));
   }
-  private setFeedback(message: string, error: boolean) { this.feedback.set(message); this.feedbackError.set(error); }
+  private setFeedback(message: string, error: boolean) { this.feedback.set(message); this.feedbackError.set(error); this.notifications.show(message, error ? 'error' : 'success'); }
 }

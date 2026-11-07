@@ -6,6 +6,7 @@ import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-side
 import { AddonTemplate, AddonTemplateCreate, Category, Product } from '../../../../core/models/models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ApiService } from '../../../../core/services/api.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-addons',
@@ -104,8 +105,9 @@ export class AdminAddonsComponent implements OnInit {
     const request = this.editingId() ? this.api.updateAddonTemplate(this.editingId()!, payload) : this.api.createAddonTemplate(payload);
     request.subscribe({ next: () => { this.saving.set(false); this.close(); this.load(); this.notify(this.editingId() ? this.language.t('تم تحديث الإضافة وربطها بالمنتجات المحددة.', 'Extra updated and linked to selected products.') : this.language.t('تمت إضافة المنتج الإضافي وربطه بنجاح.', 'Extra added and linked successfully.')); }, error: err => { this.saving.set(false); this.notify(this.language.isEnglish() ? 'Could not save the extra.' : (err.error?.message || 'تعذر حفظ الإضافة.'), true); } });
   }
-  remove(item: AddonTemplate) { if (!confirm(this.language.t(`إيقاف الإضافة «${item.nameAr}»؟ ستبقى ظاهرة في الطلبات السابقة، ولن تظهر في الطلبات الجديدة.`, `Disable “${item.nameEn}”? It will remain on past orders and won't be available on new orders.`))) return; this.api.deleteAddonTemplate(item.addonTemplateId).subscribe({ next: () => { this.load(); this.notify(this.language.t('تم إيقاف الإضافة عن الطلبات الجديدة.', 'Extra disabled for new orders.')); }, error: () => this.notify(this.language.t('تعذر إيقاف الإضافة.', 'Could not disable the extra.'), true) }); }
+  async remove(item: AddonTemplate) { if (!(await this.notifications.confirm(this.language.t(`إيقاف الإضافة «${item.nameAr}»؟ ستبقى ظاهرة في الطلبات السابقة، ولن تظهر في الطلبات الجديدة.`, `Disable “${item.nameEn}”? It will remain on past orders and won't be available on new orders.`)))) return; this.api.deleteAddonTemplate(item.addonTemplateId).subscribe({ next: () => { this.load(); this.notify(this.language.t('تم إيقاف الإضافة عن الطلبات الجديدة.', 'Extra disabled for new orders.')); }, error: () => this.notify(this.language.t('تعذر إيقاف الإضافة.', 'Could not disable the extra.'), true) }); }
   scopeLabel(item: AddonTemplate) { if (item.scopeType === 'Category') return `${this.language.t('قسم:', 'Category:')} ${this.categoryName(item.categoryId || 0)}`; if (item.scopeType === 'Product') return `${this.language.t('صنف:', 'Product:')} ${(this.products().find(product => product.productId === item.productId)?.[this.language.isEnglish() ? 'nameEn' : 'nameAr'] || this.products().find(product => product.productId === item.productId)?.nameAr || this.language.t('غير معروف', 'Unknown'))}`; return this.language.t('كل المنتجات', 'All products'); }
   categoryName(id: number) { const category = this.categories().find(row => row.categoryId === id); return category ? (this.language.isEnglish() ? category.nameEn || category.nameAr : category.nameAr) : `${this.language.t('قسم', 'Category')} ${id}`; }
-  private notify(message: string, isError = false) { this.notice.set(message); this.error.set(isError); setTimeout(() => { if (this.notice() === message) this.notice.set(''); }, 4500); }
+  private notifications = inject(NotificationService);
+  private notify(message: string, isError = false) { this.notice.set(message); this.error.set(isError); this.notifications.show(message, isError ? 'error' : 'success'); setTimeout(() => { if (this.notice() === message) this.notice.set(''); }, 4500); }
 }

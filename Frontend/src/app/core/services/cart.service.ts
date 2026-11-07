@@ -1,11 +1,35 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { CartItem, Product, ProductAddon, ProductVariant } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  private itemsSignal = signal<CartItem[]>([]);
+  private readonly storageKey = 'souq-sofra-cart-v1';
+  private itemsSignal = signal<CartItem[]>(this.readSavedItems());
+
+  constructor() {
+    effect(() => {
+      try {
+        if (typeof localStorage !== 'undefined') localStorage.setItem(this.storageKey, JSON.stringify(this.itemsSignal()));
+      } catch { /* Storage can be unavailable in private or quota-limited contexts. */ }
+    });
+  }
+
+  private readSavedItems(): CartItem[] {
+    try {
+      if (typeof localStorage === 'undefined') return [];
+      const value: unknown = JSON.parse(localStorage.getItem('souq-sofra-cart-v1') || '[]');
+      if (!Array.isArray(value)) return [];
+      return value.filter((item: any) => item && item.product && Number(item.product.productId) > 0 && Number(item.quantity) > 0)
+        .map((item: any) => {
+          const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
+          const addons = Array.isArray(item.selectedAddons) ? item.selectedAddons : [];
+          const unitPrice = Math.max(0, Number(item.unitPrice) || 0);
+          return { ...item, quantity, unitPrice, selectedAddons: addons, totalPrice: (unitPrice + addons.reduce((sum: number, addon: any) => sum + (Number(addon?.price) || 0), 0)) * quantity } as CartItem;
+        });
+    } catch { return []; }
+  }
 
   public items = this.itemsSignal.asReadonly();
   

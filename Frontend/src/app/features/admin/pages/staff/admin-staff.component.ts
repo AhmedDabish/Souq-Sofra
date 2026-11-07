@@ -6,6 +6,7 @@ import { ApiService } from '../../../../core/services/api.service';
 import { StaffUser, PermissionDefinition } from '../../../../core/models/models';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-staff', standalone: true, imports: [CommonModule, FormsModule, AdminSidebarComponent],
@@ -69,7 +70,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AdminStaffComponent implements OnInit {
   language = inject(LanguageService);
-  private api=inject(ApiService); auth=inject(AuthService); users=signal<StaffUser[]>([]); showForm=signal(false); saving=signal(false); message=signal(''); isError=signal(false);
+  private api=inject(ApiService); private notifications=inject(NotificationService); auth=inject(AuthService); users=signal<StaffUser[]>([]); showForm=signal(false); saving=signal(false); message=signal(''); isError=signal(false);
   permissionCatalog=signal<PermissionDefinition[]>([]); editingPermissionsFor=signal<number|null>(null); draftPermissions=signal<string[]>([]);
   form={fullName:'',email:'',password:'',phoneNumber:'',role:'User'}; bootstrapCurrentPassword=''; bootstrapNewPassword='';
   ngOnInit(){if(this.auth.hasPermission('users.view')) { this.load(); this.api.getPermissionCatalog().subscribe({next:items=>this.permissionCatalog.set(items)}); }}
@@ -85,9 +86,9 @@ export class AdminStaffComponent implements OnInit {
   changeRole(user:StaffUser, role:string){this.api.updateStaffRole(user.userId,role).subscribe({next:()=>{this.notify(this.language.t('تم تحديث صلاحية الحساب.','Account role updated.'));this.load();},error:()=>{this.notify(this.language.t('تعذر تغيير الصلاحية.','Could not change the role.'),true);this.load();}});}
   toggleActive(user:StaffUser){this.api.toggleStaffActive(user.userId).subscribe({next:()=>{this.notify(this.language.t('تم تحديث حالة الحساب.','Account status updated.'));this.load();},error:()=>this.notify(this.language.t('تعذر تحديث الحساب.','Could not update the account.'),true)});}
   isCurrentUser(user:StaffUser){return user.email.toLowerCase()===this.auth.currentUser()?.email?.toLowerCase();}
-  deleteUser(user:StaffUser){
+  async deleteUser(user:StaffUser){
     const prompt=this.language.t(`هل أنت متأكد من حذف حساب ${user.fullName}؟ لا يمكن التراجع عن هذا الإجراء.`,`Delete ${user.fullName}'s account? This cannot be undone.`);
-    if(!window.confirm(prompt))return;
+    if(!(await this.notifications.confirm(prompt)))return;
     this.saving.set(true);
     this.api.deleteStaffUser(user.userId).subscribe({
       next:()=>{this.saving.set(false);this.notify(this.language.t('تم حذف المستخدم.','User deleted.'));this.load();},
@@ -95,5 +96,5 @@ export class AdminStaffComponent implements OnInit {
     });
   }
   roleLabel(role:string){const labels:Record<string,[string,string]>={User:['موظف طلبات','Orders staff'],Admin:['مدير','Admin'],SuperAdmin:['مدير عام','Super Admin']};const pair=labels[role];return pair?this.language.t(pair[0],pair[1]):role;}
-  private notify(text:string,error=false){this.message.set(text);this.isError.set(error);}
+  private notify(text:string,error=false){this.message.set(text);this.isError.set(error);this.notifications.show(text,error?'error':'success');}
 }

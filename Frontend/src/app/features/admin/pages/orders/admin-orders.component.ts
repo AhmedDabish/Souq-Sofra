@@ -7,6 +7,7 @@ import { ApiService } from '../../../../core/services/api.service';
 import { AdminOrder, OrderItemAddon } from '../../../../core/models/models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -334,8 +335,9 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  deleteOrder(order: AdminOrder) {
-    if (!confirm(this.language.t(`هل أنت متأكد من حذف الطلب "${order.orderNumber}" نهائياً؟`, `Permanently delete order "${order.orderNumber}"?`))) return;
+  async deleteOrder(order: AdminOrder) {
+    const confirmed = await this.notifications.confirm(this.language.t(`هل أنت متأكد من حذف الطلب "${order.orderNumber}" نهائياً؟`, `Permanently delete order "${order.orderNumber}"?`));
+    if (!confirmed) return;
 
     this.api.deleteOrder(order.orderId).subscribe({
       next: () => {
@@ -385,7 +387,9 @@ export class AdminOrdersComponent implements OnInit {
     }
   }
 
+  private notifications = inject(NotificationService);
   private showFeedback(msg: string, type: 'success' | 'error') {
+    this.notifications.show(msg, type);
     this.feedbackMessage.set(msg);
     this.feedbackType.set(type);
     setTimeout(() => {

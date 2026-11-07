@@ -5,11 +5,12 @@ import { HeaderComponent } from './features/public/components/header/header.comp
 import { BottomNavComponent } from './features/public/components/bottom-nav/bottom-nav.component';
 import { LanguageService } from './core/services/language.service';
 import { ApiService } from './core/services/api.service';
+import { NotificationHostComponent } from './core/components/notification-host.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, HeaderComponent, BottomNavComponent],
+  imports: [CommonModule, RouterOutlet, RouterModule, HeaderComponent, BottomNavComponent, NotificationHostComponent],
   template: `
     @if (!isAdminRoute()) {
       @if (announcement() || announcementEn()) {
@@ -21,6 +22,7 @@ import { ApiService } from './core/services/api.service';
     <main class="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
       <router-outlet></router-outlet>
     </main>
+    <app-notification-host></app-notification-host>
 
     @if (!isAdminRoute()) {
       <app-bottom-nav></app-bottom-nav>

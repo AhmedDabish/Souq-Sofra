@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { LanguageService } from '../../../../core/services/language.service';
 import { LocationService } from '../../../../core/services/location.service';
 import { DEFAULT_DELIVERY_ZONES } from '../../../../core/data/default-delivery-zones';
 import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-settings';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -17,7 +18,7 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
   imports: [CommonModule, RouterModule, FormsModule, DeliveryMapComponent],
   template: `
     <section [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="min-h-[60vh] bg-[#fffaf3] px-4 py-8 sm:py-12">
-      <div class="mx-auto max-w-6xl">
+      <div class="mx-auto max-w-7xl">
         <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p class="mb-2 text-sm font-bold text-primary">{{ language.t('طلبك اللذيذ يبدأ من هنا', 'Your delicious order starts here') }}</p>
@@ -41,8 +42,8 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
             </a>
           </div>
         } @else {
-          <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
-            <div class="space-y-4 lg:col-span-8">
+          <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-9">
+            <div class="space-y-4 lg:col-span-7">
               @for (item of cart.items(); track $index) {
                 <article class="flex flex-col gap-4 rounded-3xl border border-orange-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:p-5">
                   <img
@@ -76,7 +77,7 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
                     </div>
                   </div>
 
-                  <button type="button" (click)="cart.removeItem(item)" [attr.aria-label]="language.t('حذف', 'Remove') + ' ' + (language.isEnglish() ? item.product.nameEn : item.product.nameAr) + ' ' + language.t('من السلة', 'from cart')" class="self-end rounded-xl px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-50 sm:self-center" >
+                  <button type="button" (click)="removeCartItem(item)" [attr.aria-label]="language.t('حذف', 'Remove') + ' ' + (language.isEnglish() ? item.product.nameEn : item.product.nameAr) + ' ' + language.t('من السلة', 'from cart')" class="self-end rounded-xl px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-50 sm:self-center" >
                     {{ language.t('حذف', 'Remove') }}
                   </button>
                 </article>
@@ -86,23 +87,23 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
                 <a routerLink="/menu" class="inline-flex items-center gap-2 rounded-xl px-2 py-2 text-sm font-bold text-primaryDark transition hover:text-primary">
                   <span aria-hidden="true">{{ language.isEnglish() ? '→' : '←' }}</span> {{ language.t('متابعة التسوق', 'Continue shopping') }}
                 </a>
-                <button type="button" (click)="cart.clear()" class="rounded-xl px-3 py-2 text-sm font-bold text-gray-500 transition hover:bg-red-50 hover:text-red-600">{{ language.t('إفراغ السلة', 'Clear cart') }}</button>
+                <button type="button" (click)="clearCart()" class="rounded-xl px-3 py-2 text-sm font-bold text-gray-500 transition hover:bg-red-50 hover:text-red-600">{{ language.t('إفراغ السلة', 'Clear cart') }}</button>
               </div>
             </div>
 
-            <aside class="overflow-hidden rounded-[1.75rem] border border-orange-100/80 bg-white shadow-[0_24px_65px_-38px_rgba(104,55,18,.65)] lg:sticky lg:top-28 lg:col-span-4">
-              <div class="relative overflow-hidden bg-gradient-to-br from-[#fff0dc] via-[#fff8ef] to-white px-5 py-5 sm:px-6">
-                <div class="pointer-events-none absolute -end-8 -top-12 h-32 w-32 rounded-full bg-orange-200/30 blur-2xl"></div>
+            <aside class="overflow-hidden rounded-[2rem] border border-orange-100/80 bg-white shadow-[0_28px_72px_-38px_rgba(104,55,18,.62)] ring-1 ring-orange-100/50 lg:sticky lg:top-28 lg:col-span-5">
+              <div class="relative overflow-hidden bg-gradient-to-br from-[#fff0dc] via-[#fff8ef] to-white px-6 py-6 sm:px-7">
+                <div class="pointer-events-none absolute -end-8 -top-12 h-36 w-36 rounded-full bg-orange-200/30 blur-2xl"></div>
                 <div class="flex items-center gap-3">
                   <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-xl shadow-md shadow-orange-900/5" aria-hidden="true">🧾</span>
                   <div>
                     <p class="text-[11px] font-bold tracking-wide text-primary">{{ language.t('راجع طلبك', 'Review your order') }}</p>
-                    <h2 class="mt-0.5 font-baloo text-xl font-extrabold text-primaryDark">{{ language.t('ملخص الطلب', 'Order summary') }}</h2>
+                    <h2 class="mt-0.5 font-baloo text-2xl font-extrabold text-primaryDark">{{ language.t('ملخص الطلب', 'Order summary') }}</h2>
                   </div>
                 </div>
               </div>
-              <div class="space-y-5 p-4 sm:p-6">
-                <div class="rounded-2xl border border-orange-100 bg-gradient-to-b from-[#fffaf5] to-white p-4 sm:p-5">
+              <div class="space-y-6 p-5 sm:p-7">
+                <div class="rounded-3xl border border-orange-100 bg-gradient-to-b from-[#fffaf5] to-white p-5 sm:p-6">
                   <div class="mb-3 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2.5">
                       <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-lg shadow-sm">🛍️</span>
@@ -113,11 +114,11 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
                     </div>
                     <span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-primary">{{ language.t('مراجعة الطلب', 'Order review') }}</span>
                   </div>
-                  <div class="space-y-3.5 text-sm">
+                  <div class="space-y-4 text-sm">
                   <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('عدد المنتجات', 'Items') }}</span><span class="font-bold text-gray-800">{{ cart.totalCount() }}</span></div>
                   <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('المجموع الفرعي', 'Subtotal') }}</span><span class="font-semibold text-gray-800">{{ cart.subTotal() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                   <div class="flex items-center justify-between gap-3 text-gray-500"><span>{{ language.t('رسوم التوصيل', 'Delivery fee') }}</span><span class="font-semibold text-gray-800">{{ deliveryType() === 'delivery' && selectedZone() ? (selectedZone()?.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : '—' }}</span></div>
-                  <div class="flex items-center justify-between gap-3 rounded-xl border-t border-dashed border-orange-200 pt-4 text-base font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
+                  <div class="flex items-center justify-between gap-3 rounded-xl border-t border-dashed border-orange-200 pt-5 text-lg font-black text-primaryDark"><span>{{ language.t('الإجمالي', 'Total') }}</span><span>{{ cart.totalAmount() }} {{ language.isEnglish() ? 'AED' : 'درهم' }}</span></div>
                   </div>
                 </div>
 
@@ -126,13 +127,13 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
                     <h3 class="text-sm font-extrabold text-primaryDark">{{ language.t('طريقة الاستلام', 'Fulfillment method') }}</h3>
                     @if (!deliveryType()) { <span class="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600">{{ language.t('مطلوب الاختيار', 'Required') }}</span> }
                   </div>
-                  <div class="grid grid-cols-2 gap-2.5">
-                    <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
+                  <div class="grid grid-cols-2 gap-3">
+                    <button type="button" (click)="setDeliveryType('delivery')" [class.border-primary]="deliveryType() === 'delivery'" [class.bg-orange-50]="deliveryType() === 'delivery'" [class.text-primaryDark]="deliveryType() === 'delivery'" class="group rounded-2xl border-2 border-gray-100 bg-white p-4 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🚚</span>
                       <span class="block text-xs font-extrabold">{{ language.t('توصيل للعنوان', 'Delivery') }}</span>
                       <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('حسب المنطقة', 'By area') }}</span>
                     </button>
-                    <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-3 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
+                    <button type="button" (click)="setDeliveryType('pickup')" [class.border-primary]="deliveryType() === 'pickup'" [class.bg-orange-50]="deliveryType() === 'pickup'" [class.text-primaryDark]="deliveryType() === 'pickup'" class="group rounded-2xl border-2 border-gray-100 bg-white p-4 text-start transition hover:border-orange-200 hover:bg-orange-50/60">
                       <span class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg">🏪</span>
                       <span class="block text-xs font-extrabold">{{ language.t('استلام من الفرع', 'Pickup at branch') }}</span>
                       <span class="mt-1 block text-[10px] text-gray-500">{{ language.t('بدون رسوم توصيل', 'No delivery fee') }}</span>
@@ -158,11 +159,11 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
                         </select>
                       </label>
                       <label class="block text-xs font-bold text-gray-700">{{ language.t('المنطقة', 'Area') }} *
-                        <select [(ngModel)]="selectedZoneId" name="deliveryZone" (ngModelChange)="onZoneChange()" [disabled]="!selectedEmirate" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:bg-gray-100">
-                          <option value="">{{ language.t('اختر المنطقة', 'Choose an area') }}</option>
+                        <select [(ngModel)]="selectedZoneId" name="deliveryZone" (ngModelChange)="onZoneChange()" [disabled]="!selectedEmirate || zonesLoading() || zonesLoadError()" class="mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:bg-gray-100">
+                          <option value="">{{ zonesLoading() ? language.t('جارٍ تحميل المناطق…', 'Loading areas…') : language.t('اختر المنطقة', 'Choose an area') }}</option>
                           @for (zone of emirateZones(); track zone.id) { <option [value]="zone.id" [disabled]="!zone.enabled">{{ zoneLabel(zone) }} — {{ zone.enabled ? (zone.fee + ' ' + (language.isEnglish() ? 'AED' : 'درهم')) : language.t('غير متاحة', 'Unavailable') }}</option> }
                         </select>
-                        @if (selectedEmirate && availableZones().length === 0) { <span class="mt-1 block text-red-600">{{ language.t('لا يوجد توصيل متاح حالياً في هذه الإمارة.', 'Delivery is currently unavailable in this emirate.') }}</span> }
+                        @if (zonesLoadError()) { <span role="alert" class="mt-1 block text-rose-600">{{ language.t('تعذر تحميل مناطق التوصيل. حدّث الصفحة أو حاول بعد قليل.', 'Could not load delivery areas. Refresh or try again shortly.') }}</span> } @else if (selectedEmirate && !zonesLoading() && availableZones().length === 0) { <span class="mt-1 block text-amber-700">{{ language.t('لا توجد منطقة مفعّلة للتوصيل في هذه الإمارة حالياً.', 'No delivery area is enabled in this emirate right now.') }}</span> }
                       </label>
                       <div class="relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4 shadow-sm">
                         <div class="pointer-events-none absolute -end-7 -top-8 h-24 w-24 rounded-full bg-orange-200/30 blur-xl"></div>
@@ -214,15 +215,21 @@ import { mergeDeliveryZones } from '../../../../core/utils/delivery-zone-setting
 export class CartPageComponent implements OnInit {
   cart = inject(CartService);
   private api = inject(ApiService);
+  private notifications = inject(NotificationService);
   language = inject(LanguageService);
   locationService = inject(LocationService);
   readonly emirates = ['أبوظبي', 'دبي', 'الشارقة', 'عجمان', 'أم القيوين', 'رأس الخيمة', 'الفجيرة'];
   zones = signal<DeliveryZone[]>(DEFAULT_DELIVERY_ZONES);
+  zonesLoading = signal(true);
+  zonesLoadError = signal(false);
   emirateNameEn(name: string): string { return ({ 'أبوظبي': 'Abu Dhabi', 'دبي': 'Dubai', 'الشارقة': 'Sharjah', 'عجمان': 'Ajman', 'أم القيوين': 'Umm Al Quwain', 'رأس الخيمة': 'Ras Al Khaimah', 'الفجيرة': 'Fujairah' } as Record<string, string>)[name] || name; }
   zoneLabel(zone: DeliveryZone): string { return this.language.isEnglish() ? (zone.nameEn || this.emirateNameEn(zone.name)) : zone.name; }
-  emirateZones = computed(() => this.zones().filter(zone => zone.emirate === this.selectedEmirate));
-  availableZones = computed(() => this.emirateZones().filter(zone => zone.enabled));
-  selectedZone = computed(() => this.availableZones().find(zone => zone.id === this.selectedZoneId) ?? null);
+  // These values depend on regular ngModel fields, not signals. Methods ensure they are
+  // recalculated whenever the customer changes the emirate or area.
+  emirateZones(): DeliveryZone[] { return this.zones().filter(zone => this.normalizeName(zone.emirate) === this.normalizeName(this.selectedEmirate)); }
+  availableZones(): DeliveryZone[] { return this.emirateZones().filter(zone => zone.enabled); }
+  selectedZone(): DeliveryZone | null { return this.availableZones().find(zone => zone.id === this.selectedZoneId) ?? null; }
+  private normalizeName(value: string): string { return (value || '').normalize('NFKC').replace(/[\u0640\u064B-\u065F\u0670]/g, '').replace(/[أإآ]/g, 'ا').replace(/\s+/g, ' ').trim().toLocaleLowerCase(); }
   deliveryType = signal<'delivery' | 'pickup' | null>(null);
   isSubmitting = signal(false);
   errorMessage = signal('');
@@ -238,7 +245,14 @@ export class CartPageComponent implements OnInit {
   ngOnInit() {
     this.api.getDeliveryZones().subscribe({ next: zones => {
       this.zones.set(mergeDeliveryZones(zones));
-    }, error: () => {} });
+      this.zonesLoading.set(false);
+      this.zonesLoadError.set(false);
+      this.onZoneChange();
+    }, error: () => {
+      this.zonesLoading.set(false);
+      this.zonesLoadError.set(true);
+      this.notifications.show(this.language.t('تعذر تحميل مناطق التوصيل من الخادم.', 'Could not load delivery areas from the server.'), 'error');
+    } });
     this.cart.setDeliveryFee(0);
     if (this.locationService.selectedCoordinates()) {
       this.latitude.set(this.locationService.selectedCoordinates()!.latitude);
@@ -260,11 +274,33 @@ export class CartPageComponent implements OnInit {
   onEmirateChange() {
     this.selectedZoneId = '';
     this.cart.setDeliveryFee(0);
+    this.errorMessage.set('');
   }
 
   onZoneChange() {
     const zone = this.selectedZone();
     this.cart.setDeliveryFee(zone?.fee ?? 0);
+    this.errorMessage.set('');
+  }
+
+  async removeCartItem(item: CartItem) {
+    const label = this.language.isEnglish() ? (item.product.nameEn || item.product.nameAr) : item.product.nameAr;
+    const confirmed = await this.notifications.confirm(this.language.t(`حذف «${label}» من السلة؟`, `Remove “${label}” from your cart?`));
+    if (!confirmed) return;
+    this.cart.removeItem(item);
+    this.notifications.show(this.language.t('تم حذف المنتج من السلة.', 'Item removed from cart.'), 'success');
+  }
+
+  async clearCart() {
+    const confirmed = await this.notifications.confirm(this.language.t('هل تريد إفراغ السلة بالكامل؟', 'Clear all items from your cart?'));
+    if (!confirmed) return;
+    this.cart.clear();
+    this.notifications.show(this.language.t('تم إفراغ السلة.', 'Cart cleared.'), 'success');
+  }
+
+  private showError(message: string) {
+    this.errorMessage.set(message);
+    this.notifications.show(message, 'error');
   }
 
   setMapLocation(point: { latitude: number; longitude: number }) {
@@ -282,15 +318,16 @@ export class CartPageComponent implements OnInit {
       this.latitude.set(savedCoords.latitude);
       this.longitude.set(savedCoords.longitude);
     }
-    if (!deliveryType) { this.errorMessage.set(this.language.t('اختار توصيل أو استلام من الفرع أولاً.', 'Choose delivery or branch pickup first.')); return; }
-    if (!name || !phone) { this.errorMessage.set(this.language.t('اكتب اسم العميل ورقم الهاتف أولاً.', 'Enter your name and phone number first.')); return; }
-    if (!this.cart.items().length) { this.errorMessage.set(this.language.t('السلة فارغة.', 'Your cart is empty.')); return; }
+    if (!deliveryType) { this.showError(this.language.t('اختار توصيل أو استلام من الفرع أولاً.', 'Choose delivery or branch pickup first.')); return; }
+    if (!name || !phone) { this.showError(this.language.t('اكتب اسم العميل ورقم الهاتف أولاً.', 'Enter your name and phone number first.')); return; }
+    if (!this.cart.items().length) { this.showError(this.language.t('السلة فارغة.', 'Your cart is empty.')); return; }
+    if (deliveryType === 'delivery' && this.zonesLoadError()) { this.showError(this.language.t('تعذر تحميل المناطق. حاول مرة أخرى بعد تحديث الصفحة.', 'Delivery areas failed to load. Refresh and try again.')); return; }
     if (deliveryType === 'delivery' && (!zone || this.latitude() === null || this.longitude() === null)) {
-      this.errorMessage.set(this.language.t('اختر منطقة توصيل متاحة وحدد عنوانك على الخريطة.', 'Choose an available delivery area and set your address on the map.')); return;
+      this.showError(this.language.t('اختر الإمارة والمنطقة المتاحة وحدد عنوانك على الخريطة.', 'Choose an available emirate and area, then set your address on the map.')); return;
     }
 
     const whatsappWindow = window.open('about:blank', '_blank');
-    if (!whatsappWindow) { this.errorMessage.set(this.language.t('اسمح بفتح النوافذ المنبثقة لإكمال الطلب. لم يتم مسح السلة.', 'Allow pop-ups to continue. Your cart has not been cleared.')); return; }
+    if (!whatsappWindow) { this.showError(this.language.t('اسمح بفتح النوافذ المنبثقة لإكمال الطلب. لم يتم مسح السلة.', 'Allow pop-ups to continue. Your cart has not been cleared.')); return; }
     this.isSubmitting.set(true);
     this.errorMessage.set('');
     const cartSnapshot = this.cart.items().map(item => ({
@@ -341,11 +378,12 @@ export class CartPageComponent implements OnInit {
         whatsappWindow.location.href = `https://wa.me/201001415548?text=${encodeURIComponent(message)}`;
         this.cart.clear();
         this.isSubmitting.set(false);
+        this.notifications.show(this.language.t(`تم حفظ الطلب رقم ${order.orderNumber || order.orderId} بنجاح.`, `Order ${order.orderNumber || order.orderId} was saved successfully.`), 'success');
       },
       error: (error) => {
         whatsappWindow.close();
         this.isSubmitting.set(false);
-        this.errorMessage.set(this.language.isEnglish() ? 'The order could not be saved. Your cart is unchanged. Please try again.' : (error?.error?.message || 'تعذر حفظ الطلب على الخادم. بقيت السلة كما هي، حاول مرة أخرى.'));
+        this.showError(this.language.isEnglish() ? 'The order could not be saved. Your cart is unchanged. Please try again.' : (error?.error?.message || 'تعذر حفظ الطلب على الخادم. بقيت السلة كما هي، حاول مرة أخرى.'));
       }
     });
   }

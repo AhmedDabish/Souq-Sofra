@@ -8,6 +8,7 @@ import { Branch, SiteSettings } from '../../../../core/models/models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
 import { forkJoin } from 'rxjs';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 type HeroSlide = { image: string; title: string; titleEn: string; subtitle: string; subtitleEn: string };
 
@@ -675,14 +676,14 @@ export class AdminSettingsComponent implements OnInit {
     this.showBranchModal.set(true);
   }
 
-  deleteBranch(branch: Branch) {
-    if (!confirm(this.language.t(`حذف الفرع «${branch.nameAr}»؟`, `Delete branch “${branch.nameEn || branch.nameAr}”?`))) return;
+  async deleteBranch(branch: Branch) {
+    if (!(await this.notifications.confirm(this.language.t(`حذف الفرع «${branch.nameAr}»؟`, `Delete branch “${branch.nameEn || branch.nameAr}”?`)))) return;
     this.api.deleteBranch(branch.branchId).subscribe({ next: () => { this.branches.update(items => items.filter(item => item.branchId !== branch.branchId)); this.showFeedback(this.language.t('تم حذف الفرع.','Branch deleted.'),'success'); }, error: err => this.showFeedback(this.language.isEnglish() ? 'Could not delete this branch.' : (err.error?.message || 'تعذر حذف الفرع.'), 'error') });
   }
 
   saveBranch() {
     if (!this.newBranch.nameAr || !this.newBranch.nameEn) {
-      alert(this.language.t('يرجى كتابة اسم الفرع بالعربية والإنجليزية.', 'Enter the branch name in Arabic and English.'));
+      this.notifications.show(this.language.t('يرجى كتابة اسم الفرع بالعربية والإنجليزية.', 'Enter the branch name in Arabic and English.'), 'error');
       return;
     }
 
@@ -705,7 +706,9 @@ export class AdminSettingsComponent implements OnInit {
     });
   }
 
+  private notifications = inject(NotificationService);
   private showFeedback(msg: string, type: 'success' | 'error') {
+    this.notifications.show(msg, type);
     this.feedbackMessage.set(msg);
     this.feedbackType.set(type);
     setTimeout(() => {

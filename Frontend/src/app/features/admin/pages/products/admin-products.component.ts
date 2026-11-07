@@ -7,6 +7,7 @@ import { ApiService } from '../../../../core/services/api.service';
 import { Product, Category, ProductCreate, ProductAddon, ProductVariant, AddonTemplate } from '../../../../core/models/models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AdminSidebarComponent } from '../../components/admin-sidebar/admin-sidebar.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -586,7 +587,7 @@ export class AdminProductsComponent implements OnInit {
   saveQuickDiscount() {
     if (!this.targetDiscountProduct) return;
     if (this.quickDiscountValue !== null && (this.quickDiscountValue <= 0 || this.quickDiscountValue >= this.targetDiscountProduct.basePrice)) {
-      alert(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'));
+      this.notifications.show(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'), 'error');
       return;
     }
 
@@ -682,8 +683,8 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  deleteProduct(prod: Product) {
-    if (!confirm(this.language.t(`هل أنت متأكد من حذف الصنف "${prod.nameAr}" نهائياً من المنيو؟`, `Permanently delete "${prod.nameEn || prod.nameAr}" from the menu?`))) return;
+  async deleteProduct(prod: Product) {
+    if (!(await this.notifications.confirm(this.language.t(`هل أنت متأكد من حذف الصنف "${prod.nameAr}" نهائياً من المنيو؟`, `Permanently delete "${prod.nameEn || prod.nameAr}" from the menu?`)))) return;
 
     this.api.deleteProduct(prod.productId).subscribe({
       next: () => {
@@ -822,15 +823,15 @@ export class AdminProductsComponent implements OnInit {
       return;
     }
     if (!this.formProduct.nameAr || !this.formProduct.nameEn || this.formProduct.basePrice <= 0) {
-      alert(this.language.t('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.', 'Complete all required fields and check the price.'));
+      this.notifications.show(this.language.t('يرجى ملء جميع الحقول المطلوبة والتأكد من صحة السعر.', 'Complete all required fields and check the price.'), 'error');
       return;
     }
     if ((this.formProduct.addons || []).some(a => !a.nameAr.trim() || !a.nameEn.trim() || a.price < 0)) {
-      alert(this.language.t('أكمل اسم كل إضافة بالعربية والإنجليزية وسعرًا صالحًا.', 'Enter Arabic and English names and a valid price for each extra.'));
+      this.notifications.show(this.language.t('أكمل اسم كل إضافة بالعربية والإنجليزية وسعرًا صالحًا.', 'Enter Arabic and English names and a valid price for each extra.'), 'error');
       return;
     }
     if (this.formProduct.discountPrice && (this.formProduct.discountPrice <= 0 || this.formProduct.discountPrice >= this.formProduct.basePrice)) {
-      alert(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'));
+      this.notifications.show(this.language.t('سعر الخصم يجب أن يكون أكبر من صفر وأقل من السعر الأساسي.', 'Discount price must be greater than zero and lower than the base price.'), 'error');
       return;
     }
 
@@ -865,7 +866,9 @@ export class AdminProductsComponent implements OnInit {
     }
   }
 
+  private notifications = inject(NotificationService);
   private showFeedback(msg: string, type: 'success' | 'error') {
+    this.notifications.show(msg, type);
     this.feedbackMessage.set(msg);
     this.feedbackType.set(type);
     setTimeout(() => {
