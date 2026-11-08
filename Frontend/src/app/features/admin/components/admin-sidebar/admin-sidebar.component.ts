@@ -25,21 +25,21 @@ import { NotificationService } from '../../../../core/services/notification.serv
     </button>
 
     <aside [style.width]="isCollapsed() ? '5rem' : '18rem'" [style.right]="language.isEnglish() ? 'auto' : '0'" [style.left]="language.isEnglish() ? '0' : 'auto'" [class.sidebar-mobile-open]="mobileOpen()" [attr.dir]="language.isEnglish() ? 'ltr' : 'rtl'" class="admin-sidebar fixed inset-y-0 right-0 z-50 flex h-dvh flex-col overflow-hidden border-l border-white/[.08] text-white shadow-[0_24px_80px_rgba(20,7,5,.48)] transition-[width,transform] duration-300 ease-out" [class.sidebar-is-collapsed]="isCollapsed()">
-      <div class="sidebar-brand relative flex h-[6.25rem] shrink-0 items-center gap-3 border-b border-white/[.08] px-4">
+      <div class="sidebar-brand relative flex h-[6.5rem] shrink-0 items-center gap-3 border-b border-white/[.08] px-4">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l from-amber-300 via-orange-400 to-transparent"></div>
-        <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-[0_5px_22px_rgba(247,176,77,.18)] ring-1 ring-amber-200/30">
+        <div class="brand-mark flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[1.1rem] bg-white p-1 shadow-[0_8px_24px_rgba(247,176,77,.2)] ring-1 ring-amber-100/45">
           <img src="assets/favicon.png" [alt]="language.t('شعار مطعم سوق وسفرة', 'Souq & Sofra restaurant logo')" class="h-full w-full object-contain" />
         </div>
         @if (!isCollapsed()) {
-          <div class="min-w-0"><h2 class="font-baloo text-lg font-black tracking-wide text-amber-100">{{ language.t('سوق وسفرة', 'Souq & Sofra') }}</h2><p class="mt-0.5 text-[11px] tracking-wide text-orange-100/55">{{ language.t('لوحة إدارة المطعم', 'Restaurant dashboard') }}</p></div>
+          <div class="min-w-0 flex-1"><div class="flex items-center gap-2"><h2 class="font-baloo truncate text-lg font-black tracking-wide text-amber-50">{{ language.t('سوق وسفرة', 'Souq & Sofra') }}</h2><span class="rounded-md border border-amber-100/10 bg-white/[.05] px-1.5 py-1 text-[8px] font-black tracking-[.14em] text-amber-100/60">ADMIN</span></div><p class="mt-1 text-[11px] font-medium tracking-wide text-orange-100/55">{{ language.t('إدارة المطعم', 'Restaurant workspace') }}</p></div>
         }
       </div>
 
-      @if (!isCollapsed()) { <div class="px-5 pb-1 pt-5 text-[10px] font-extrabold tracking-[.16em] text-orange-100/45">{{ language.t('القائمة الرئيسية', 'MAIN MENU') }}</div> }
-      <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-3 [scrollbar-color:#ffffff28_transparent] [scrollbar-width:thin]">
+      @if (!isCollapsed()) { <div class="nav-section-label flex items-center gap-2 px-5 pb-1 pt-5 text-[9px] font-extrabold tracking-[.18em] text-orange-100/45"><span>{{ language.t('القائمة الرئيسية', 'MAIN MENU') }}</span><span class="h-px flex-1 bg-white/[.07]"></span></div> }
+      <nav class="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-3 [scrollbar-color:#ffffff28_transparent] [scrollbar-width:thin]" [attr.aria-label]="language.t('التنقل في لوحة التحكم', 'Dashboard navigation')">
         @for (item of visibleItems(); track item.path) {
-          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" (click)="mobileOpen.set(false)" [title]="isCollapsed() ? language.t(item.label, item.labelEn) : ''" class="admin-nav-link group relative flex min-h-[3.2rem] items-center gap-3 rounded-2xl px-3 text-[13px] font-semibold text-white/65 transition duration-200 hover:bg-white/[.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/80" [class.nav-collapsed]="isCollapsed()">
-            <span class="admin-nav-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-[.9rem] bg-white/[.045] text-amber-100/65 ring-1 ring-white/[.035] transition duration-200 group-hover:bg-amber-300/[.12] group-hover:text-amber-100 group-hover:ring-amber-100/10">
+          <a [routerLink]="item.path" routerLinkActive="admin-nav-active" [routerLinkActiveOptions]="{exact:item.path === '/admin'}" ariaCurrentWhenActive="page" (click)="mobileOpen.set(false)" [title]="isCollapsed() ? language.t(item.label, item.labelEn) : ''" class="admin-nav-link group relative flex min-h-[3.15rem] items-center gap-3 rounded-[1rem] border border-transparent px-3 text-[12.5px] font-semibold text-white/65 transition duration-200 hover:bg-white/[.055] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/80" [class.nav-collapsed]="isCollapsed()">
+            <span class="admin-nav-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-[.8rem] bg-white/[.045] text-amber-100/65 ring-1 ring-white/[.035] transition duration-200 group-hover:bg-amber-300/[.12] group-hover:text-amber-100 group-hover:ring-amber-100/10">
               <svg viewBox="0 0 24 24" class="h-[19px] w-[19px]" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 @switch (item.icon) {
                   @case ('dashboard') { <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/> }
@@ -66,8 +66,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
       <div class="sidebar-footer shrink-0 border-t border-white/[.08] p-3">
         @if (!isCollapsed()) {
           <div class="user-card mb-3 flex items-center gap-3 rounded-2xl border border-white/[.07] p-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-200 to-orange-400 font-black text-[#48170f] shadow">{{ initials() }}</div>
-            <div class="min-w-0"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || language.t('مستخدم لوحة التحكم', 'Dashboard user')}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div>
+            <div class="avatar-mark relative flex h-10 w-10 shrink-0 items-center justify-center rounded-[.9rem] bg-gradient-to-br from-amber-200 to-orange-400 font-black text-[#48170f] shadow">{{ initials() }}<span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#28100d] bg-emerald-400"></span></div>
+            <div class="min-w-0 flex-1"><p class="truncate text-xs font-bold text-white">{{auth.currentUser()?.fullName || language.t('مستخدم لوحة التحكم', 'Dashboard user')}}</p><p class="mt-1 text-[10px] text-amber-100/55">{{roleLabel()}}</p></div>
+            <span class="rounded-full border border-emerald-300/15 bg-emerald-300/[.08] px-2 py-1 text-[8px] font-bold text-emerald-200">{{ language.t('متصل', 'ONLINE') }}</span>
           </div>
         }
         <div class="flex flex-wrap items-center gap-2">
@@ -82,30 +83,34 @@ import { NotificationService } from '../../../../core/services/notification.serv
     :host{display:contents}
     /* Use transform instead of Tailwind's translate utility: Tailwind's translate property
        can otherwise keep the drawer off-canvas even when transform is reset. */
-    .admin-sidebar{translate:none!important;will-change:transform;background:linear-gradient(165deg,#32130f 0%,#26100d 48%,#1f0d0b 100%)}
-    .admin-sidebar::before{content:"";position:absolute;inset:0 0 auto;height:13rem;pointer-events:none;background:radial-gradient(ellipse at 50% -18%,rgba(244,148,59,.17),transparent 70%)}
+    .admin-sidebar{translate:none!important;will-change:transform;background:linear-gradient(165deg,#32140f 0%,#29120f 44%,#200d0b 100%);border-color:rgba(255,255,255,.08);box-shadow:18px 0 55px rgba(20,7,5,.22),0 24px 80px rgba(20,7,5,.42)}
+    .admin-sidebar::before{content:"";position:absolute;inset:0 0 auto;height:16rem;pointer-events:none;background:radial-gradient(ellipse at 50% -18%,rgba(244,148,59,.18),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.018),transparent 68%)}
     .admin-sidebar[dir="rtl"]{transform:translate3d(100%,0,0)}
     .admin-sidebar[dir="ltr"]{transform:translate3d(-100%,0,0)}
     .admin-sidebar.sidebar-mobile-open{transform:translate3d(0,0,0)}
     @media (min-width:1024px){.admin-sidebar{transform:translate3d(0,0,0)!important;will-change:auto}}
     .sidebar-brand,.sidebar-footer,.admin-sidebar nav{position:relative;z-index:1}
+    .sidebar-brand{background:linear-gradient(115deg,rgba(255,255,255,.025),transparent 75%)}
     .sidebar-brand img{filter:drop-shadow(0 3px 8px rgba(89,38,16,.16))}
+    .brand-mark{box-shadow:0 8px 24px rgba(247,176,77,.2),0 0 0 5px rgba(255,255,255,.025)}
     .admin-sidebar nav{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.16) transparent;overscroll-behavior:contain}
     .admin-sidebar nav::-webkit-scrollbar{width:5px}
     .admin-sidebar nav::-webkit-scrollbar-thumb{border-radius:99px;background:rgba(255,255,255,.16)}
-    .admin-nav-link{isolation:isolate}
-    .admin-nav-link::before{content:"";position:absolute;inset-inline-start:0;top:50%;width:3px;height:0;border-radius:99px;background:#ffd38a;opacity:0;transform:translateY(-50%);transition:height .2s ease,opacity .2s ease;z-index:-1}
-    .admin-nav-link:hover{transform:translateX(-2px)}
+    .admin-nav-link{isolation:isolate;letter-spacing:.005em}
+    .admin-nav-link::before{content:"";position:absolute;inset-inline-start:-1px;top:50%;width:3px;height:0;border-radius:99px;background:#ffd38a;opacity:0;transform:translateY(-50%);transition:height .2s ease,opacity .2s ease;z-index:-1}
+    .admin-nav-link:hover{transform:translateX(-2px);border-color:rgba(255,255,255,.045)}
     [dir="ltr"] .admin-nav-link:hover{transform:translateX(2px)}
-    .admin-nav-active{background:linear-gradient(105deg,rgba(245,158,11,.20),rgba(234,88,12,.10));color:#fff;box-shadow:inset 0 0 0 1px rgba(255,210,138,.16),0 6px 18px rgba(15,5,3,.12)}
+    .admin-nav-active{background:linear-gradient(105deg,rgba(245,158,11,.19),rgba(234,88,12,.095));border-color:rgba(255,210,138,.12);color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.035),0 7px 20px rgba(15,5,3,.15)}
     .admin-nav-active::before{height:1.35rem;opacity:1}
     .admin-nav-active .admin-nav-icon{background:linear-gradient(145deg,rgba(255,208,137,.30),rgba(234,119,47,.18));color:#ffe3b6;box-shadow:inset 0 0 0 1px rgba(255,220,170,.19),0 4px 12px rgba(0,0,0,.12)}
     .admin-nav-active .admin-nav-link-dot{background:#ffd38a;box-shadow:0 0 9px rgba(255,211,138,.75)}
     .sidebar-footer{background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(0,0,0,.20))}
-    .sidebar-footer .user-card{background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+    .sidebar-footer .user-card{background:linear-gradient(115deg,rgba(255,255,255,.055),rgba(255,255,255,.025));box-shadow:inset 0 0 0 1px rgba(255,255,255,.055)}
+    .sidebar-footer .avatar-mark{box-shadow:0 4px 12px rgba(255,164,72,.15)}
     .sidebar-footer button,.sidebar-footer a{transition:background .18s ease,color .18s ease,transform .18s ease}
     .sidebar-footer button:hover,.sidebar-footer a:hover{transform:translateY(-1px)}
     .sidebar-is-collapsed .sidebar-brand{justify-content:center;padding-inline:0}
+    .sidebar-is-collapsed .brand-mark{box-shadow:0 6px 18px rgba(247,176,77,.18)}
     .sidebar-is-collapsed nav{padding-inline:.65rem}
     .sidebar-is-collapsed .admin-nav-link{justify-content:center;padding-inline:0}
     .sidebar-is-collapsed .admin-nav-link::before{inset-inline-start:0}
