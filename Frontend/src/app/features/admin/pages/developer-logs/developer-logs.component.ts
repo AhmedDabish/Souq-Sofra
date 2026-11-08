@@ -169,12 +169,22 @@ export class DeveloperLogsComponent {
 
   formatDate(date: string): string { return new Date(`${date}T00:00:00`).toLocaleDateString(this.language.isEnglish() ? 'en-AE' : 'ar-AE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }); }
   formatTime(value: string): string { return new Date(value).toLocaleTimeString(this.language.isEnglish() ? 'en-AE' : 'ar-AE', { hour: '2-digit', minute: '2-digit' }); }
-  private toLogRow(value: any, fallbackDate: string): LogRow {
+  private toLogRow(value: unknown, fallbackDate: string): LogRow {
+    const source = value && typeof value === 'object' ? value as Record<string, unknown> : {};
+    const get = (name: string): unknown => {
+      const key = Object.keys(source).find(candidate => candidate.toLowerCase() === name.toLowerCase());
+      return key ? source[key] : undefined;
+    };
+    const text = (name: string): string => {
+      const item = get(name);
+      return item === null || item === undefined ? '' : String(item);
+    };
     return {
-      timestamp: String(value.timestampUtc || fallbackDate), eventType: String(value.eventType || ''), method: String(value.method || ''),
-      path: String(value.path || ''), statusCode: Number(value.statusCode || 0), durationMs: Number(value.durationMs || 0),
-      traceId: String(value.traceId || ''), exceptionType: String(value.exceptionType || ''), exceptionMessage: String(value.exceptionMessage || ''),
-      stackTrace: String(value.stackTrace || ''), commandText: String(value.commandText || '')
+      timestamp: text('timestampUtc') || fallbackDate,
+      eventType: text('eventType'), method: text('method'), path: text('path'),
+      statusCode: Number(get('statusCode') || 0), durationMs: Number(get('durationMs') || 0),
+      traceId: text('traceId'), exceptionType: text('exceptionType'), exceptionMessage: text('exceptionMessage'),
+      stackTrace: text('stackTrace'), commandText: text('commandText')
     };
   }
   private localDate(): string { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
