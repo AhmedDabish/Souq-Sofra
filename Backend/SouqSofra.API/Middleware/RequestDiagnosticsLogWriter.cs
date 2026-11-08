@@ -3,6 +3,8 @@ using System.Threading.Channels;
 
 namespace SouqSofra.API.Middleware;
 
+public sealed record DiagnosticLogFileInfo(string Date, long SizeBytes, DateTime LastModifiedUtc);
+
 public sealed record RequestDiagnosticEntry(
     DateTime TimestampUtc,
     string TraceId,
@@ -37,6 +39,28 @@ public sealed class RequestDiagnosticsLogWriter : BackgroundService
     {
         if (!_entries.Writer.TryWrite(entry))
             _logger.LogWarning("API diagnostics queue is full; a request log entry could not be queued. TraceId: {TraceId}", entry.TraceId);
+    }
+
+    public IReadOnlyList<DiagnosticLogFileInfo> GetAvailableFiles(DateOnly? fromDate = null, DateOnly? toDate = null)
+    {
+        if (!Directory.Exists(_directory)) return [];
+
+        return Directory.EnumerateFiles(_directory, "api-*.jsonl")
+            .Select(path => new { Path = path, Name = Path.GetFileName(path) })
+            .Select(file => DateOnly.TryParseExact(file.Name, "'api-'yyyy-MM-dd'.jsonl'", out var date)
+                ? new DiagnosticLogFileInfo(date.ToString("yyyy-MM-dd"), new FileInfo(file.Path).Length, File.GetLastWriteTimeUtc(file.Path))
+                : null)
+            .Where(file => file is not null && (!fromDate.HasValue || DateOnly.ParseExact(file!.Date, "yyyy-MM-dd") >= fromDate.Value)
+                && (!toDate.HasValue || DateOnly.ParseExact(file!.Date, "yyyy-MM-dd") <= toDate.Value))
+            .Select(file => file!)
+            .OrderByDescending(file => file.Date, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    public bool TryGetLogFile(DateOnly date, out string path)
+    {
+        path = Path.Combine(_directory, $"api-{date:yyyy-MM-dd}.jsonl");
+        return File.Exists(path);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

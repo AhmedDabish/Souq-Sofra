@@ -24,6 +24,13 @@ import {
 } from '../models/models';
 import { mergeDeliveryZones, readDeliveryZones } from '../utils/delivery-zone-settings';
 
+
+export interface DeveloperLogFile {
+  date: string;
+  sizeBytes: number;
+  lastModifiedUtc: string;
+}
+
 export interface OrderCreateResponse {
   success: boolean;
   orderId: number;
@@ -88,6 +95,17 @@ export class ApiService {
     if (fromDate) params = params.set('from', fromDate);
     if (toDate) params = params.set('to', toDate);
     return this.http.get<SiteAnalytics>(`${this.apiUrl}/analytics`, { params });
+  }
+
+  getDeveloperLogFiles(fromDate?: string, toDate?: string): Observable<DeveloperLogFile[]> {
+    let params = new HttpParams();
+    if (fromDate) params = params.set('fromDate', fromDate);
+    if (toDate) params = params.set('toDate', toDate);
+    return this.http.get<DeveloperLogFile[]>(`${this.apiUrl}/developer-logs/files`, { params });
+  }
+
+  downloadDeveloperLog(date: string): Observable<string> {
+    return this.http.get(`${this.apiUrl}/developer-logs/${encodeURIComponent(date)}`, { responseType: 'text' });
   }
 
   getCategories(): Observable<Category[]> {

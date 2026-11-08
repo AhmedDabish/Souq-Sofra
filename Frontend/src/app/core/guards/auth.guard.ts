@@ -13,6 +13,8 @@ export const roleGuard: CanActivateFn = (route) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const role = auth.currentUser()?.role;
+  const developerOnly = route.data?.['developerOnly'] === true;
+  if (developerOnly && !auth.isDeveloperAccount()) return router.createUrlTree(['/admin']);
   const allowed = route.data?.['roles'] as string[] | undefined;
   const rolesAllowed = !!role && (!allowed || allowed.includes(role));
   const permission = route.data?.['permission'] as string | undefined;

@@ -52,6 +52,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
                   @case ('delivery') { <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="17.5" cy="19" r="1.5"/><path d="M6 10h5M6 13h4"/> }
                   @case ('analytics') { <path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/><path d="M17 6h3v3"/> }
                   @case ('export') { <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 17v3h14v-3"/> }
+                  @case ('logs') { <path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M7 2v4M17 2v4"/> }
                   @case ('reviews') { <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/> }
                   @case ('staff') { <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/> }
                 }
@@ -129,10 +130,11 @@ export class AdminSidebarComponent {
     { path:'/admin/delivery-settings', label:'مناطق ورسوم التوصيل', labelEn:'Delivery areas & fees', icon:'delivery', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/analytics', label:'التحليلات', labelEn:'Analytics', icon:'analytics', permission:'analytics.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/export', label:'التصدير', labelEn:'Export', icon:'export', permission:'export', roles:['Admin','SuperAdmin'] },
+    { path:'/admin/developer-logs', label:'ملفات السجلات', labelEn:'System logs', icon:'logs', permission:'developer.logs', roles:['SuperAdmin'] },
     { path:'/admin/settings', label:'إعدادات المتجر', labelEn:'Store settings', icon:'settings', permission:'settings.view', roles:['Admin','SuperAdmin'] },
     { path:'/admin/staff', label:'إدارة المستخدمين والصلاحيات', labelEn:'Users & roles', icon:'staff', permission:'users.view', roles:['Admin','SuperAdmin'] },
   ];
-  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.permission === 'export' ? ['Admin','SuperAdmin'].includes(role) && ['products.view','categories.view','orders.view'].some(permission => this.auth.hasPermission(permission)) : this.auth.hasPermission(item.permission)); }
+  visibleItems() { const role=this.auth.currentUser()?.role || ''; return this.items.filter(item => item.permission === 'developer.logs' ? this.auth.isDeveloperAccount() : item.permission === 'export' ? ['Admin','SuperAdmin'].includes(role) && ['products.view','categories.view','orders.view'].some(permission => this.auth.hasPermission(permission)) : this.auth.hasPermission(item.permission)); }
   roleLabel() { const labels: Record<string,[string,string]> = { User:['موظف الطلبات','Orders staff'], Admin:['مدير','Admin'], SuperAdmin:['مدير عام','Super Admin'] }; const pair=labels[this.auth.currentUser()?.role || '']; return pair ? this.language.t(pair[0],pair[1]) : this.language.t('حساب','Account'); }
   initials() { return (this.auth.currentUser()?.fullName || 'م').trim().slice(0,1); }
   isCollapsed() { return this.collapsed() && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches; }

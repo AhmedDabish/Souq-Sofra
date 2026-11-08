@@ -53,6 +53,11 @@ export class AuthService {
     return user?.role === 'SuperAdmin' || !!user?.permissions?.includes(permission);
   }
 
+  isDeveloperAccount(): boolean {
+    const user = this.currentUser();
+    return user?.role === 'SuperAdmin' && user.email?.trim().toLowerCase() === 'developer@souqsofra.com';
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
