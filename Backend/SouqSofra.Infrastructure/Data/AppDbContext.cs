@@ -151,6 +151,8 @@ namespace SouqSofra.Infrastructure.Data
                 entity.HasIndex(o => o.OrderNumber);
                 entity.HasIndex(o => o.CreatedAt);
                 entity.HasIndex(o => o.OrderStatus);
+                entity.HasIndex(o => new { o.OrderStatus, o.CreatedAt })
+                    .IncludeProperties(o => new { o.TotalAmount, o.OrderChannel });
             });
 
             modelBuilder.Entity<OrderNumberSequence>(entity =>
@@ -186,7 +188,10 @@ namespace SouqSofra.Infrastructure.Data
                       .HasForeignKey(oi => oi.VariantId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(oi => new { oi.ProductId, oi.OrderId });
+                entity.HasIndex(oi => oi.OrderId)
+                    .IncludeProperties(oi => new { oi.ProductId, oi.Quantity });
+                entity.HasIndex(oi => new { oi.ProductId, oi.OrderId })
+                    .IncludeProperties(oi => oi.Quantity);
             });
 
             modelBuilder.Entity<OrderItemAddon>(entity =>
@@ -238,6 +243,7 @@ namespace SouqSofra.Infrastructure.Data
                     .IncludeProperties(visit => visit.SessionKeyHash);
                 entity.HasIndex(visit => visit.PagePath);
                 entity.HasIndex(visit => new { visit.VisitedAtUtc, visit.SessionKeyHash });
+                entity.HasIndex(visit => new { visit.SessionKeyHash, visit.PagePath, visit.VisitedAtUtc });
             });
 
             // RestaurantReview configuration

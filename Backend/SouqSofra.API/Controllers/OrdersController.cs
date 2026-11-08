@@ -32,6 +32,7 @@ namespace SouqSofra.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var orders = await _context.Orders
+                .AsNoTracking()
                 .AsSplitQuery()
                 .Include(o => o.Items).ThenInclude(item => item.Addons)
                 .OrderByDescending(o => o.CreatedAt)

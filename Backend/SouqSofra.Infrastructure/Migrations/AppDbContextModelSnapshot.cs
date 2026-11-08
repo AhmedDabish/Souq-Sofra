@@ -206,6 +206,9 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasIndex("OrderStatus");
 
+                    b.HasIndex("OrderStatus", "CreatedAt")
+                        .IncludeProperties("TotalAmount", "OrderChannel");
+
                     b.ToTable("Orders", (string)null);
                 });
 
@@ -270,9 +273,11 @@ namespace SouqSofra.Infrastructure.Migrations
 
                     b.HasKey("OrderItemId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderId")
+                        .IncludeProperties("ProductId", "Quantity");
 
-                    b.HasIndex("ProductId", "OrderId");
+                    b.HasIndex("ProductId", "OrderId")
+                        .IncludeProperties("Quantity");
 
                     b.HasIndex("ProductId");
 
@@ -500,6 +505,8 @@ namespace SouqSofra.Infrastructure.Migrations
                         .IncludeProperties("SessionKeyHash");
 
                     b.HasIndex("VisitedAtUtc", "SessionKeyHash");
+
+                    b.HasIndex("SessionKeyHash", "PagePath", "VisitedAtUtc");
 
                     b.ToTable("SiteVisits", (string)null);
                 });
@@ -739,7 +746,7 @@ namespace SouqSofra.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
-            
+
             modelBuilder.Entity("SouqSofra.Domain.Entities.ProductReview", b =>
                 {
                     b.HasOne("SouqSofra.Domain.Entities.Product", "Product")

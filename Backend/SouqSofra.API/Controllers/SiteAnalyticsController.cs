@@ -94,17 +94,24 @@ namespace SouqSofra.API.Controllers
 
             var completedOrdersQuery = db.Orders.AsNoTracking()
                 .Where(order => order.OrderStatus == "Completed" && order.CreatedAt >= start && order.CreatedAt < endExclusive);
-            var orderCount = await completedOrdersQuery.CountAsync(cancellationToken);
-            var completedRevenue = orderCount == 0
-                ? 0m
-                : await completedOrdersQuery.SumAsync(order => order.TotalAmount, cancellationToken);
+            // Compute all completed-order summary metrics in one SQL round trip rather than
+            // issuing separate count, sum, average, and channel queries for every report.
+            var orderChannelSummaries = await completedOrdersQuery
+                .GroupBy(order => order.OrderChannel)
+                .Select(group => new
+                {
+                    Channel = group.Key,
+                    Count = group.Count(),
+                    Revenue = group.Sum(order => order.TotalAmount),
+                    Average = group.Average(order => order.TotalAmount)
+                })
+                .ToListAsync(cancellationToken);
+            var orderCount = orderChannelSummaries.Sum(group => group.Count);
+            var completedRevenue = orderChannelSummaries.Sum(group => group.Revenue);
             var averageCompletedOrder = orderCount == 0
                 ? 0m
-                : Math.Round(await completedOrdersQuery.AverageAsync(order => order.TotalAmount, cancellationToken), 2);
-            var orderChannels = await completedOrdersQuery
-                .GroupBy(order => order.OrderChannel)
-                .Select(group => new { Channel = group.Key, Count = group.Count() })
-                .ToDictionaryAsync(group => group.Channel, group => group.Count, cancellationToken);
+                : Math.Round(orderChannelSummaries.Sum(group => group.Average * group.Count) / orderCount, 2);
+            var orderChannels = orderChannelSummaries.ToDictionary(group => group.Channel, group => group.Count);
 
             // Aggregate product sales and distinct completed orders in SQL rather than
             // loading every matching order-item row into API memory for every report.
